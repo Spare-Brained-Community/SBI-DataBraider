@@ -5,5 +5,8 @@
   ],
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": []
+  "bcptTestFolders": [],
+  "installApps": [
+        "https://github.com/SpareBrainedIdeas/Spare-Brained-Licensing/releases/download/v2.0.202319.200/Spare.Brained.Ideas.AB_Spare.Brained.Licensing_2.0.202319.200_runtime.app.zip"
+    ]
 }

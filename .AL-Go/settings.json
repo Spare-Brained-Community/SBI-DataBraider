@@ -1,9 +1,9 @@
 {
   "country": "us",
   "appSourceCopMandatoryAffixes": [
-    "<affix>"
+    "SPB"
   ],
-  "appFolders": [],
+  "appFolders": ["SBIDataBraider_APP"],
   "testFolders": [],
   "bcptTestFolders": []
 }

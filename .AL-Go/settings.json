@@ -3,7 +3,7 @@
   "appSourceCopMandatoryAffixes": [
     "SPB"
   ],
-  "appFolders": ["SBIDataBraider_APP"],
+  "appFolders": [],
   "testFolders": [],
   "bcptTestFolders": []
 }

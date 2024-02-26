@@ -51,6 +51,11 @@ jobs:
         with:
           lfs: true
 
+      - name: Download Previous App File
+        id: downloadzip
+        run: |
+          Invoke-WebRequest -Uri 'https://github.com/SpareBrainedIdeas/Spare-Brained-Licensing/releases/download/v2.0.202319.200/Spare.Brained.Ideas.AB_Spare.Brained.Licensing_2.0.202319.200_runtime.app.zip' -OutFile 'C:\GHRunner\_work\Spare.Brained.Ideas.AB_Spare.Brained.Licensing_2.0.202319.200_runtime.app.zip'
+
       - name: Initialize the workflow
         id: init
         uses: microsoft/AL-Go-Actions/WorkflowInitialize@v4.1

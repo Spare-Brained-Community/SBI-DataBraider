@@ -1,0 +1,54 @@
+{
+  "id": "4b65b5d6-3dc0-453e-9ad5-17a64e96a31f",
+  "name": "SBI Data Braider",
+  "publisher": "Spare Brained Ideas AB",
+  "brief": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
+  "description": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
+  "version": "2.0.1.0",
+  "privacyStatement": "https://sparebrained.com/appsource/privacystatement",
+  "EULA": "https://sparebrained.com/appsource/eula",
+  "help": "https://sparebrained.com/support",
+  "url": "https://sparebrained.com/appsource/databraider",
+  "logo": "./logo/AppSource-SBIDataBraider-350x350.png",
+  "contextSensitiveHelpUrl": "https://sparebrained.com/appsource/databraider",
+  "dependencies": [
+    {
+      "id": "5ddd2a5e-1b5f-47b4-b655-88d2c2a9b382",
+      "name": "Spare Brained Licensing",
+      "publisher": "Spare Brained Ideas AB",
+      "version": "2.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "22.0.0.0",
+  "idRanges": [
+    {
+      "from": 71033600,
+      "to": 71033649
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": false,
+    "includeSourceInSymbolFile": false
+  },
+  "target": "Cloud",
+  "runtime": "11.0",
+  "features": [
+    "TranslationFile", "NoImplicitWith"
+  ],
+  "internalsVisibleTo": [
+    {
+      "id": "c993a01c-7193-4e34-be27-b6c7d429fe20",
+      "name": "SBI Data BraiderTest",
+      "publisher": "Spare Brained Ideas AB"
+    },
+    {
+      "id": "e4eaaa2d-bf4d-4551-afee-e82db579abc0",
+      "name": "SBI Data Braider Diag",
+      "publisher": "Spare Brained Ideas AB"
+    }
+  ],
+  "applicationInsightsConnectionString": "InstrumentationKey=c491446a-3794-4621-8a75-c955183af0d8;IngestionEndpoint=https://northeurope-2.in.applicationinsights.azure.com/"
+}

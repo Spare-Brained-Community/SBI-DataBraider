@@ -1,0 +1,8 @@
+{
+    "al.codeAnalyzers": [
+        "${AppSourceCop}",
+        "${CodeCop}",
+        "${UICop}"
+    ],
+    "al.ruleSetPath": "src\\.rulesets\\SPBDataBraider.ruleset.json"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Licensing ruleset",
+  "description": "The ruleset to use for SBI Data Braider",
+  "rules": [
+    {
+      "id": "AA0240",
+      "action": "None",
+      "justification": "There are intentionally included email addresses for support with this extension."
+    },
+    {
+      "id": "AA0072",
+      "action": "None",
+      "justification": "I loathe this rule, personally."
+    },
+    {
+      "id": "AL0729",
+      "action": "None",
+      "justification": "This is telling me you can't have promoted on subpages, but you can, so ... whatever, shut up."
+    },
+    {
+      "id": "AS0081",
+      "action": "None",
+      "justification": "We *know* InternalsVisibleTo is in use. It's called testable code."
+    }
+  ]
+}

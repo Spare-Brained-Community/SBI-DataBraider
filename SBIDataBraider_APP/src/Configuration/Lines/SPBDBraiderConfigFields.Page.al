@@ -93,6 +93,17 @@ page 71033604 "SPB DBraider Config. Fields"
                     ToolTip = 'Specifies the value of the Mandatory field.';
                     Visible = WriteEndpoint;
                 }
+
+                field(Caption; Rec.Caption)
+                {
+                    Caption = 'Caption (Obsolete)';
+                    Editable = false;
+                    Enabled = false;
+                    ObsoleteReason = 'This field is replaced by the "Fixed Field Name" field.';
+                    ObsoleteState = Pending;
+                    ToolTip = 'The field caption.';
+                    Visible = false;
+                }
             }
         }
     }

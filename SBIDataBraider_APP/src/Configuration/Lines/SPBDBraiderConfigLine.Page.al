@@ -88,116 +88,122 @@ page 71033603 "SPB DBraider Config. Line"
     {
         area(Processing)
         {
-            action(IndentAction)
+            group(FieldsButtons)
             {
-                Caption = 'Move Right';
-                Image = Indent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
-                ToolTip = 'Increase indent of this data item, making it a "child" entry.';
+                Caption = 'Field Settings';
+                action(PackageFields)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Fields';
+                    Image = CheckList;
+                    ToolTip = 'View the fields that can be used to include, exclude or even filter on.';
 
-                trigger OnAction()
-                var
-                    IndentErr: Label 'You can not indent a single table.';
-                begin
-                    if Rec.CheckIndentation() then begin
-                        Rec.LockTable();
-                        Rec.Indentation += 1;
-                        Rec.UpdateParent();
-                        Rec.CheckRelationshipConfigured();
-                        Rec.Modify(true);
-                    end else
-                        Error(IndentErr);
-                end;
-            }
-            action(DecreaseIndentAction)
-            {
-                Caption = 'Move Left';
-                Enabled = Rec.Indentation > 0;
-                Image = DecreaseIndent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
-                ToolTip = 'Decrease indent of this data item.';
-
-                trigger OnAction()
-                begin
-                    if Rec.Indentation > 0 then begin
-                        Rec.Indentation -= 1;
-                        Rec.UpdateParent();
-                        Rec.CheckRelationshipConfigured();
-                        Rec.Modify(true);
+                    trigger OnAction()
+                    begin
+                        Rec.ShowFieldList(true);
                     end;
-                end;
+                }
+                action(FlowFields)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'FlowFields';
+                    Enabled = Rec.Indentation > 0;
+                    Image = CheckList;
+                    ToolTip = 'An advanced setting to allow inclusion of FlowField data from the Parent table filtered on the Children''s field values.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.ShowFlowFieldList(true);
+                    end;
+                }
             }
-            action(PackageFields)
+            group(Relationships)
             {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Fields';
-                Image = CheckList;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
-                ToolTip = 'View the fields that can be used to include, exclude or even filter on.';
+                Caption = 'Relationships';
+                action(Relationship)
+                {
+                    Caption = 'Relationship';
+                    Enabled = Rec.Indentation > 0;
+                    Image = MapAccounts;
+                    ToolTip = 'How this record is related to the parent table';
 
-                trigger OnAction()
-                begin
-                    Rec.ShowFieldList(true);
-                end;
-            }
-            action(Relationship)
-            {
-                Caption = 'Relationship';
-                Enabled = Rec.Indentation > 0;
-                Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'How this record is related to the parent table';
+                    trigger OnAction()
+                    var
+                        ChildAllObj: Record AllObjWithCaption;
+                        ParentAllObj: Record AllObjWithCaption;
+                        DBRelation: Record "SPB DBraider ConfLine Relation";
+                        DBRelationship: Page "SPB DBraider Config Rel.";
+                    begin
+                        DBRelation.SetRange("Config. Code", Rec."Config. Code");
+                        DBRelation.SetRange("Config. Line No.", Rec."Line No.");
+                        DBRelation.SetRange("Parent Table", Rec."Parent Table No.");
+                        DBRelation.SetRange("Child Table", Rec."Source Table");
 
-                trigger OnAction()
-                var
-                    ChildAllObj: Record AllObjWithCaption;
-                    ParentAllObj: Record AllObjWithCaption;
-                    DBRelation: Record "SPB DBraider ConfLine Relation";
-                    DBRelationship: Page "SPB DBraider Config Rel.";
-                begin
-                    DBRelation.SetRange("Config. Code", Rec."Config. Code");
-                    DBRelation.SetRange("Config. Line No.", Rec."Line No.");
-                    DBRelation.SetRange("Parent Table", Rec."Parent Table No.");
-                    DBRelation.SetRange("Child Table", Rec."Source Table");
+                        ParentAllObj.SetRange("Object Type", ParentAllObj."Object Type"::Table);
+                        ParentAllObj.SetRange("Object ID", Rec."Parent Table No.");
+                        if ParentAllObj.FindFirst() then;
+                        ChildAllObj.SetRange("Object Type", ChildAllObj."Object Type"::Table);
+                        ChildAllObj.SetRange("Object ID", Rec."Source Table");
+                        if ChildAllObj.FindFirst() then;
 
-                    ParentAllObj.SetRange("Object Type", ParentAllObj."Object Type"::Table);
-                    ParentAllObj.SetRange("Object ID", Rec."Parent Table No.");
-                    if ParentAllObj.FindFirst() then;
-                    ChildAllObj.SetRange("Object Type", ChildAllObj."Object Type"::Table);
-                    ChildAllObj.SetRange("Object ID", Rec."Source Table");
-                    if ChildAllObj.FindFirst() then;
+                        Clear(DBRelationship);
+                        DBRelationship.SetTableView(DBRelation);
+                        DBRelationship.ShowParentChild(ParentAllObj."Object Name", ChildAllObj."Object Name");
+                        DBRelationship.RunModal();
 
-                    Clear(DBRelationship);
-                    DBRelationship.SetTableView(DBRelation);
-                    DBRelationship.ShowParentChild(ParentAllObj."Object Name", ChildAllObj."Object Name");
-                    DBRelationship.RunModal();
+                        Rec.CheckRelationshipConfigured();
+                    end;
+                }
+                action(IndentAction)
+                {
+                    Caption = 'Move Right';
+                    Enabled = ConfigLineCount > 1;
+                    Image = Indent;
+                    ToolTip = 'Increase indent of this data item, making it a "child" entry.';
 
-                    Rec.CheckRelationshipConfigured();
-                end;
-            }
-            action(FlowFields)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'FlowFields';
-                Enabled = Rec.Indentation > 0;
-                Image = CheckList;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
-                ToolTip = 'An advanced setting to allow inclusion of FlowField data from the Parent table filtered on the Children''s field values.';
+                    trigger OnAction()
+                    var
+                        IndentErr: Label 'You can not indent a single table.';
+                    begin
+                        if Rec.CheckIndentation() then begin
+                            Rec.LockTable();
+                            Rec.Indentation += 1;
+                            Rec.UpdateParent();
+                            Rec.CheckRelationshipConfigured();
+                            Rec.Modify(true);
+                        end else
+                            Error(IndentErr);
+                    end;
+                }
+                action(DecreaseIndentAction)
+                {
+                    Caption = 'Move Left';
+                    Enabled = Rec.Indentation > 0;
+                    Image = DecreaseIndent;
+                    ToolTip = 'Decrease indent of this data item.';
 
-                trigger OnAction()
-                begin
-                    Rec.ShowFlowFieldList(true);
-                end;
+                    trigger OnAction()
+                    begin
+                        if Rec.Indentation > 0 then begin
+                            Rec.Indentation -= 1;
+                            Rec.UpdateParent();
+                            Rec.CheckRelationshipConfigured();
+                            Rec.Modify(true);
+                        end;
+                    end;
+                }
             }
         }
     }
+
+    var
+        ConfigLineCount: Integer;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
+    begin
+        SPBDBraiderConfigLine.SetRange("Config. Code", Rec."Config. Code");
+        ConfigLineCount := SPBDBraiderConfigLine.Count();
+    end;
 }

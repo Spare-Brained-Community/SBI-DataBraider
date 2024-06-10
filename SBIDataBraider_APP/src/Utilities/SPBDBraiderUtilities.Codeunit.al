@@ -31,21 +31,17 @@ codeunit 71033608 "SPB DBraider Utilities"
     internal procedure ValidateFieldTypeAndLength(var DestinationRecordRef: RecordRef; FieldNo: Integer; NewValue: Variant): Boolean
     var
         DestinationFieldRef: FieldRef;
-        int: Integer;
-        dec: Decimal;
         dateValue: Date;
-        timeValue: Time;
         dateTimeValue: DateTime;
+        dec: Decimal;
+        int: Integer;
+        timeValue: Time;
 
     begin
         DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
         case DestinationFieldRef.Type of
-            FieldType::Code:
-                if StrLen(NewValue) > DestinationFieldRef.Length then
-                    exit(false);
-            FieldType::Text:
-                if StrLen(NewValue) > DestinationFieldRef.Length then
-                    exit(false);
+            FieldType::Code, FieldType::Text:
+                exit(StrLen(NewValue) <= DestinationFieldRef.Length);
             FieldType::Integer:
                 exit(Evaluate(int, NewValue));
             FieldType::Decimal:
@@ -354,5 +350,66 @@ codeunit 71033608 "SPB DBraider Utilities"
             FQSITextBuilder.Append(ThisPart);
         end;
         FQSI := FQSITextBuilder.ToText();
+    end;
+
+    procedure VariableSubstitution(var TextToTransform: Text) HasSubstitutions: Boolean
+    var
+        SPBDBraiderVariable: Record "SPB DBraider Variable";
+        Regex: Codeunit Regex;
+        SplitParts: List of [Text];
+        NewValue: Text;
+        RegexPattern: Text;
+        SplitPart: Text;
+        NewTextBuilder: TextBuilder;
+    begin
+        // In this procedure, we will take a string, and using Regex replace any instances of {{%1}} with the value of the Tag field from the SPB DBraider Variable record
+
+        // First, we need to find all instances of {{%1}} in the RawInputText
+        RegexPattern := '\{\{|}}';
+        Regex.Split(TextToTransform, RegexPattern, 0, SplitParts);
+
+        // For each SplitParts, we'll then check the value of the Tag field in the SPB DBraider Variable record
+        foreach SplitPart in SplitParts do
+            if SplitPart <> '' then begin
+                // Baseline filters
+                SPBDBraiderVariable.Reset();
+                SPBDBraiderVariable.SetRange(Tag, SplitPart);
+                SPBDBraiderVariable.SetRange("Enabled", true);
+                Clear(NewValue);
+
+                // Check Environment scope first
+                SPBDBraiderVariable.SetRange("Variable Scope", SPBDBraiderVariable."Variable Scope"::Environment);
+                if SPBDBraiderVariable.FindFirst() then
+                    NewValue := SPBDBraiderVariable.Value;
+
+                // Now check Company given current company.  Company overrides Environment
+                SPBDBraiderVariable.SetRange("Variable Scope", SPBDBraiderVariable."Variable Scope"::Company);
+                SPBDBraiderVariable.SetRange("Company Name", CompanyName());
+                if SPBDBraiderVariable.FindFirst() then
+                    NewValue := SPBDBraiderVariable.Value;
+                SPBDBraiderVariable.SetRange("Company Name");
+
+                // Now check User given current user.  User overrides Company
+                SPBDBraiderVariable.SetRange("Variable Scope", SPBDBraiderVariable."Variable Scope"::User);
+                SPBDBraiderVariable.SetRange("User Name", UserId());
+                if SPBDBraiderVariable.FindFirst() then
+                    NewValue := SPBDBraiderVariable.Value;
+                SPBDBraiderVariable.SetRange("User Name");
+
+                // Finally, check Company and User.  Company and User overrides User
+                SPBDBraiderVariable.SetRange("Variable Scope", SPBDBraiderVariable."Variable Scope"::CompanyUser);
+                SPBDBraiderVariable.SetRange("Company Name", CompanyName());
+                SPBDBraiderVariable.SetRange("User Name", UserId());
+                if SPBDBraiderVariable.FindFirst() then
+                    NewValue := SPBDBraiderVariable.Value;
+
+                if NewValue <> '' then begin
+                    NewTextBuilder.Append(NewValue);
+                    HasSubstitutions := true;
+                end else
+                    NewTextBuilder.Append(SplitPart);
+            end;
+
+        TextToTransform := NewTextBuilder.ToText();
     end;
 }

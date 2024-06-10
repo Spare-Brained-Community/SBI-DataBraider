@@ -30,6 +30,11 @@ table 71033606 "SPB DBraider Resultset Col"
             Caption = 'Field Name';
             DataClassification = SystemMetadata;
         }
+        field(31; "Forced Field Caption"; Text[250])
+        {
+            Caption = 'Forced Field Caption';
+            DataClassification = SystemMetadata;
+        }
 
         field(35; "Field No."; Integer)
         {

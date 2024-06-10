@@ -33,7 +33,9 @@ table 71033603 "SPB DBraider ConfLine Field"
             trigger OnValidate()
             begin
                 if not Included then
-                    "Write Enabled" := false;
+                    "Write Enabled" := false
+                else
+                    "Write Enabled" := WriteableConfig();  // Let's default to Write Enabled if the endpoint is writeable
             end;
         }
 
@@ -125,11 +127,59 @@ table 71033603 "SPB DBraider ConfLine Field"
             Description = 'Denotes if a field is part of the primary key';
             Editable = false;
         }
+        field(140; "Manual Field Caption"; Text[250])
+        {
+            Caption = 'Manual Field Caption';
+
+            trigger OnValidate()
+            var
+                SPBDBraderConfLineField2: Record "SPB DBraider ConfLine Field";
+                SPBDBraiderJSONUtilities: Codeunit "SPB DBraider JSON Utilities";
+                CaptionCollisionErr: Label 'The JSON version of this caption (%1) will collide with existing field "%2". Please adjust it.', Comment = 'The %1 will be replaced with the JSON Safe version of the caption, and the %2 will be replaced with the Field Name of the field that is colliding.';
+                EmptyJsonSafeCaptionErr: Label 'Manual Field Caption, when made JSON Safe, is empty.  Please enter a valid caption.';
+            begin
+                if "Manual Field Caption" = '' then
+                    exit;
+
+                // Manual Field Caption HAS to be JSON compliant.  If it's not, we'll make it so.
+                "Manual Field Caption" := CopyStr(SPBDBraiderJSONUtilities.JsonSafeTableFieldName("Manual Field Caption"), 1, MaxStrLen("Manual Field Caption"));
+
+                // Make sure the Manual Field Caption has some value - if the JSON Safe version is empty, throw an error
+                if "Manual Field Caption" = '' then
+                    Error(EmptyJsonSafeCaptionErr);
+
+                // This caption must ALSO not be in collision with any other field captions, so we'll loop through all the other fields on this ConfLine and
+                // ensure that, when those field names are JsonSafe'd, they don't match this one.
+                SPBDBraderConfLineField2.SetRange("Config. Code", Rec."Config. Code");
+                SPBDBraderConfLineField2.SetRange("Config. Line No.", Rec."Config. Line No.");
+                SPBDBraderConfLineField2.SetFilter("Field No.", StrSubstNo('<>%1', Rec."Field No."));
+                SPBDBraderConfLineField2.SetAutoCalcFields("Field Name");
+                if SPBDBraderConfLineField2.FindSet() then
+                    repeat
+                        if (SPBDBraiderJSONUtilities.JsonSafeTableFieldName(SPBDBraderConfLineField2."Field Name") = "Manual Field Caption") then
+                            Error(CaptionCollisionErr, "Manual Field Caption", SPBDBraderConfLineField2."Field Name");
+                        if (SPBDBraderConfLineField2."Manual Field Caption" = "Manual Field Caption") then
+                            Error(CaptionCollisionErr, "Manual Field Caption", SPBDBraderConfLineField2."Field Name");
+                    until SPBDBraderConfLineField2.Next() = 0;
+            end;
+        }
+
+        field(150; "Fixed Field Name"; Text[250])
+        {
+            Caption = 'Field Name';
+            Editable = false;
+        }
+        field(151; "Fixed Field Caption"; Text[250])
+        {
+            Caption = 'Field Caption';
+            Editable = false;
+        }
+
 
         field(1000; Caption; Text[250])
         {
             CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."), "No." = field("Field No.")));
-            Caption = 'Caption';
+            Caption = 'Caption (FlowField)';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -137,7 +187,7 @@ table 71033603 "SPB DBraider ConfLine Field"
         field(1001; "Field Name"; Text[250])
         {
             CalcFormula = lookup(Field.FieldName where(TableNo = field("Table No."), "No." = field("Field No.")));
-            Caption = 'Field Name';
+            Caption = 'Field Name (FlowField)';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -165,11 +215,18 @@ table 71033603 "SPB DBraider ConfLine Field"
 
     local procedure TestNewFilterText(var FilterText: Text[250])
     var
+        SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
         RecRef: RecordRef;
         FieldsRef: FieldRef;
+        HasVariableSubstitution: Boolean;
+        RawFilterText: Text[250];
     begin
         if (Rec."Table No." = 0) or (Rec."Field No." = 0) or (FilterText = '') then
             exit;
+
+        // Before we apply the filter, let's run it through the Variable engine in SPB DBraider Utilities
+        RawFilterText := FilterText;
+        HasVariableSubstitution := SPBDBraiderUtilities.VariableSubstitution(FilterText);
 
         // Get the Record ref for the table
         RecRef.Open(Rec."Table No.");
@@ -180,8 +237,11 @@ table 71033603 "SPB DBraider ConfLine Field"
         // Apply the filter to it
         FieldsRef.SetFilter(FilterText);
 
-        // update the filter to the 'processed' value
-        FilterText := CopyStr(FieldsRef.GetFilter(), 1, MaxStrLen(FilterText));
+        // update the filter to the 'processed' value, presuming no substitution happened
+        if not HasVariableSubstitution then
+            FilterText := CopyStr(FieldsRef.GetFilter(), 1, MaxStrLen(FilterText))
+        else
+            FilterText := RawFilterText;  // Restore the filter text to the input, as we don't want to save the substituted version
     end;
 
     local procedure ValidateFieldNo(FieldNo: Integer)
@@ -196,5 +256,15 @@ table 71033603 "SPB DBraider ConfLine Field"
             Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
             Rec."Field Class" := Format(FieldsRef.Class);
         end;
+    end;
+
+    local procedure WriteableConfig(): Boolean
+    var
+        SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header";
+    begin
+        if not SPBDBraiderConfigHeader.Get("Config. Code") then
+            exit(false);
+
+        exit(SPBDBraiderConfigHeader.WriteableConfig());
     end;
 }

@@ -430,13 +430,13 @@ codeunit 71033617 "SPB DBraider Gen. Postman"
         BodyObj.Add('mode', 'raw');
         BodyObj.Add('raw', '{"code": "' + SPBDBraiderConfLineFields."Config. Code" + '","jsonInput": "' + SampleBody + '"}');
         BodyObj.Add('options', OptionsObj);
-        RawArr.Add('{{baseuri}}/sparebrained/databraider/v2.0/companies({{companyid}})/read');
+        RawArr.Add('{{baseuri}}/sparebrained/databraider/v2.0/companies({{companyid}})/write');
         HostArr.Add('{{baseuri}}');
         PathArr.Add('sparebrained');
         PathArr.Add('databraider');
         PathArr.Add('v2.0');
         PathArr.Add('companies({{companyid}})');
-        PathArr.Add('read');
+        PathArr.Add('write');
         UrlObj.Add('raw', RawArr);
         UrlObj.Add('host', HostArr);
         UrlObj.Add('path', PathArr);

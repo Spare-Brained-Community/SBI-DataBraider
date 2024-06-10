@@ -19,6 +19,11 @@ page 71033600 "SPB DBraider Setup"
                     ToolTip = 'Enables the Data Braider globally.';
                 }
 
+                field("Hide ROI Panel"; Rec."Hide ROI Panel")
+                {
+                    ToolTip = 'Hides the ROI Panel in the Endpoint List.';
+                }
+
                 field("Default Page Size"; Rec."Default Page Size")
                 {
                     ToolTip = 'Specifies the value of the Default Page Size field.';
@@ -32,14 +37,18 @@ page 71033600 "SPB DBraider Setup"
                 {
                     ToolTip = 'Specifies if the "systemId" field should NOT be included automatically, globally.';
                 }
+                field("Disable Auto-List"; Rec."Disable Auto-List")
+                {
+                    ToolTip = 'Specifies if calls to the read endpoint with no Endpoint specified will produce a list, globally.';
+                }
             }
             group(FutureVersions)
             {
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This placeholder section is no longer required.';
-                ShowCaption = false;
                 InstructionalText = 'Future Functionality Planned.';
+                ObsoleteReason = 'This placeholder section is no longer required.';
+                ObsoleteState = Pending;
+                ShowCaption = false;
+                Visible = false;
             }
         }
     }
@@ -100,8 +109,40 @@ page 71033600 "SPB DBraider Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                ToolTip = 'This function will setup the Business Central standard endpoints.';
                 RunObject = Page "SPB Create Endpoints";
+                ToolTip = 'This function will setup the Business Central standard endpoints.';
+            }
+            action(UpdateFieldCaptions)
+            {
+                ApplicationArea = All;
+                Caption = 'Update Field Captions';
+                Image = Process;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'This function will update the Field Captions.';
+                Visible = false;  // need to hide this for screenshots before it does get removed later
+                trigger OnAction()
+                var
+                    SPBDBraiderUpgrade: Codeunit "SPB DataBraider Upgrade";
+                begin
+                    SPBDBraiderUpgrade.UpdateFieldCaptions();
+                end;
+            }
+        }
+        area(Navigation)
+        {
+            action(VariablesAction)
+            {
+                ApplicationArea = All;
+                Caption = 'Variables';
+                Image = VariableList;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                RunObject = Page "SPB DBraider Variables";
+                ToolTip = 'This function will open the Variables page.';
+
             }
         }
     }

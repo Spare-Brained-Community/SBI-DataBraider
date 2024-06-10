@@ -3,8 +3,8 @@ codeunit 71033607 "SPB DBraider Input Processor"
 
     var
         TempEventNotes: Record "SPBDBraider Event Notification" temporary;
-        EventNoteMgt: Codeunit "SPB DBraider Event Note Mgt";
         SPBDBraiderErrorSystem: Codeunit "SPB DBraider Error System";
+        EventNoteMgt: Codeunit "SPB DBraider Event Note Mgt";
         SPBDBraiderEvents: Codeunit "SPB DBraider Events";
 
     procedure ProcessWriteData(ConfigCode: Code[20]; JsonInput: Text) JsonResult: Text
@@ -155,7 +155,10 @@ codeunit 71033607 "SPB DBraider Input Processor"
                 SPBDBraiderConfLineField.CalcFields("Table Name", "Field Name", Caption);
                 TempJSONBuffer."SPB Source Table Name" := CopyStr(SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineField."Table Name"), 1, MaxStrLen(TempJSONBuffer."SPB Source Table Name"));
                 TempJSONBuffer."SPB Source Field Name" := CopyStr(SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineField."Field Name"), 1, MaxStrLen(TempJSONBuffer."SPB Source Field Name"));
-                TempJSONBuffer."SPB Source Field Caption" := CopyStr(SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineField.Caption), 1, MaxStrLen(TempJSONBuffer."SPB Source Field Caption"));
+                if SPBDBraiderConfLineField."Manual Field Caption" <> '' then
+                    TempJSONBuffer."SPB Source Field Caption" := CopyStr(SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineField."Manual Field Caption"), 1, MaxStrLen(TempJSONBuffer."SPB Source Field Caption"))
+                else
+                    TempJSONBuffer."SPB Source Field Caption" := CopyStr(SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineField.Caption), 1, MaxStrLen(TempJSONBuffer."SPB Source Field Caption"));
                 TempJSONBuffer."SPB Field No." := SPBDBraiderConfLineField."Field No.";
                 TempJSONBuffer."SPB Write Enabled" := SPBDBraiderConfLineField."Write Enabled";
                 TempJSONBuffer."SPB Default Value" := SPBDBraiderConfLineField."Default Value";

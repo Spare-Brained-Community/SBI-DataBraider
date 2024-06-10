@@ -46,6 +46,7 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         IntValue: Integer;
         JsonCols: JsonObject;
         JsonRow: JsonObject;
+        JsonFieldName: Text;
     begin
         dataLevel := 1;
         ResultRow[1].SetRange("Belongs To Row No.", 0);  // 'root' level
@@ -72,27 +73,31 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
                 ResultCol[1].SetRange("Row No.", ResultRow[1]."Row No.");
                 if ResultCol[1].FindSet() then begin
                     Clear(JsonCols);
+                    if ResultCol[1]."Forced Field Caption" <> '' then
+                        JsonFieldName := ResultCol[1]."Forced Field Caption"
+                    else
+                        JsonFieldName := ResultCol[1]."Field Name";
                     repeat
                         case ResultCol[1]."Data Type" of
                             ResultCol[1]."Data Type"::Boolean:
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].BooleanCell);
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].BooleanCell);
                             ResultCol[1]."Data Type"::Date:
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].DateCell);
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].DateCell);
                             ResultCol[1]."Data Type"::Time:
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].TimeCell);
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].TimeCell);
                             ResultCol[1]."Data Type"::Datetime:
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].DatetimeCell);
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].DatetimeCell);
                             ResultCol[1]."Data Type"::Integer:
                                 begin
                                     IntValue := Round(ResultCol[1].NumberCell, 1);
-                                    JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), IntValue);
+                                    JsonCols.Add(JsonEncode(JsonFieldName), IntValue);
                                 end;
                             ResultCol[1]."Data Type"::Decimal:
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].NumberCell);
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].NumberCell);
                             //ResultCol[1]."Data Type"::Guid:
-                            //    JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1].GuidCell);
+                            //    JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].GuidCell);
                             else
-                                JsonCols.Add(JsonEncode(ResultCol[1]."Field Name"), ResultCol[1]."Value as Text");
+                                JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1]."Value as Text");
                         end;
                     until ResultCol[1].Next() = 0;
                     ResultRow[2].SetRange("Belongs To Row No.", ResultRow[1]."Row No.");
@@ -116,6 +121,7 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         JsonRows: JsonArray;
         JsonCols: JsonObject;
         JsonRow: JsonObject;
+        JsonFieldName: Text;
     begin
         dataLevel += 1;
         JsonRow.Add('level', 0);
@@ -141,27 +147,31 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
             ResultCol[dataLevel].SetRange("Row No.", ResultRow[dataLevel]."Row No.");
             if ResultCol[dataLevel].FindSet() then begin
                 Clear(JsonCols);
+                if ResultCol[dataLevel]."Forced Field Caption" <> '' then
+                    JsonFieldName := ResultCol[dataLevel]."Forced Field Caption"
+                else
+                    JsonFieldName := ResultCol[dataLevel]."Field Name";
                 repeat
                     case ResultCol[dataLevel]."Data Type" of
                         ResultCol[dataLevel]."Data Type"::Boolean:
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].BooleanCell);
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].BooleanCell);
                         ResultCol[dataLevel]."Data Type"::Date:
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].DateCell);
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].DateCell);
                         ResultCol[dataLevel]."Data Type"::Time:
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].TimeCell);
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].TimeCell);
                         ResultCol[dataLevel]."Data Type"::Datetime:
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].DatetimeCell);
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].DatetimeCell);
                         ResultCol[dataLevel]."Data Type"::Integer:
                             begin
                                 IntValue := Round(ResultCol[dataLevel].NumberCell, 1);
-                                JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), IntValue);
+                                JsonCols.Add(JsonEncode(JsonFieldName), IntValue);
                             end;
                         ResultCol[dataLevel]."Data Type"::Decimal:
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].NumberCell);
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].NumberCell);
                         //ResultCol[dataLevel]."Data Type"::Guid:
-                        //    JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel].GuidCell);
+                        //    JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].GuidCell);
                         else
-                            JsonCols.Add(JsonEncode(ResultCol[dataLevel]."Field Name"), ResultCol[dataLevel]."Value as Text");
+                            JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel]."Value as Text");
                     end;
                 until ResultCol[dataLevel].Next() = 0;
                 ResultRow[dataLevel + 1].SetRange("Belongs To Row No.", ResultRow[dataLevel]."Row No.");

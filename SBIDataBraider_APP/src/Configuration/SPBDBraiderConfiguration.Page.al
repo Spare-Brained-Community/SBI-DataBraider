@@ -16,8 +16,8 @@ page 71033602 "SPB DBraider Configuration"
 
             group(General)
             {
-                AboutTitle = 'General Settings';
                 AboutText = 'This area is where you define the basic settings for the API Endpoint';
+                AboutTitle = 'General Settings';
                 field("Code"; Rec.Code)
                 {
                     Editable = AllowRename;
@@ -117,6 +117,10 @@ page 71033602 "SPB DBraider Configuration"
                 field("Disable Auto SystemId"; Rec."Disable Auto SystemId")
                 {
                     ToolTip = 'Specifies if the "systemId" field should NOT be included automatically for this endpoint.';
+                }
+                field("Hide from Lists"; Rec."Hide from Lists")
+                {
+                    ToolTip = 'Specifies if this endpoint should be hidden from the list of available endpoints.';
                 }
             }
             group(Telemetry)
@@ -278,8 +282,8 @@ page 71033602 "SPB DBraider Configuration"
             actionref(EndpointLogRef; EndpointLogAction) { }
             actionref(CopyFromAction_Promoted; CopyFromAction)
             {
-                ObsoleteState = Pending;
                 ObsoleteReason = 'This action is no longer promoted.';
+                ObsoleteState = Pending;
             }
         }
     }

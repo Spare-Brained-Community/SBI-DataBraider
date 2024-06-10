@@ -168,6 +168,11 @@ table 71033602 "SPB DBraider Config. Line"
                     DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
                     DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
                     DBraiderConfLineFieldSBI.Insert(true);
+                    // Because flowfields aren't searchable, we need to copy the caption to a Normal class field
+                    DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
+                    DBraiderConfLineFieldSBI."Fixed Field Name" := DBraiderConfLineFieldSBI."Field Name";
+                    DBraiderConfLineFieldSBI."Fixed Field Caption" := DBraiderConfLineFieldSBI.Caption;
+                    DBraiderConfLineFieldSBI.Modify();
                 end;
 
                 Commit(); // To Allow running modally after

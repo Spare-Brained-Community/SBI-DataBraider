@@ -24,6 +24,12 @@ table 71033600 "SPB DBraider Setup"
             InitValue = 1000;
         }
 
+        field(30; "Hide ROI Panel"; Boolean)
+        {
+            Caption = 'Hide ROI Panel';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
         field(60; "Disable Auto ModifiedAt"; Boolean)
         {
             Caption = 'Disable Auto ModifiedAt';
@@ -33,6 +39,12 @@ table 71033600 "SPB DBraider Setup"
         field(61; "Disable Auto SystemId"; Boolean)
         {
             Caption = 'Disable Auto SystemId';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
+        field(70; "Disable Auto-List"; Boolean)
+        {
+            Caption = 'Disable Auto-List';
             DataClassification = SystemMetadata;
             InitValue = false;
         }
@@ -52,7 +64,8 @@ table 71033600 "SPB DBraider Setup"
     begin
         if RecordHasBeenRead then
             exit;
-        Get();
+        if not Get() then
+            InsertIfNotExists();
         RecordHasBeenRead := true;
     end;
 

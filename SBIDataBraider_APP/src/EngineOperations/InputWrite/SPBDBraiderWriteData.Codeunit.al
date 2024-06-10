@@ -256,6 +256,7 @@ codeunit 71033606 "SPB DBraider Write Data"
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
         SPBDBraiderConfLineField: Record "SPB DBraider ConfLine Field";
         SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
+        ProcessedDefaultValue: Text;
     begin
         if SPBDBraiderConfigLine.Get(SPBConfigCode, SPBConfigLineNo) then begin
             SPBDBraiderConfLineField.SetRange("Config. Code", SPBConfigCode);
@@ -263,7 +264,9 @@ codeunit 71033606 "SPB DBraider Write Data"
             SPBDBraiderConfLineField.SetFilter("Default Value", '<>%1', '');
             if SPBDBraiderConfLineField.FindSet() then
                 repeat
-                    SPBDBraiderUtilities.TrySafeValidateValue(TargetRecordRef, SPBDBraiderConfLineField."Field No.", SPBDBraiderConfLineField."Default Value");
+                    ProcessedDefaultValue := SPBDBraiderConfLineField."Default Value";
+                    SPBDBraiderUtilities.VariableSubstitution(ProcessedDefaultValue);
+                    SPBDBraiderUtilities.TrySafeValidateValue(TargetRecordRef, SPBDBraiderConfLineField."Field No.", ProcessedDefaultValue);
                 until SPBDBraiderConfLineField.Next() = 0;
         end;
     end;

@@ -137,6 +137,8 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 NextColNo += 1;
                 TempSPBDBraiderResultsetCol."Field No." := FldRef.Number();
                 TempSPBDBraiderResultsetCol."Field Name" := CopyStr(FldRef.Name(), 1, MaxStrLen(TempSPBDBraiderResultsetCol."Field Name"));
+                if DBField."Manual Field Caption" <> '' then
+                    TempSPBDBraiderResultsetCol."Forced Field Caption" := DBField."Manual Field Caption";
                 TempSPBDBraiderResultsetCol."Value as Text" := Format(FldRef.Value);
                 TempSPBDBraiderResultsetCol."Source SystemId" := LineRef.Field(LineRef.SystemIdNo).Value;
                 TempSPBDBraiderResultsetCol."Source Table" := LineRef.Number;
@@ -203,6 +205,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
         i: Integer;
         NextColumnNo: Integer;
         SkipUntilRecord: Integer;
+        ProcessedFilterText: Text;
     begin
         IsDemoInstall := SPBDBLicensing.IsDemoInstall();
 
@@ -218,7 +221,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
         if DBField.FindSet(false) then
             repeat
                 FldRef := LineRef.Field(DBField."Field No.");
-                FldRef.SetFilter(DBField.Filter);
+                ProcessedFilterText := DBField.Filter;
+                SPBDBraiderUtilities.VariableSubstitution(ProcessedFilterText);
+                FldRef.SetFilter(ProcessedFilterText);
             until DBField.Next() = 0;
         DBField.SetRange("Filter");
 
@@ -236,7 +241,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 // Filter group so they 'stack' with built-in ones
                 LineRef.FilterGroup(11);
                 FldRef := LineRef.Field(TempSPBDBraiderFilters."Field No.");
-                FldRef.SetFilter(TempSPBDBraiderFilters."Filter Text");
+                ProcessedFilterText := TempSPBDBraiderFilters."Filter Text";
+                SPBDBraiderUtilities.VariableSubstitution(ProcessedFilterText);
+                FldRef.SetFilter(ProcessedFilterText);
                 LineRef.FilterGroup(0);
             until TempSPBDBraiderFilters.Next() = 0;
 
@@ -348,9 +355,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
         FlowFieldSourceRecordRef: RecordRef;
         FilterValueFieldRef: FieldRef;
         ParentFlowFilterFieldRef: FieldRef;
-        ParentFlowfieldErr: Label 'Unable to find parent record for FlowField', Locked = true;
         FlowFieldSourceFound: Boolean;
         i: Integer;
+        ParentFlowfieldErr: Label 'Unable to find parent record for FlowField', Locked = true;
     begin
         SPBDBraiderConfLineFlow.SetRange("Config. Code", DBLine."Config. Code");
         SPBDBraiderConfLineFlow.SetRange("Config. Line No.", DBLine."Line No.");
@@ -430,25 +437,29 @@ codeunit 71033600 "SPB DBraider Data Engine"
 
         EpochDateTime := CreateDateTime(DMY2Date(1, 1, 1970), 0T);
 
-        // TimestampInMilliseconds := Timestamp * 1000;
-        // ResultDateTime := EpochDateTime + TimestampInMilliseconds + TimezoneOffset;
-        ModifiedFieldRef := LineRef.Field(LineRef.SystemModifiedAtNo);
-        //Evaluate(RecordDateTime, ModifiedFieldRef.Value);
-        RecordDateTime := ModifiedFieldRef.Value;
-        TimestampInMilliseconds := Round((RecordDateTime - EpochDateTime + TimezoneOffset) / 1000, 1);
-
         if (not DBHeader."Disable Auto ModifiedAt") and (not SPBDBraiderSetup."Disable Auto ModifiedAt") then begin
-            TempSPBDBraiderResultsetCol.Init();
-            TempSPBDBraiderResultsetCol."Row No." := TempSPBDBraiderResultsetRow."Row No.";
-            TempSPBDBraiderResultsetCol."Column No." := LineRef.SystemModifiedAtNo;
-            TempSPBDBraiderResultsetCol."Field Name" := 'lastModifiedAt';
-            TempSPBDBraiderResultsetCol."Field No." := ModifiedFieldRef.Number();
-            TempSPBDBraiderResultsetCol."Value as Text" := Format(TimestampInMilliseconds);
-            TempSPBDBraiderResultsetCol.NumberCell := TimestampInMilliseconds;
-            TempSPBDBraiderResultsetCol."Data Type" := TempSPBDBraiderResultsetCol."Data Type"::Integer;
-            TempSPBDBraiderResultsetCol."Source SystemId" := TempSPBDBraiderResultsetRow."Source SystemId";
-            TempSPBDBraiderResultsetCol."Top-Level SystemId" := TempSPBDBraiderResultsetRow."Top-Level SystemId";
-            TempSPBDBraiderResultsetCol.Insert(true);
+            // TimestampInMilliseconds := Timestamp * 1000;
+            // ResultDateTime := EpochDateTime + TimestampInMilliseconds + TimezoneOffset;
+            ModifiedFieldRef := LineRef.Field(LineRef.SystemModifiedAtNo);
+            //Evaluate(RecordDateTime, ModifiedFieldRef.Value);
+            RecordDateTime := ModifiedFieldRef.Value;
+
+            // For pre-BC databases that upgraded, this field CAN be empty, so skip if so
+            if RecordDateTime <> 0DT then begin
+                TimestampInMilliseconds := Round((RecordDateTime - EpochDateTime + TimezoneOffset) / 1000, 1);
+
+                TempSPBDBraiderResultsetCol.Init();
+                TempSPBDBraiderResultsetCol."Row No." := TempSPBDBraiderResultsetRow."Row No.";
+                TempSPBDBraiderResultsetCol."Column No." := LineRef.SystemModifiedAtNo;
+                TempSPBDBraiderResultsetCol."Field Name" := 'lastModifiedAt';
+                TempSPBDBraiderResultsetCol."Field No." := ModifiedFieldRef.Number();
+                TempSPBDBraiderResultsetCol."Value as Text" := Format(TimestampInMilliseconds);
+                TempSPBDBraiderResultsetCol.NumberCell := TimestampInMilliseconds;
+                TempSPBDBraiderResultsetCol."Data Type" := TempSPBDBraiderResultsetCol."Data Type"::Integer;
+                TempSPBDBraiderResultsetCol."Source SystemId" := TempSPBDBraiderResultsetRow."Source SystemId";
+                TempSPBDBraiderResultsetCol."Top-Level SystemId" := TempSPBDBraiderResultsetRow."Top-Level SystemId";
+                TempSPBDBraiderResultsetCol.Insert(true);
+            end;
         end;
 
         if (not DBHeader."Disable Auto SystemId") and (not SPBDBraiderSetup."Disable Auto SystemId") then begin

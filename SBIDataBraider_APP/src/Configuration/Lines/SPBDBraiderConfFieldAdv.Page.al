@@ -13,30 +13,39 @@ page 71033621 "SPB DBraider Conf Field Adv"
             group(Information)
             {
                 Caption = 'Information';
-                Editable = false;
 
                 field("Table Name"; Rec."Table Name")
                 {
+                    Editable = false;
                     ToolTip = 'Specifies the value of the Table Name field.';
                 }
                 field("Field Name"; Rec."Field Name")
                 {
+                    Editable = false;
                     ToolTip = 'Specifies the value of the Field Name field.';
                 }
                 field(Caption; Rec.Caption)
                 {
+                    Editable = false;
                     ToolTip = 'The field caption.';
                 }
                 field("Field Type"; Rec."Field Type")
                 {
+                    Editable = false;
                     ToolTip = 'Specifies the value of the Field Type field.';
                 }
                 field("Field Class"; Rec."Field Class")
                 {
+                    Editable = false;
                     ToolTip = 'Specifies the value of the Field Class field.';
+                }
+                field("Manual Field Caption"; Rec."Manual Field Caption")
+                {
+                    ToolTip = 'Specifies caption to use when rendering the field data to outputs, such as JSON key value. Leave or set to blank to use the engine default.';
                 }
                 field("Primary Key"; Rec."Primary Key")
                 {
+                    Editable = false;
                     ToolTip = 'Specifies the field is part of the table''s primary key.';
                 }
             }

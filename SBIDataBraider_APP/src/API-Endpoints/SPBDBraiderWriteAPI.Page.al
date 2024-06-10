@@ -63,7 +63,7 @@ page 71033611 "SPB DBraider Write API"
         DBraiderSetup: Record "SPB DBraider Setup";
         DBNotEnabledErr: Label 'Data Braider is not enabled globally. Please check the Data Braider Setup.';
     begin
-        DBraiderSetup.Get();
+        DBraiderSetup.GetRecordOnce();
         if not DBraiderSetup.EnabledGlobally then
             Error(DBNotEnabledErr);
     end;

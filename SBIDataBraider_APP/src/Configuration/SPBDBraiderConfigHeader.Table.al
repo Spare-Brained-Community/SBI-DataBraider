@@ -108,6 +108,12 @@ table 71033601 "SPB DBraider Config. Header"
             DataClassification = SystemMetadata;
             InitValue = false;
         }
+        field(62; "Hide from Lists"; Boolean)
+        {
+            Caption = 'Hide from Lists';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
 
         field(100; "Output JSON Type"; Enum "SPB DBraider Output Json Type")
         {

@@ -84,8 +84,12 @@ page 71033609 "SPB DBraider API JSON"
         if Licensed then begin
             if not DataInitialized then begin
                 if Rec.GetFilter(Code) = '' then begin
-                    if Rec.Code = '' then
-                        GenerateList()
+                    if Rec.Code = '' then begin
+                        if DBraiderSetup."Disable Auto-List" then
+                            Error(ListingNotEnabledErr)
+                        else
+                            GenerateList()
+                    end
                     else begin
                         Rec.SetRecFilter();
                         GenerateData();
@@ -114,6 +118,7 @@ page 71033609 "SPB DBraider API JSON"
     procedure GenerateList()
     begin
         DBraiderConfig.SetRange(Enabled, true);
+        DBraiderConfig.SetRange("Hide from Lists", false);
         if DBraiderConfig.FindSet() then
             repeat
                 Rec.TransferFields(DBraiderConfig);
@@ -181,22 +186,24 @@ page 71033609 "SPB DBraider API JSON"
             end;
             if not InsertMode then
                 Rec.Insert();
-        end else
+        end else begin
             SPBDBraiderErrorSystem.AddError(1, 'No configuration found for this code.');
+            SPBDBraiderErrorSystem.WriteErrors(JsonResult);
+        end;
     end;
 
     local procedure CheckIfGloballyEnbled(): Boolean
     var
-        DBraiderSetup: Record "SPB DBraider Setup";
         DBNotEnabledErr: Label 'Data Braider is not enabled globally. Please check the Data Braider Setup.';
     begin
-        DBraiderSetup.Get();
+        DBraiderSetup.GetRecordOnce();
         if not DBraiderSetup.EnabledGlobally then
             Error(DBNotEnabledErr);
     end;
 
     var
         DBraiderConfig: Record "SPB DBraider Config. Header";
+        DBraiderSetup: Record "SPB DBraider Setup";
         DataInitialized: Boolean;
         InsertMode: Boolean;
         Licensed: Boolean;
@@ -206,6 +213,7 @@ page 71033609 "SPB DBraider API JSON"
         topLevelRecordCount: Integer;
         FilterJsonArray: JsonArray;
         TestJsonObject: JsonObject;
+        ListingNotEnabledErr: Label 'This Data braider configuration does not provide a listing. Please call a specific endpoint.';
         TempRecOnlyErr: Label 'Page must be run with Temporary records only.';
         UnlicensedErr: Label 'This copy of Data Braider has not been licensed or the license is not activated.';
         FilterJson: Text;

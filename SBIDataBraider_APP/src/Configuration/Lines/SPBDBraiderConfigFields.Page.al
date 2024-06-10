@@ -21,10 +21,18 @@ page 71033604 "SPB DBraider Config. Fields"
                     Editable = false;
                     ToolTip = 'The Field No. of the field from the underlying table.';
                 }
-                field(Caption; Rec.Caption)
+                field("Fixed Field Name"; Rec."Fixed Field Name")
                 {
-                    Editable = false;
-                    ToolTip = 'The field caption.';
+                    ToolTip = 'Specifies the value of the Field Name field.';
+                }
+                field("Fixed Field Caption"; Rec."Fixed Field Caption")
+                {
+                    ToolTip = 'Specifies the value of the Field Caption field.';
+                }
+                field("Manual Field Caption"; Rec."Manual Field Caption")
+                {
+                    ToolTip = 'Specifies caption to use when rendering the field data to outputs, such as JSON key value. Leave or set to blank to use the engine default.';
+                    Visible = false;
                 }
                 field("Primary Key"; Rec."Primary Key")
                 {
@@ -37,7 +45,22 @@ page 71033604 "SPB DBraider Config. Fields"
                 }
                 field("Filter"; Rec.Filter)
                 {
+                    AssistEdit = true;
                     ToolTip = 'This filter will be applied to the table based on this field, excluding any *records* that are outside the filter.';
+
+                    trigger OnAssistEdit()
+                    var
+                        SPBDBraiderVariable: Record "SPB DBraider Variable";
+                        SPBDBraiderVariables: Page "SPB DBraider Variables";
+                    begin
+                        // Take the existing text, but then let the user append a Tag from the Variables list
+                        SPBDBraiderVariables.LookupMode(true);
+                        if SPBDBraiderVariables.RunModal() = Action::LookupOK then begin
+                            SPBDBraiderVariables.GetRecord(SPBDBraiderVariable);
+                            if SPBDBraiderVariable.Tag <> '' then
+                                Rec.Filter := CopyStr(Rec.Filter + ' ' + StrSubstNo('{{%1}}', SPBDBraiderVariable.Tag), 1, MaxStrLen(Rec.Filter));
+                        end;
+                    end;
                 }
                 field("Write Enabled"; Rec."Write Enabled")
                 {
@@ -47,8 +70,23 @@ page 71033604 "SPB DBraider Config. Fields"
                 }
                 field("Default Value"; Rec."Default Value")
                 {
+                    AssistEdit = true;
                     ToolTip = 'Specifies the value of the Default Value field.';
                     Visible = WriteEndpoint;
+
+                    trigger OnAssistEdit()
+                    var
+                        SPBDBraiderVariable: Record "SPB DBraider Variable";
+                        SPBDBraiderVariables: Page "SPB DBraider Variables";
+                    begin
+                        // Take the existing text, but then let the user append a Tag from the Variables list
+                        SPBDBraiderVariables.LookupMode(true);
+                        if SPBDBraiderVariables.RunModal() = Action::LookupOK then begin
+                            SPBDBraiderVariables.GetRecord(SPBDBraiderVariable);
+                            if SPBDBraiderVariable.Tag <> '' then
+                                Rec."Default Value" := CopyStr(Rec."Default Value" + ' ' + StrSubstNo('{{%1}}', SPBDBraiderVariable.Tag), 1, MaxStrLen(Rec.Filter));
+                        end;
+                    end;
                 }
                 field(Mandatory; Rec.Mandatory)
                 {

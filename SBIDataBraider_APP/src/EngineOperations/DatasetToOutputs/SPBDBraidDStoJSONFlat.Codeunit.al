@@ -154,7 +154,10 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                     else
                         TestJsonValue.SetValue(ResultCol[dataLevel]."Value as Text");
                 end;
-                SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name"), TestJsonValue);
+                if ResultCol[dataLevel]."Forced Field Caption" <> '' then
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Forced Field Caption"), TestJsonValue)
+                else
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name"), TestJsonValue);
             until ResultCol[dataLevel].Next() = 0;
     end;
 

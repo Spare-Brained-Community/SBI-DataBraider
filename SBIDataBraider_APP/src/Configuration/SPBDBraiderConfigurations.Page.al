@@ -66,6 +66,33 @@ page 71033601 "SPB DBraider Configurations"
                     Visible = false;
                 }
             }
+            group(ROIInfo)
+            {
+                Caption = 'Data Braider ROI Information';
+                Visible = ShowROIPanel;
+                field(CreationHoursField; CreationHours)
+                {
+                    Caption = 'Creation Hours Saved';
+                    DrillDown = true;
+                    Editable = false;
+                    ToolTip = 'This shows the total number of development hours saved on API Creation by using the endpoints as configured.';
+                    trigger OnDrillDown()
+                    begin
+                        ShowROIPage();
+                    end;
+                }
+                field(MaintainHoursField; MaintainHours)
+                {
+                    Caption = 'Maintenance Hours Saved';
+                    DrillDown = true;
+                    Editable = false;
+                    ToolTip = 'This shows the total number of development hours saved on API Maintenance by using the endpoints as configured.';
+                    trigger OnDrillDown()
+                    begin
+                        ShowROIPage();
+                    end;
+                }
+            }
         }
     }
 
@@ -185,6 +212,22 @@ page 71033601 "SPB DBraider Configurations"
                 }
             }
         }
+        area(Navigation)
+        {
+            group(Information)
+            {
+                action(ShowROIAction)
+                {
+                    Caption = 'Show ROI';
+                    Image = TotalValueInsured;
+                    ToolTip = 'Show the ROI Information window for Data Braider.';
+                    trigger OnAction()
+                    begin
+                        ShowROIPage();
+                    end;
+                }
+            }
+        }
         area(Promoted)
         {
             group(Generators)
@@ -228,14 +271,24 @@ page 71033601 "SPB DBraider Configurations"
         }
     }
     var
+        SPBDBraiderROIBuilder: Codeunit "SPB DBraider ROI Builder";
         EndPointUri: Text;
+        CreationHours: Decimal;
+        MaintainHours: Decimal;
+        ShowROIPanel: Boolean;
 
     trigger OnOpenPage()
     var
+        SPBDraiderSetup: Record "SPB DBraider Setup";
         LicenseConnector: Codeunit "SPB DBraider Licensing";
     begin
-        LicenseConnector.CheckIfActive(true);
+        if SPBDraiderSetup.Get() then
+            ShowROIPanel := not SPBDraiderSetup."Hide ROI Panel"
+        else
+            ShowROIPanel := true;
 
+        LicenseConnector.CheckIfActive(true);
+        CalculateRoi();
     end;
 
     trigger OnAfterGetRecord()
@@ -245,5 +298,15 @@ page 71033601 "SPB DBraider Configurations"
         Clear(EndPointUri);
         if Rec.Enabled then
             EndPointUri := SPBDBraiderUtilities.GetJsonEndpointURI(Rec);
+    end;
+
+    local procedure CalculateRoi()
+    begin
+        SPBDBraiderROIBuilder.GetTotalROI(CreationHours, MaintainHours);
+    end;
+
+    local procedure ShowROIPage()
+    begin
+        Page.Run(Page::"SPB DBraider ROI Detail");
     end;
 }

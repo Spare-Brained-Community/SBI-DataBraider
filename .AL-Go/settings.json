@@ -5,5 +5,9 @@
   ],
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": []
+  "bcptTestFolders": [],
+  "installApps": [
+        "https://www.dropbox.com/scl/fi/abgmawiof601hdpavdk3g/Spare-Brained-Ideas-AB_Spare-Brained-Licensing_2.0.202408.451.app?rlkey=4oypn4qud3uly8jf2qk0vry9c&dl=1"
+    ],
+  "installOnlyReferencedApps": false
 }

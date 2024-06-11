@@ -354,7 +354,7 @@ codeunit 71033608 "SPB DBraider Utilities"
 
     procedure VariableSubstitution(var TextToTransform: Text) HasSubstitutions: Boolean
     var
-        SPBDBraiderVariable: Record "SPB DBraider Variable";
+        SPBDBraiderVariable: Record "SPB DBraider Env Variable";
         Regex: Codeunit Regex;
         SplitParts: List of [Text];
         NewValue: Text;

@@ -50,7 +50,7 @@ page 71033604 "SPB DBraider Config. Fields"
 
                     trigger OnAssistEdit()
                     var
-                        SPBDBraiderVariable: Record "SPB DBraider Variable";
+                        SPBDBraiderVariable: Record "SPB DBraider Env Variable";
                         SPBDBraiderVariables: Page "SPB DBraider Variables";
                     begin
                         // Take the existing text, but then let the user append a Tag from the Variables list
@@ -76,7 +76,7 @@ page 71033604 "SPB DBraider Config. Fields"
 
                     trigger OnAssistEdit()
                     var
-                        SPBDBraiderVariable: Record "SPB DBraider Variable";
+                        SPBDBraiderVariable: Record "SPB DBraider Env Variable";
                         SPBDBraiderVariables: Page "SPB DBraider Variables";
                     begin
                         // Take the existing text, but then let the user append a Tag from the Variables list

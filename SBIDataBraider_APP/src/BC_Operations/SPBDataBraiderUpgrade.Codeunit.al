@@ -3,7 +3,7 @@ codeunit 71033618 "SPB DataBraider Upgrade"
     Permissions = tabledata "SPB DBraider ConfLine Field" = M;
     Subtype = Upgrade;
 
-    trigger OnUpgradePerDatabase()
+    trigger OnUpgradePerCompany()
     var
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
@@ -40,13 +40,13 @@ codeunit 71033618 "SPB DataBraider Upgrade"
             until SPBDBraiderConfLineField.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
-    local procedure OnGetPerDatabaseUpgradeTags(var PerDatabaseUpgradeTags: List of [Code[250]]);
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", OnGetPerCompanyUpgradeTags, '', false, false)]
+    local procedure OnGetPerCompanyUpgradeTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
-        PerDatabaseUpgradeTags.Add(v2d1ReasonLbl);
+        PerCompanyUpgradeTags.Add(v2d1ReasonLbl);
     end;
 
 
     var
-        v2d1ReasonLbl: Label 'SBI-V2.1-20240609', Locked = true;
+        v2d1ReasonLbl: Label 'SBI-V2.1-20240611', Locked = true;
 }

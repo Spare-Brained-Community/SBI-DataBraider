@@ -1,9 +1,8 @@
-table 71033616 "SPB DBraider Variable"
+table 71033619 "SPB DBraider Env Variable"
 {
     Caption = 'Data Braider Variable';
     DataClassification = CustomerContent;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Migrated to the new Data Braider Variable table.';
+    DataPerCompany = false;
 
     fields
     {
@@ -63,7 +62,8 @@ table 71033616 "SPB DBraider Variable"
 
     local procedure CheckTagUniqueByScope()
     var
-        SPBDBraiderVariables2: Record "SPB DBraider Variable";
+        SPBDBraiderVariables2: Record "SPB DBraider Env Variable";
+        TagUniqueErr: Label 'The Tag must be unique within the same Scope.';
     begin
         case Rec."Variable Scope" of
             Rec."Variable Scope"::Environment:
@@ -72,7 +72,7 @@ table 71033616 "SPB DBraider Variable"
                     SPBDBraiderVariables2.SetRange("Variable Scope", Rec."Variable Scope");
                     SPBDBraiderVariables2.SetRange(Tag, Rec.Tag);
                     if not SPBDBraiderVariables2.IsEmpty() then
-                        Error('The Tag must be unique within the same Scope.');
+                        Error(TagUniqueErr);
                 end;
             Rec."Variable Scope"::Company:
                 begin
@@ -81,7 +81,7 @@ table 71033616 "SPB DBraider Variable"
                     SPBDBraiderVariables2.SetRange("Company Name", Rec."Company Name");
                     SPBDBraiderVariables2.SetRange(Tag, Rec.Tag);
                     if not SPBDBraiderVariables2.IsEmpty() then
-                        Error('The Tag must be unique within the same Scope.');
+                        Error(TagUniqueErr);
                 end;
             Rec."Variable Scope"::User:
                 begin
@@ -90,7 +90,7 @@ table 71033616 "SPB DBraider Variable"
                     SPBDBraiderVariables2.SetRange("User Name", Rec."User Name");
                     SPBDBraiderVariables2.SetRange(Tag, Rec.Tag);
                     if not SPBDBraiderVariables2.IsEmpty() then
-                        Error('The Tag must be unique within the same Scope.');
+                        Error(TagUniqueErr);
                 end;
             Rec."Variable Scope"::CompanyUser:
                 begin
@@ -100,7 +100,7 @@ table 71033616 "SPB DBraider Variable"
                     SPBDBraiderVariables2.SetRange("User Name", Rec."User Name");
                     SPBDBraiderVariables2.SetRange(Tag, Rec.Tag);
                     if not SPBDBraiderVariables2.IsEmpty() then
-                        Error('The Tag must be unique within the same Scope.');
+                        Error(TagUniqueErr);
                 end;
         end;
     end;

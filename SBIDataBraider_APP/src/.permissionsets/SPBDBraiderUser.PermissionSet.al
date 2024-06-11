@@ -15,5 +15,7 @@ permissionset 71033601 "SPB DBraider User"
         tabledata "SPB DBraider Filters" = RIMD,
         tabledata "SPB DBraider Usage" = RIM,
         tabledata "SPB DBraider Endpoint Log" = RIMD,
-        tabledata "SPB DBraider Result Buffer" = RIMD;
+        tabledata "SPB DBraider Result Buffer" = RIMD,
+        tabledata "SPB DBraider Env Variable" = R,
+        tabledata "SPBDBraider Event Notification" = RIMD;
 }

@@ -5,7 +5,7 @@ page 71033624 "SPB DBraider Variables"
     ApplicationArea = All;
     Caption = 'Data Braider Variables';
     PageType = List;
-    SourceTable = "SPB DBraider Variable";
+    SourceTable = "SPB DBraider Env Variable";
     UsageCategory = Administration;
 
     layout

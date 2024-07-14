@@ -65,6 +65,11 @@ table 71033605 "SPB DBraider Resultset Row"
             Caption = 'Top-Level SystemId';
             DataClassification = SystemMetadata;
         }
+        field(210; "Buffer Type"; Enum "SPB DBraider Buffer Type")
+        {
+            Caption = 'Buffer Type';
+            DataClassification = SystemMetadata;
+        }
         field(300; "Delta Type"; Enum "SPB DBraider Delta Type")
         {
             Caption = 'Delta Type';

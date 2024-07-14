@@ -31,6 +31,11 @@ page 71033607 "SPB DBraider Result JSON"
         JsonResult.WriteTo(JsonString);
     end;
 
+    procedure SetJSONToShow(JsonResult: JsonArray)
+    begin
+        JsonResult.WriteTo(JsonString);
+    end;
+
     procedure SetTextToShow(JsonText: Text)
     begin
         JsonString := JsonText;

@@ -73,11 +73,11 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
                 ResultCol[1].SetRange("Row No.", ResultRow[1]."Row No.");
                 if ResultCol[1].FindSet() then begin
                     Clear(JsonCols);
-                    if ResultCol[1]."Forced Field Caption" <> '' then
-                        JsonFieldName := ResultCol[1]."Forced Field Caption"
-                    else
-                        JsonFieldName := ResultCol[1]."Field Name";
                     repeat
+                        if ResultCol[1]."Forced Field Caption" <> '' then
+                            JsonFieldName := ResultCol[1]."Forced Field Caption"
+                        else
+                            JsonFieldName := ResultCol[1]."Field Name";
                         case ResultCol[1]."Data Type" of
                             ResultCol[1]."Data Type"::Boolean:
                                 JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].BooleanCell);
@@ -147,11 +147,11 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
             ResultCol[dataLevel].SetRange("Row No.", ResultRow[dataLevel]."Row No.");
             if ResultCol[dataLevel].FindSet() then begin
                 Clear(JsonCols);
-                if ResultCol[dataLevel]."Forced Field Caption" <> '' then
-                    JsonFieldName := ResultCol[dataLevel]."Forced Field Caption"
-                else
-                    JsonFieldName := ResultCol[dataLevel]."Field Name";
                 repeat
+                    if ResultCol[dataLevel]."Forced Field Caption" <> '' then
+                        JsonFieldName := ResultCol[dataLevel]."Forced Field Caption"
+                    else
+                        JsonFieldName := ResultCol[dataLevel]."Field Name";
                     case ResultCol[dataLevel]."Data Type" of
                         ResultCol[dataLevel]."Data Type"::Boolean:
                             JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].BooleanCell);

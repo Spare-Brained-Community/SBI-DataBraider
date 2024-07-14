@@ -21,11 +21,21 @@ codeunit 71033608 "SPB DBraider Utilities"
         DestinationFieldRef: FieldRef;
     begin
         DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
-        if DestinationFieldRef.Type = FieldType::Option then begin
+        if not (DestinationFieldRef.Type in
+            [FieldType::Code, FieldType::Text])
+        then begin
             Evaluate(DestinationFieldRef, NewValue);
             DestinationFieldRef.Validate();
         end else
             DestinationFieldRef.Validate(NewValue);
+    end;
+
+    internal procedure SetUnvalidatedValue(var DestinationRecordRef: RecordRef; FieldNo: Integer; NewValue: Variant)
+    var
+        DestinationFieldRef: FieldRef;
+    begin
+        DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
+        Evaluate(DestinationFieldRef, NewValue);
     end;
 
     internal procedure ValidateFieldTypeAndLength(var DestinationRecordRef: RecordRef; FieldNo: Integer; NewValue: Variant): Boolean
@@ -52,6 +62,11 @@ codeunit 71033608 "SPB DBraider Utilities"
                 exit(Evaluate(timeValue, NewValue));
             FieldType::DateTime:
                 exit(Evaluate(dateTimeValue, NewValue));
+            //TODO: Option and Enum
+            else
+                //TODO: Check support field types in Braider
+                // If it's not one of the above types, we can't pre-validate it
+                exit(true);
         end;
     end;
 

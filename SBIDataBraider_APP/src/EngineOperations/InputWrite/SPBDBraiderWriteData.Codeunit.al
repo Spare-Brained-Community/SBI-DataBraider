@@ -107,6 +107,9 @@ codeunit 71033606 "SPB DBraider Write Data"
                 MissingKeyFields.Add(FieldNo);
         end;
 
+        //TODO: This needs to lookup the fields by what's submitted, sure, BUT we may also be 'assuming' some part of the PK from the parent record.
+        ApplyInferredParentData(TempContentJsonBuffer, TargetRecordRef, LocatedKeyFields, MissingKeyFields);
+
         if MissingKeyFields.Count > 0 then
             exit(false);
 
@@ -134,7 +137,7 @@ codeunit 71033606 "SPB DBraider Write Data"
             if TempContentJsonBuffer.FindSet() then
                 repeat
                     if TempContentJsonBuffer."SPB Field No." <> 0 then
-                        SPBDBraiderUtilities.ValidateValue(TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
+                        ChooseValidateFieldValue(TempContentJsonBuffer, Enum::"SPB DBraider Change Action"::Insert, TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
                 until TempContentJsonBuffer.Next() = 0;
             TargetRecordRef.Insert(true);
             AddRecordRefToResults(TempContentJsonBuffer, 'insert', TargetRecordRef);
@@ -159,7 +162,7 @@ codeunit 71033606 "SPB DBraider Write Data"
             TempContentJsonBuffer.SetRange("SPB Primary Key Field", false);
             if TempContentJsonBuffer.FindSet() then
                 repeat
-                    SPBDBraiderUtilities.ValidateValue(TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
+                    ChooseValidateFieldValue(TempContentJsonBuffer, Enum::"SPB DBraider Change Action"::Update, TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
                 until TempContentJsonBuffer.Next() = 0;
             TargetRecordRef.Modify(true);
             AddRecordRefToResults(TempContentJsonBuffer, 'modify', TargetRecordRef);
@@ -226,6 +229,16 @@ codeunit 71033606 "SPB DBraider Write Data"
         if DBraiderConfig.Get(TempContentJsonBuffer."SPB Config. Code") then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
             DBraiderEngine.GenerateRecordData(DBraiderConfig.Code, SpecificRecordRef);
             DBraiderEngine.GetResults(TempResultRow, TempResultCol);
+
+            OnBeforeWriteResultRecord(DBraiderConfig, TempContentJsonBuffer, TempResultRow, TempResultCol);
+
+            /* TempResultRow.SetRange("Write Result Record", false);
+            TempResultRow.DeleteAll();
+            TempResultRow.Reset();
+            TempResultCol.SetRange("Write Result Record", false);
+            TempResultCol.DeleteAll();
+            TempResultCol.Reset(); */
+
             SPBDBraiderIDatasetToText := DBraiderConfig."Output JSON Type";
             JsonResult := SPBDBraiderIDatasetToText.ConvertToJSON(TempResultRow, TempResultCol);
             Clear(ResultJsonObject);
@@ -292,6 +305,7 @@ codeunit 71033606 "SPB DBraider Write Data"
     local procedure ApplyPossibleParentData(var TempContentJsonBuffer: Record "JSON Buffer" temporary; var TargetRecordRef: RecordRef)
     var
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
+        SPBDBraiderConfLineField: Record "SPB DBraider ConfLine Field";
         SPBDBraiderConfLineRelation: Record "SPB DBraider ConfLine Relation";
         ParentRecordRef: RecordRef;
         ChildFieldRef: FieldRef;
@@ -303,20 +317,90 @@ codeunit 71033606 "SPB DBraider Write Data"
             SPBDBraiderConfLineRelation.SetRange("Child Table", TempContentJsonBuffer."SPB Table No.");
             if SPBDBraiderConfLineRelation.FindSet() then
                 repeat
+                    // Get the Field configuration for the Child Field, as we need to see if we'll be validating the Parent Field.
+                    SPBDBraiderConfLineField.SetRange("Config. Code", TempContentJsonBuffer."SPB Config. Code");
+                    SPBDBraiderConfLineField.SetRange("Config. Line No.", TempContentJsonBuffer."SPB Config. Line No.");
+                    SPBDBraiderConfLineField.SetRange("Field No.", SPBDBraiderConfLineRelation."Child Field No.");
+                    SPBDBraiderConfLineField.FindFirst();
+
                     // Locate the Parent Table, then find the Record GUID in the Map.  Load the record ref,
                     // then apply the parent field value to the TargetRecordRef's child field.
-                    ParentRecordRef.Open(SPBDBraiderConfLineRelation."Parent Table");
-                    ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number));
-
-                    ParentFieldRef := ParentRecordRef.Field(SPBDBraiderConfLineRelation."Parent Field No.");
-                    ChildFieldRef := TargetRecordRef.Field(SPBDBraiderConfLineRelation."Child Field No.");
-                    ChildFieldRef.Validate(ParentFieldRef.Value);
-
-                    ParentRecordRef.Close();
-
+                    if LastRecordPosition.ContainsKey(SPBDBraiderConfLineRelation."Parent Table") then begin
+                        ParentRecordRef.Open(SPBDBraiderConfLineRelation."Parent Table");
+                        ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number));
+                        if ParentRecordRef.Find('=') then begin
+                            ParentFieldRef := ParentRecordRef.Field(SPBDBraiderConfLineRelation."Parent Field No.");
+                            ChildFieldRef := TargetRecordRef.Field(SPBDBraiderConfLineRelation."Child Field No.");
+                            //TODO: Consider an Advanced Setting to control this behavior
+                            if SPBDBraiderConfLineField."Disable Validation" = SPBDBraiderConfLineField."Disable Validation"::DisableAll then
+                                ChildFieldRef.Value := ParentFieldRef.Value
+                            else
+                                ChildFieldRef.Validate(ParentFieldRef.Value);
+                        end;
+                        ParentRecordRef.Close();
+                    end;
                 //SPBDBraiderUtilities.TrySafeValidateValue(TargetRecordRef, SPBDBraiderConfLineRelation."Field No.", SPBDBraiderConfLineRelation."Default Value");
                 until SPBDBraiderConfLineRelation.Next() = 0;
         end;
+    end;
+
+    local procedure ApplyInferredParentData(var TempContentJsonBuffer: Record "JSON Buffer" temporary; var TargetRecordRef: RecordRef; LocatedKeyFields: Dictionary of [Integer, Text]; MissingKeyFields: List of [Integer])
+    var
+        SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
+        SPBDBraiderConfLineRelation: Record "SPB DBraider ConfLine Relation";
+        ParentRecordRef: RecordRef;
+        ChildFieldRef: FieldRef;
+        ParentFieldRef: FieldRef;
+        FieldNo: Integer;
+        InferredFields: List of [Integer];
+    begin
+        // So, here we may have Missing Fields on the Child data.   Let's iterate through them and see if they're inferred from the parent.
+        foreach FieldNo in MissingKeyFields do
+            if SPBDBraiderConfigLine.Get(TempContentJsonBuffer."SPB Config. Code", TempContentJsonBuffer."SPB Config. Line No.") then begin
+                SPBDBraiderConfLineRelation.SetRange("Config. Code", TempContentJsonBuffer."SPB Config. Code");
+                SPBDBraiderConfLineRelation.SetRange("Config. Line No.", TempContentJsonBuffer."SPB Config. Line No.");
+                SPBDBraiderConfLineRelation.SetRange("Child Table", TempContentJsonBuffer."SPB Table No.");
+                SPBDBraiderConfLineRelation.SetRange("Child Field No.", FieldNo);
+                if SPBDBraiderConfLineRelation.FindSet() then
+                    repeat
+                        // Locate the Parent Table, then find the Record GUID in the Map.  Load the record ref,
+                        // then apply the parent field value to the TargetRecordRef's child field.
+                        if LastRecordPosition.ContainsKey(SPBDBraiderConfLineRelation."Parent Table") then begin
+                            ParentRecordRef.Open(SPBDBraiderConfLineRelation."Parent Table");
+                            ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number));
+                            if ParentRecordRef.Find('=') then begin
+                                ParentFieldRef := ParentRecordRef.Field(SPBDBraiderConfLineRelation."Parent Field No.");
+                                LocatedKeyFields.Add(FieldNo, ParentFieldRef.Value);
+                                InferredFields.Add(FieldNo);
+                            end;
+                            ParentRecordRef.Close();
+                        end;
+                    until SPBDBraiderConfLineRelation.Next() = 0;
+            end;
+        foreach FieldNo in InferredFields do
+            MissingKeyFields.Remove(FieldNo);
+    end;
+
+    local procedure ChooseValidateFieldValue(var TempContentJsonBuffer: Record "JSON Buffer" temporary; InternalActionType: Enum "SPB DBraider Change Action"; var DestinationRecordRef: RecordRef; FieldNo: Integer; NewValue: Variant)
+    var
+        SPBDBraiderConfLineField: Record "SPB DBraider ConfLine Field";
+        SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
+    begin
+        SPBDBraiderConfLineField.SetRange("Config. Code", TempContentJsonBuffer."SPB Config. Code");
+        SPBDBraiderConfLineField.SetRange("Config. Line No.", TempContentJsonBuffer."SPB Config. Line No.");
+        SPBDBraiderConfLineField.SetRange("Field No.", FieldNo);
+        SPBDBraiderConfLineField.FindFirst();
+
+        // If we're dealing with a Modify, and the field is unchanged, we may not want to re-validate it.
+        if InternalActionType = InternalActionType::Update then
+            if not SPBDBraiderConfLineField."Modification Re-Validate" then
+                if Format(DestinationRecordRef.Field(FieldNo).Value) = Format(NewValue) then
+                    exit;
+
+        if SPBDBraiderConfLineField."Disable Validation" = SPBDBraiderConfLineField."Disable Validation"::DisableAll then
+            SPBDBraiderUtilities.SetUnvalidatedValue(DestinationRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value)
+        else
+            SPBDBraiderUtilities.ValidateValue(DestinationRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value)
     end;
 
     local procedure CheckAndHandleAutoSplitKey(var TempContentJsonBuffer: Record "JSON Buffer" temporary; TargetRecordRef: RecordRef)
@@ -379,5 +463,10 @@ codeunit 71033606 "SPB DBraider Write Data"
     internal procedure SetLastRecord(WhichRecordRef: RecordRef)
     begin
         SetLastRecord(WhichRecordRef.Number, WhichRecordRef.GetPosition());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteResultRecord(DBraiderConfig: Record "SPB DBraider Config. Header"; var TempContentJsonBuffer: Record "JSON Buffer" temporary; var TempResultRow: Record "SPB DBraider Resultset Row" temporary; var TempResultCol: Record "SPB DBraider Resultset Col" temporary)
+    begin
     end;
 }

@@ -97,6 +97,10 @@ page 71033621 "SPB DBraider Conf Field Adv"
                 {
                     ToolTip = 'Disabled Validation on this field, either the initial data type checking or the actual field validation itself. This can be a dangerous option.  Please use caution when using this option.';
                 }
+                field("Modification Re-Validate"; Rec."Modification Re-Validate")
+                {
+                    ToolTip = 'When a record is modified, should the field be re-validated if unchanged? This behvaior is typically not needed.';
+                }
             }
             group("DateTime")
             {

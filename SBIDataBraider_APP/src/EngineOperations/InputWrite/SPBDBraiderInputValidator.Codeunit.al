@@ -165,13 +165,15 @@ codeunit 71033605 "SPB DBraider Input Validator"
                                     AllDataValid := false;
                                 end
                                 else
-                                    if TempMapJsonBuffer."SPB Disable Validate" = TempMapJsonBuffer."SPB Disable Validate"::" " then
+                                    if TempMapJsonBuffer."SPB Disable Validate" = TempMapJsonBuffer."SPB Disable Validate"::" " then begin
+                                        ClearLastError();
                                         if SPBDBraiderUtilities.ValidateFieldTypeAndLength(TargetTableRecordRef[1], FieldNo, TempJsonBuffer.Value) then
                                             SPBDBraiderErrorSystem.AddDebug(CurrentInputRow, StrSubstNo(ValidationOKLbl, TableNameToMatch, FieldNameToMatch))
                                         else begin
                                             SPBDBraiderErrorSystem.AddError(CurrentInputRow, StrSubstNo(UnableToValidateTableAndFieldLbl, TableNameToMatch, FieldNameToMatch, GetLastErrorText()));
                                             AllDataValid := false;
                                         end;
+                                    end;
                             end else begin
                                 SPBDBraiderErrorSystem.AddError(CurrentInputRow, StrSubstNo(UnableToMatchTableAndFieldLbl, TableNameToMatch, FieldNameToMatch));
                                 AllDataValid := false;

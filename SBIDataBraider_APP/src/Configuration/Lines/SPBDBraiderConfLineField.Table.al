@@ -91,6 +91,10 @@ table 71033603 "SPB DBraider ConfLine Field"
         {
             Caption = 'Disable Auto-Split Key';
         }
+        field(46; "Modification Re-Validate"; Boolean)
+        {
+            Caption = 'Modification Re-Validate';
+        }
         field(50; "DateTime Timezone"; Text[250])
         {
             Caption = 'DateTime Timezone';

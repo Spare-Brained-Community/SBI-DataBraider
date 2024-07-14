@@ -58,6 +58,10 @@ codeunit 71033600 "SPB DBraider Data Engine"
             repeat
                 AddDataFromConfigLine(TempSPBDBraiderResultsetRowTopLevel, DBHeader, DBLine, NextRowNo, ParentLineRef);
             until DBLine.Next() = 0;
+
+        if RunForSpecificRecordRef.Number <> 0 then
+            MarkInclusionRecords();
+
         EndTime := Time();
         RunDuration := EndTime - StartTime;
         DBHeader."Last Run Duration" := RunDuration;
@@ -179,6 +183,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                     Enum::"SPB DBraider Field Data Type"::Guid:
                         TempSPBDBraiderResultsetCol.GuidCell := FldRef.Value;
                 end;
+                TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number);
                 TempSPBDBraiderResultsetCol.Insert(true);
             until DBField.Next() = 0;
         DBField.SetRange("Filter");
@@ -316,6 +321,8 @@ codeunit 71033600 "SPB DBraider Data Engine"
                     TempSPBDBraiderResultsetRow."Top-Level SystemId" := TempSPBDBraiderResultsetRowTopLevel."Source SystemId";
                 TempSPBDBraiderResultsetRow."Config. Code" := DBLine."Config. Code";
                 TempSPBDBraiderResultsetRow."FQ SystemId" := CopyStr(SPBDBraiderUtilities.BuildFQSI(BreadcrumbRecordRefArray, DBLine.Indentation + 1), 1, MaxStrLen(TempSPBDBraiderResultsetRow."FQ SystemId"));
+                if (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number) then
+                    TempSPBDBraiderResultsetRow."Buffer Type" := Enum::"SPB DBraider Buffer Type"::Direct;
                 TempSPBDBraiderResultsetRow.Insert(true);
 
                 // add columns for the Given DBLine and LineRef
@@ -458,6 +465,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 TempSPBDBraiderResultsetCol."Data Type" := TempSPBDBraiderResultsetCol."Data Type"::Integer;
                 TempSPBDBraiderResultsetCol."Source SystemId" := TempSPBDBraiderResultsetRow."Source SystemId";
                 TempSPBDBraiderResultsetCol."Top-Level SystemId" := TempSPBDBraiderResultsetRow."Top-Level SystemId";
+                TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number);
                 TempSPBDBraiderResultsetCol.Insert(true);
             end;
         end;
@@ -473,6 +481,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             TempSPBDBraiderResultsetCol."Data Type" := TempSPBDBraiderResultsetCol."Data Type"::Guid;
             TempSPBDBraiderResultsetCol."Source SystemId" := TempSPBDBraiderResultsetRow."Source SystemId";
             TempSPBDBraiderResultsetCol."Top-Level SystemId" := TempSPBDBraiderResultsetRow."Top-Level SystemId";
+            TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number);
             TempSPBDBraiderResultsetCol.Insert(true);
         end;
     end;
@@ -660,6 +669,46 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 SPBDBraiderDeltaCol."Version No." := VersionNo;
                 SPBDBraiderDeltaCol.Insert(true);
             until TempSPBDBraiderResultsetCol.Next() < 1;
+    end;
+
+    /// <summary>
+    /// This procedure will go through all Write Marked records and crawl UP the "Belongs-To Row No." chain to mark all the parent records as well.
+    /// Then it will update the Column records to reflect this.
+    /// </summary>
+    local procedure MarkInclusionRecords()
+    var
+        RowNo: Integer;
+        RowsToMark: List of [Integer];
+    begin
+        TempSPBDBraiderResultsetRow.SetRange("Buffer Type", Enum::"SPB DBraider Buffer Type"::Direct);
+        TempSPBDBraiderResultsetRow.SetFilter("Belongs To Row No.", '<>0');
+        if TempSPBDBraiderResultsetRow.FindSet() then
+            repeat
+                GetRowChain(TempSPBDBraiderResultsetRow."Row No.", RowsToMark);
+            until TempSPBDBraiderResultsetRow.Next() < 1;
+
+        TempSPBDBraiderResultsetRow.Reset();
+        foreach RowNo in RowsToMark do begin
+            TempSPBDBraiderResultsetRow.SetRange("Row No.", RowNo);
+            TempSPBDBraiderResultsetRow.ModifyAll("Buffer Type", Enum::"SPB DBraider Buffer Type"::Parent);
+            TempSPBDBraiderResultsetCol.SetRange("Row No.", RowNo);
+            TempSPBDBraiderResultsetCol.ModifyAll("Write Result Record", true);
+        end;
+        TempSPBDBraiderResultsetRow.Reset();
+        TempSPBDBraiderResultsetCol.Reset();
+    end;
+
+    local procedure GetRowChain(ForRowNo: Integer; var ParentChain: List of [Integer])
+    var
+        TempSPBDBraiderResultsetRow2: Record "SPB DBraider Resultset Row" temporary;
+    begin
+        TempSPBDBraiderResultsetRow2.Copy(TempSPBDBraiderResultsetRow, true);
+        TempSPBDBraiderResultsetRow2.SetRange("Row No.", ForRowNo);
+        if TempSPBDBraiderResultsetRow2.FindFirst() then
+            if TempSPBDBraiderResultsetRow2."Belongs To Row No." <> 0 then begin
+                ParentChain.Add(TempSPBDBraiderResultsetRow2."Belongs To Row No.");
+                GetRowChain(TempSPBDBraiderResultsetRow2."Belongs To Row No.", ParentChain);
+            end;
     end;
 
     internal procedure SetFilterJson(NewFilterJson: Text)

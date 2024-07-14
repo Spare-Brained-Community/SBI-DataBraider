@@ -67,6 +67,11 @@ table 71033606 "SPB DBraider Resultset Col"
             Caption = 'Top-Level SystemId';
             DataClassification = SystemMetadata;
         }
+        field(210; "Write Result Record"; Boolean)
+        {
+            Caption = 'Write Result Record';
+            DataClassification = SystemMetadata;
+        }
 
         field(1000; TextCell; Text[250])
         {

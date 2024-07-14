@@ -6,6 +6,7 @@ codeunit 71033613 "SPB DBraider Error System"
     var
         //TempLoggingExcelBuffer: Record "Excel Buffer" temporary;
         TempSPBDBraiderResultBuffer: Record "SPB DBraider Result Buffer" temporary;
+        NextRowLineNo: Dictionary of [Integer, Integer];
 
     procedure ReInitialize()
     begin
@@ -35,19 +36,16 @@ codeunit 71033613 "SPB DBraider Error System"
     end;
 
     procedure AddEntry(RowNo: Integer; ResultMessage: Text; ResultType: Enum "SPB DBraider Result Type")
-    var
-        NextRowLineNo: Integer;
     begin
-        TempSPBDBraiderResultBuffer.Reset();
-        if TempSPBDBraiderResultBuffer.FindLast() then
-            NextRowLineNo := TempSPBDBraiderResultBuffer."Line No." + 1
+        if not NextRowLineNo.ContainsKey(RowNo) then
+            NextRowLineNo.Add(RowNo, 1)
         else
-            NextRowLineNo := 1;
+            NextRowLineNo.Set(RowNo, NextRowLineNo.Get(RowNo) + 1);
 
         TempSPBDBraiderResultBuffer.Reset();
         TempSPBDBraiderResultBuffer.Init();
         TempSPBDBraiderResultBuffer."Row No." := RowNo;
-        TempSPBDBraiderResultBuffer."Line No." := NextRowLineNo;
+        TempSPBDBraiderResultBuffer."Line No." := NextRowLineNo.Get(RowNo);
         TempSPBDBraiderResultBuffer."Result Type" := ResultType;
         TempSPBDBraiderResultBuffer.Result := CopyStr(ResultMessage, 1, MaxStrLen(TempSPBDBraiderResultBuffer.Result));
         TempSPBDBraiderResultBuffer.Insert();
@@ -101,7 +99,18 @@ codeunit 71033613 "SPB DBraider Error System"
 
     procedure GetBufferedErrors(): Record "SPB DBraider Result Buffer" temporary;
     begin
+        TempSPBDBraiderResultBuffer.SetRange("Result Type", Enum::"SPB DBraider Result Type"::Error);
         exit(TempSPBDBraiderResultBuffer);
+    end;
+
+    procedure GetBufferedEverything(var Buffer: Record "SPB DBraider Result Buffer" temporary)
+    begin
+        TempSPBDBraiderResultBuffer.Reset(); // Clear any filters
+        if TempSPBDBraiderResultBuffer.FindSet() then
+            repeat
+                Buffer := TempSPBDBraiderResultBuffer;
+                Buffer.Insert();
+            until TempSPBDBraiderResultBuffer.Next() < 1;
     end;
 
     procedure GetErrorsAsString(): Text

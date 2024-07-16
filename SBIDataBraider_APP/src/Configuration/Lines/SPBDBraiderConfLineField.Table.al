@@ -271,4 +271,86 @@ table 71033603 "SPB DBraider ConfLine Field"
 
         exit(SPBDBraiderConfigHeader.WriteableConfig());
     end;
+
+    procedure RefreshFieldList()
+    var
+        DBraiderConfLineFieldSBI: Record "SPB DBraider ConfLine Field";
+        DBraiderConfLineFieldSBI2: Record "SPB DBraider ConfLine Field";
+        TempErrorMessage: Record "Error Message" temporary;
+        SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
+        RecRef: RecordRef;
+        FieldsRef: FieldRef;
+        i: Integer;
+        PKFieldNumbers: List of [Integer];
+        RefreshCount: Integer;
+        FieldsAddedLbl: Label '%1 fields added to the configuration.', Comment = '%1 = label is used to display the number of fields added to the configuration.';
+        MissingFldDefErr: Label 'Field %1:%2 no longer exists in the table.', Comment = '%1 = Field No., %2 = Field Name';
+    begin
+
+        if Rec."Config. Line No." <> 0 then begin
+            DBraiderConfLineFieldSBI.SetRange("Config. Code", Rec."Config. Code");
+            DBraiderConfLineFieldSBI.SetRange("Config. Line No.", Rec."Config. Line No.");
+            // Populate the dataset
+            RecRef.Open("Table No.");
+            PKFieldNumbers := SPBDBraiderUtilities.GetPrimaryKeyFields(RecRef);
+            for i := 1 to RecRef.FieldCount do begin
+                FieldsRef := RecRef.FieldIndex(i);
+                if not DBraiderConfLineFieldSBI2.Get(Rec."Config. Code", Rec."Config. Line No.", FieldsRef.Number) then begin
+                    DBraiderConfLineFieldSBI.Init();
+                    DBraiderConfLineFieldSBI."Config. Code" := Rec."Config. Code";
+                    DBraiderConfLineFieldSBI."Config. Line No." := Rec."Config. Line No.";
+                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number;
+                    DBraiderConfLineFieldSBI."Table No." := Rec."Table No.";
+                    DBraiderConfLineFieldSBI."Processing Order" := 10;
+                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
+                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
+                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
+                    DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
+                    DBraiderConfLineFieldSBI."Fixed Field Name" := DBraiderConfLineFieldSBI."Field Name";
+                    DBraiderConfLineFieldSBI."Fixed Field Caption" := DBraiderConfLineFieldSBI.Caption;
+                    DBraiderConfLineFieldSBI.Insert(true);
+                    RefreshCount += 1;
+                end;
+            end;
+            if RefreshCount <> 0 then
+                Message(FieldsAddedLbl, RefreshCount);
+        end;
+        // Now, let's log any fields that are no longer in the table
+        DBraiderConfLineFieldSBI2.CopyFilters(DBraiderConfLineFieldSBI);
+        Clear(FieldsRef);
+        if DBraiderConfLineFieldSBI2.FindSet() then
+            repeat
+                if not RecRef.FieldExist(DBraiderConfLineFieldSBI2."Field No.") then begin
+                    TempErrorMessage.Init();
+                    TempErrorMessage.ID := DBraiderConfLineFieldSBI2."Field No.";
+                    TempErrorMessage."Table Name" := CopyStr(RecRef.Name, 1, MaxStrLen(TempErrorMessage."Table Name"));
+                    TempErrorMessage."Table Number" := DBraiderConfLineFieldSBI2."Table No.";
+                    TempErrorMessage."Field Name" := CopyStr(DBraiderConfLineFieldSBI2."Fixed Field Name", 1, MaxStrLen(TempErrorMessage."Field Name"));
+                    TempErrorMessage."Field Number" := DBraiderConfLineFieldSBI2."Field No.";
+                    TempErrorMessage."Message Type" := TempErrorMessage."Message Type"::Warning;
+                    TempErrorMessage.Message := StrSubstNo(MissingFldDefErr, Format(DBraiderConfLineFieldSBI2."Field No."), DBraiderConfLineFieldSBI2."Fixed Field Name");
+                    TempErrorMessage.Insert();
+                end;
+            until DBraiderConfLineFieldSBI2.Next() = 0;
+        if not TempErrorMessage.IsEmpty then
+            Page.RunModal(Page::"Error Messages", TempErrorMessage);
+    end;
+
+    procedure RemoveInvalidFields()
+    var
+        DBraiderConfLineFieldSBI: Record "SPB DBraider ConfLine Field";
+        RecRef: RecordRef;
+        ConfirmRemovalMsg: Label 'This will remove all fields that are no longer in the source table.  Are you sure you want to do this?';
+    begin
+        if Confirm(ConfirmRemovalMsg, true) then begin
+            DBraiderConfLineFieldSBI.CopyFilters(Rec);
+            if DBraiderConfLineFieldSBI.FindSet() then begin
+                RecRef.Open(DBraiderConfLineFieldSBI."Table No.");
+                repeat
+                    if not RecRef.FieldExist(DBraiderConfLineFieldSBI."Field No.") then
+                        DBraiderConfLineFieldSBI.Delete(true);
+                until DBraiderConfLineFieldSBI.Next() = 0;
+            end
+        end;
+    end;
 }

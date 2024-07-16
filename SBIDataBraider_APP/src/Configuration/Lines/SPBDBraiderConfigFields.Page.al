@@ -20,14 +20,17 @@ page 71033604 "SPB DBraider Config. Fields"
                 {
                     Editable = false;
                     ToolTip = 'The Field No. of the field from the underlying table.';
+                    StyleExpr = FieldExistsStyle;
                 }
                 field("Fixed Field Name"; Rec."Fixed Field Name")
                 {
                     ToolTip = 'Specifies the value of the Field Name field.';
+                    StyleExpr = FieldExistsStyle;
                 }
                 field("Fixed Field Caption"; Rec."Fixed Field Caption")
                 {
                     ToolTip = 'Specifies the value of the Field Caption field.';
+                    StyleExpr = FieldExistsStyle;
                 }
                 field("Manual Field Caption"; Rec."Manual Field Caption")
                 {
@@ -112,7 +115,30 @@ page 71033604 "SPB DBraider Config. Fields"
     {
         area(Processing)
         {
+            action(RefreshFields)
+            {
+                Caption = 'Refresh Fields';
+                Image = Refresh;
+                ToolTip = 'Refresh the list of fields from the source table.';
 
+                trigger OnAction()
+                begin
+                    Rec.RefreshFieldList();
+                    CurrPage.Update();
+                end;
+            }
+            action(RemoveInvalidFields)
+            {
+                Caption = 'Remove Invalid Fields';
+                Image = CancelAllLines;
+                ToolTip = 'Remove fields that are no longer valid in the source table.';
+
+                trigger OnAction()
+                begin
+                    Rec.RemoveInvalidFields();
+                    CurrPage.Update();
+                end;
+            }
             action(MarkSelectedToIncludeAction)
             {
                 Caption = 'Include Selected';
@@ -168,6 +194,21 @@ page 71033604 "SPB DBraider Config. Fields"
             }
         }
     }
+    var
+        RecRef: RecordRef;
+        RecRefOpened: Boolean;
+        WriteEndpoint: Boolean;
+        FieldExistsStyle: Text;
+
+    trigger OnAfterGetRecord()
+    begin
+        OpenRecRefOnce();
+        if RecRef.FieldExist(Rec."Field No.") then
+            FieldExistsStyle := 'Standard'
+        else
+            FieldExistsStyle := 'Unfavorable';
+
+    end;
 
     trigger OnOpenPage()
     var
@@ -194,6 +235,11 @@ page 71033604 "SPB DBraider Config. Fields"
         SPBDBraiderConfLineField.ModifyAll(Included, false, true);
     end;
 
-    var
-        WriteEndpoint: Boolean;
+    local procedure OpenRecRefOnce()
+    begin
+        if RecRefOpened then
+            exit;
+        RecRef.Open(Rec."Table No.");
+        RecRefOpened := true;
+    end;
 }

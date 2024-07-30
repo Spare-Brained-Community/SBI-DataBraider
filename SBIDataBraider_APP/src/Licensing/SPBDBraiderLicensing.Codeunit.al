@@ -10,6 +10,7 @@ codeunit 71033603 "SPB DBraider Licensing"
         SPBLICCheckActive: Codeunit "SPBLIC Check Active";
         AppInfo: ModuleInfo;
     begin
+        exit(true);  //TODO: Re-engage my license app later
         NavApp.GetCurrentModuleInfo(AppInfo);
         // Usage later: exit(SPBLICCheckActive.CheckBasicSubmodule(AppInfo.Id, SPBDataBraiderInstall.GetAnnualUnlimitedModuleName(), InactiveShowError) or CheckIfUsageBased(InactiveShowError));
         exit(SPBLICCheckActive.CheckBasicSubmodule(AppInfo.Id, SPBDataBraiderInstall.GetAnnualUnlimitedModuleName(), InactiveShowError));

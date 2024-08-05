@@ -123,11 +123,19 @@ codeunit 71033600 "SPB DBraider Data Engine"
         TopLevelRecordId: Guid
         )
     var
+        VirtualField: Record Field;
+        DBHeader: Record "SPB DBraider Config. Header";
+        TempSPBDBraiderResultsetCol2: Record "SPB DBraider Resultset Col" temporary;
         SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
         TypeHelper: Codeunit "Type Helper";
+        RelatedTableRef: RecordRef;
         FldRef: FieldRef;
+        RelatedTableFieldRef: FieldRef;
+        RelatedTableSystemIdFieldRef: FieldRef;
         ThisDateTime: DateTime;
+        RelatedTablePrimaryKeyFields: List of [Integer];
     begin
+        DBHeader.Get(DBField."Config. Code");
         DBField.SetRange(Included, true);
         if DBField.FindSet(false) then
             repeat
@@ -185,6 +193,32 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 end;
                 TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number);
                 TempSPBDBraiderResultsetCol.Insert(true);
+
+                if SPBDBraiderSetup."Disable Related Id" or DBHeader."Disable Related Id" then begin
+                    VirtualField.Get(LineRef.Number, FldRef.Number());
+                    if VirtualField.RelationTableNo <> 0 then begin
+                        RelatedTableRef.Open(VirtualField.RelationTableNo);
+                        if VirtualField.RelationFieldNo <> 0 then
+                            RelatedTableFieldRef := RelatedTableRef.Field(VirtualField.RelationFieldNo)
+                        else begin
+                            RelatedTablePrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(RelatedTableRef);
+                            RelatedTableFieldRef := RelatedTableRef.Field(RelatedTablePrimaryKeyFields.Get(RelatedTablePrimaryKeyFields.Count()));
+                        end;
+                        RelatedTableFieldRef.SetFilter(Format(FldRef.Value));
+                        RelatedTableSystemIdFieldRef := RelatedTableRef.Field(RelatedTableRef.SystemIdNo);
+                        if RelatedTableRef.FindFirst() then begin
+                            // we'll add the Id version of the field to the columns dataset
+                            TempSPBDBraiderResultsetCol2 := TempSPBDBraiderResultsetCol;
+                            TempSPBDBraiderResultsetCol2."Data Type" := Enum::"SPB DBraider Field Data Type"::RelatedId;
+                            TempSPBDBraiderResultsetCol2."Column No." := NextColNo - 1 + 1900000000;
+                            TempSPBDBraiderResultsetCol2."Value as Text" := Format(RelatedTableSystemIdFieldRef.Value);
+                            TempSPBDBraiderResultsetCol2.GuidCell := RelatedTableSystemIdFieldRef.Value;
+                            TempSPBDBraiderResultsetCol := TempSPBDBraiderResultsetCol2;
+                            TempSPBDBraiderResultsetCol.Insert(true);
+                        end;
+                        RelatedTableRef.Close();
+                    end;
+                end;
             until DBField.Next() = 0;
         DBField.SetRange("Filter");
     end;
@@ -321,8 +355,15 @@ codeunit 71033600 "SPB DBraider Data Engine"
                     TempSPBDBraiderResultsetRow."Top-Level SystemId" := TempSPBDBraiderResultsetRowTopLevel."Source SystemId";
                 TempSPBDBraiderResultsetRow."Config. Code" := DBLine."Config. Code";
                 TempSPBDBraiderResultsetRow."FQ SystemId" := CopyStr(SPBDBraiderUtilities.BuildFQSI(BreadcrumbRecordRefArray, DBLine.Indentation + 1), 1, MaxStrLen(TempSPBDBraiderResultsetRow."FQ SystemId"));
-                if (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number) then
-                    TempSPBDBraiderResultsetRow."Buffer Type" := Enum::"SPB DBraider Buffer Type"::Direct;
+                if (RunForSpecificRecordRef.Number <> 0) then begin
+                    // if we're running for a specific record, it's from the write engine.
+                    TempSPBDBraiderResultsetRow."Data Mode" := TempSPBDBraiderResultsetRow."Data Mode"::Write;
+                    if (RunForSpecificRecordRef.Number = LineRef.Number) then
+                        if TempSPBDBraiderResultsetRow."Belongs To Row No." = 0 then
+                            TempSPBDBraiderResultsetRow."Buffer Type" := Enum::"SPB DBraider Buffer Type"::Direct
+                        else
+                            TempSPBDBraiderResultsetRow."Buffer Type" := Enum::"SPB DBraider Buffer Type"::Child;
+                end;
                 TempSPBDBraiderResultsetRow.Insert(true);
 
                 // add columns for the Given DBLine and LineRef
@@ -680,7 +721,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
         RowNo: Integer;
         RowsToMark: List of [Integer];
     begin
-        TempSPBDBraiderResultsetRow.SetRange("Buffer Type", Enum::"SPB DBraider Buffer Type"::Direct);
+        TempSPBDBraiderResultsetRow.SetRange("Buffer Type", Enum::"SPB DBraider Buffer Type"::Child);
         TempSPBDBraiderResultsetRow.SetFilter("Belongs To Row No.", '<>0');
         if TempSPBDBraiderResultsetRow.FindSet() then
             repeat
@@ -691,6 +732,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
         foreach RowNo in RowsToMark do begin
             TempSPBDBraiderResultsetRow.SetRange("Row No.", RowNo);
             TempSPBDBraiderResultsetRow.ModifyAll("Buffer Type", Enum::"SPB DBraider Buffer Type"::Parent);
+            TempSPBDBraiderResultsetRow.ModifyAll("Data Mode", TempSPBDBraiderResultsetRow."Data Mode"::Write);
             TempSPBDBraiderResultsetCol.SetRange("Row No.", RowNo);
             TempSPBDBraiderResultsetCol.ModifyAll("Write Result Record", true);
         end;

@@ -46,6 +46,10 @@ enum 71033600 "SPB DBraider Field Data Type"
     {
         Caption = 'RecordId';
     }
+    value(11; RelatedId)
+    {
+        Caption = 'RelatedId';
+    }
     value(10000; Unsupported)
     {
         Caption = 'Unsupported';

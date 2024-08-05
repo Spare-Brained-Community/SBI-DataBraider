@@ -84,6 +84,10 @@ page 71033602 "SPB DBraider Configuration"
                 {
                     ToolTip = 'Are Delete operations allowed via this endpoint?';
                 }
+                field("Prevent Reading"; Rec."Prevent Reading")
+                {
+                    ToolTip = 'If this is selected, the API will not allow reading of data from this endpoint, only responses to Writes.';
+                }
             }
             group(Logging)
             {
@@ -121,6 +125,10 @@ page 71033602 "SPB DBraider Configuration"
                 field("Hide from Lists"; Rec."Hide from Lists")
                 {
                     ToolTip = 'Specifies if this endpoint should be hidden from the list of available endpoints.';
+                }
+                field("Disable Related Id"; Rec."Disable Related Id")
+                {
+                    ToolTip = 'Specifies the value of the Disable Related Id field.', Comment = '%';
                 }
             }
             group(Telemetry)

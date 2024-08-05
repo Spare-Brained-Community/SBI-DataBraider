@@ -95,6 +95,12 @@ table 71033601 "SPB DBraider Config. Header"
             DataClassification = SystemMetadata;
             InitValue = false;
         }
+        field(53; "Prevent Reading"; Boolean)
+        {
+            Caption = 'Prevent Reading';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
 
         field(60; "Disable Auto ModifiedAt"; Boolean)
         {
@@ -111,6 +117,12 @@ table 71033601 "SPB DBraider Config. Header"
         field(62; "Hide from Lists"; Boolean)
         {
             Caption = 'Hide from Lists';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
+        field(80; "Disable Related Id"; Boolean)
+        {
+            Caption = 'Disable Related Id';
             DataClassification = SystemMetadata;
             InitValue = false;
         }

@@ -48,6 +48,12 @@ table 71033600 "SPB DBraider Setup"
             DataClassification = SystemMetadata;
             InitValue = false;
         }
+        field(80; "Disable Related Id"; Boolean)
+        {
+            Caption = 'Disable Related Id';
+            DataClassification = SystemMetadata;
+            InitValue = false;
+        }
     }
     keys
     {

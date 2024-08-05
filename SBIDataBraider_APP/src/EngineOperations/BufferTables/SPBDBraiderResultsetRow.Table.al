@@ -70,6 +70,12 @@ table 71033605 "SPB DBraider Resultset Row"
             Caption = 'Buffer Type';
             DataClassification = SystemMetadata;
         }
+        field(211; "Data Mode"; Option)
+        {
+            Caption = 'Data Mode';
+            DataClassification = SystemMetadata;
+            OptionMembers = "Read","Write";
+        }
         field(300; "Delta Type"; Enum "SPB DBraider Delta Type")
         {
             Caption = 'Delta Type';

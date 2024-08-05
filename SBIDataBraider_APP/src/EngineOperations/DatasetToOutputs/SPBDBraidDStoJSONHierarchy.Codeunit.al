@@ -96,6 +96,8 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
                                 JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].NumberCell);
                             //ResultCol[1]."Data Type"::Guid:
                             //    JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1].GuidCell);
+                            ResultCol[1]."Data Type"::RelatedId:
+                                JsonCols.Add(JsonEncode(JsonFieldName) + '.id', ResultCol[1]."Value as Text");
                             else
                                 JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[1]."Value as Text");
                         end;
@@ -168,6 +170,8 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
                             end;
                         ResultCol[dataLevel]."Data Type"::Decimal:
                             JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].NumberCell);
+                        ResultCol[dataLevel]."Data Type"::RelatedId:
+                            JsonCols.Add(JsonEncode(JsonFieldName) + '.id', ResultCol[dataLevel]."Value as Text");
                         //ResultCol[dataLevel]."Data Type"::Guid:
                         //    JsonCols.Add(JsonEncode(JsonFieldName), ResultCol[dataLevel].GuidCell);
                         else

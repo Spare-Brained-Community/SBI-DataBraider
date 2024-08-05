@@ -47,30 +47,23 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
         JsonCols: JsonObject;
     begin
         MaximumDepth := 0; // To shut up AA0205;
-        // Build complete table.field dictionary of possible values so we have all columns
-        /* DBLine.SetRange("Config. Code", ResultRow[1]."Config. Code");
-        if DBLine.FindSet() then
-            repeat
-                DBField.SetRange("Config. Code", ResultRow[1]."Config. Code");
-                DBField.SetRange("Config. Line No.", DBLine."Line No.");
-                DBField.SetRange(Included, true);
-                if DBField.FindSet() then
-                    repeat
-                        DBLine.CalcFields("Source Table Name");
-                        DBField.CalcFields(Caption, "Field Name");
-                        FieldList.Add(JsonEncode(DBLine."Source Table Name") + '.' + JsonEncode(DBField."Field Name"));
-                    until DBField.Next() = 0;
-                //also force add the timestamp entry:
-                FieldList.Add(JsonEncode(DBLine."Source Table Name") + '.timestamp');
-                if DBLine.Indentation > MaximumDepth then
-                    MaximumDepth := DBLine.Indentation + 1;
-            until DBLine.Next() = 0; */
 
-        // For each top level row, call a recusive 'add data to JsonRow' function
-        if DBHeader.WriteableConfig() then
-            ResultRow[1].SetRange("Buffer Type", Enum::"SPB DBraider Buffer Type"::Direct)  // for written records, only include Direct type records
-        else
-            ResultRow[1].SetRange("Belongs To Row No.", 0);  // 'root' level
+
+        // Depending on the configuration, we handle 'root' level differently.  If it's a writeable config, we only want Direct or Parent rows.
+        if DBHeader.WriteableConfig() then begin
+            // Check to see if there's any *write* mode entries.
+            ResultRow[1].SetRange("Data Mode", ResultRow[1]."Data Mode"::"Write");
+            if ResultRow[1].IsEmpty() then
+                if DBHeader."Prevent Reading" then begin
+                    JsonCols.Add('Error', 'This endpoint is write-only and cannot be read from.');
+                    JsonRows.Add(JsonCols.Clone());
+                end else
+                    ResultRow[1].SetRange("Belongs To Row No.", 0)  // 'root' level for read results from the Write endpoint
+            else
+                ResultRow[1].SetFilter("Buffer Type", '%1|%2', Enum::"SPB DBraider Buffer Type"::Direct, Enum::"SPB DBraider Buffer Type"::Parent);
+            ResultRow[1].SetRange("Data Mode");
+        end else
+            ResultRow[1].SetRange("Belongs To Row No.", 0);  // 'root' level of a Read endpoint
         if ResultRow[1].FindSet() then
             repeat
                 dataLevel := 1;
@@ -92,7 +85,10 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                 if not DBHeader.WriteableConfig() then
                     AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth)
                 else
-                    JsonRows.Add(JsonCols.Clone()); // If we're not adding the children, we need to add the row to the array
+                    if ResultRow[1]."Buffer Type" = Enum::"SPB DBraider Buffer Type"::Parent then
+                        AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth)
+                    else
+                        JsonRows.Add(JsonCols.Clone()); // If we're not adding the children, we need to add the row to the array
 
             // Add the new 'row' of columns to the array
             //JsonRows.Add(JsonCols.Clone());
@@ -124,6 +120,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
     var
         IntValue: Integer;
         TestJsonValue: JsonValue;
+        Suffix: Text;
     begin
         ResultRow[dataLevel].CalcFields("Source Table Name");
         // Delta Read support
@@ -137,6 +134,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
         ResultCol[dataLevel].SetRange("Row No.", ForWhichRowNo);
         if ResultCol[dataLevel].FindSet() then
             repeat
+                Clear(Suffix);
                 TestJsonValue.SetValue(ResultCol[dataLevel]."Value as Text");
                 case ResultCol[dataLevel]."Data Type" of
                     ResultCol[dataLevel]."Data Type"::Boolean:
@@ -159,10 +157,12 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                     else
                         TestJsonValue.SetValue(ResultCol[dataLevel]."Value as Text");
                 end;
+                if ResultCol[dataLevel]."Data Type" = Enum::"SPB DBraider Field Data Type"::RelatedId then
+                    Suffix := '.id';
                 if ResultCol[dataLevel]."Forced Field Caption" <> '' then
-                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Forced Field Caption"), TestJsonValue)
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Forced Field Caption" + Suffix), TestJsonValue)
                 else
-                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name"), TestJsonValue);
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name" + Suffix), TestJsonValue);
             until ResultCol[dataLevel].Next() = 0;
     end;
 

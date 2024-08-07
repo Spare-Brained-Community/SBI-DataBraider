@@ -135,9 +135,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
         ThisDateTime: DateTime;
         RelatedTablePrimaryKeyFields: List of [Integer];
     begin
-        DBHeader.Get(DBField."Config. Code");
         DBField.SetRange(Included, true);
-        if DBField.FindSet(false) then
+        if DBField.FindSet(false) then begin
+            DBHeader.Get(DBField."Config. Code");
             repeat
                 FldRef := LineRef.Field(DBField."Field No.");
                 if FldRef.Class() = FieldClass::FlowField then
@@ -220,6 +220,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                     end;
                 end;
             until DBField.Next() = 0;
+        end;
         DBField.SetRange("Filter");
     end;
 

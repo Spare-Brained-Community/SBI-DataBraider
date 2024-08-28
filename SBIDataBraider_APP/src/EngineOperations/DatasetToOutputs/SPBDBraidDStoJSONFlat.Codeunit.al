@@ -43,13 +43,14 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
 
     internal procedure ProcessDataFlatToJson(DBHeader: Record "SPB DBraider Config. Header") JsonRows: JsonArray;
     var
+        UseWriteResponseFiltering: Boolean;
         MaximumDepth: Integer;
         JsonCols: JsonObject;
     begin
         MaximumDepth := 0; // To shut up AA0205;
 
-
         // Depending on the configuration, we handle 'root' level differently.  If it's a writeable config, we only want Direct or Parent rows.
+        UseWriteResponseFiltering := false;
         if DBHeader.WriteableConfig() then begin
             // Check to see if there's any *write* mode entries.
             ResultRow[1].SetRange("Data Mode", ResultRow[1]."Data Mode"::"Write");
@@ -59,8 +60,10 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                     JsonRows.Add(JsonCols.Clone());
                 end else
                     ResultRow[1].SetRange("Belongs To Row No.", 0)  // 'root' level for read results from the Write endpoint
-            else
+            else begin
                 ResultRow[1].SetFilter("Buffer Type", '%1|%2', Enum::"SPB DBraider Buffer Type"::Direct, Enum::"SPB DBraider Buffer Type"::Parent);
+                UseWriteResponseFiltering := true;
+            end;
             ResultRow[1].SetRange("Data Mode");
         end else
             ResultRow[1].SetRange("Belongs To Row No.", 0);  // 'root' level of a Read endpoint
@@ -82,7 +85,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                 AddFieldColsToJsonCols(JsonCols, ResultRow[1]."Row No.");
 
                 // And add children rows:
-                if not DBHeader.WriteableConfig() then
+                if not UseWriteResponseFiltering then
                     AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth)
                 else
                     if ResultRow[1]."Buffer Type" = Enum::"SPB DBraider Buffer Type"::Parent then
@@ -101,7 +104,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
     begin
         dataLevel += 1;
         ResultRow[dataLevel].SetRange("Belongs To Row No.", ForWhichRowNo);
-        if ResultRow[dataLevel].FindSet() then
+        if ResultRow[dataLevel].FindSet() then begin
             repeat
                 // Add this layer to the data
                 AddFieldColsToJsonCols(JsonCols, ResultRow[dataLevel]."Row No.");
@@ -111,8 +114,9 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
 
             until ResultRow[dataLevel].Next() = 0;
 
-        if dataLevel > MaximumDepth then
-            JsonRows.Add(JsonCols.Clone());
+            if dataLevel > MaximumDepth then
+                JsonRows.Add(JsonCols.Clone());
+        end;
         dataLevel -= 1;
     end;
 

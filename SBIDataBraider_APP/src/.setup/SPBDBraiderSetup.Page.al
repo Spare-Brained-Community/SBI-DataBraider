@@ -41,6 +41,10 @@ page 71033600 "SPB DBraider Setup"
                 {
                     ToolTip = 'Specifies if calls to the read endpoint with no Endpoint specified will produce a list, globally.';
                 }
+                field("Disable Related Id"; Rec."Disable Related Id")
+                {
+                    ToolTip = 'Specifies the value of the Disable Related Id field.', Comment = '%';
+                }
             }
             group(FutureVersions)
             {

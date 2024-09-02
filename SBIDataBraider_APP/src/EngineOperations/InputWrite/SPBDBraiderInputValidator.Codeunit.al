@@ -84,7 +84,7 @@ codeunit 71033605 "SPB DBraider Input Validator"
 
                         // Check for an 'Action' Path, path will contain "[x].Action"
                         TempMatches.DeleteAll();
-                        Regex.Match(UpperCase(TempJsonBuffer.Path), '\[\d\]\.(ACTION)', 0, TempMatches);
+                        Regex.Match(UpperCase(TempJsonBuffer.Path), '\[\d*\]\.(ACTION)', 0, TempMatches);
 
                         if (TempMatches.FindFirst()) then begin
                             if not Evaluate(TempJsonBuffer."SPB Record Action", TempJsonBuffer.Value) then

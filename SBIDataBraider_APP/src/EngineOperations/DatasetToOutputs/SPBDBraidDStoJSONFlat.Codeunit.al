@@ -85,9 +85,10 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                 AddFieldColsToJsonCols(JsonCols, ResultRow[1]."Row No.");
 
                 // And add children rows:
-                if not UseWriteResponseFiltering then
-                    AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth)
-                else
+                if not UseWriteResponseFiltering then begin
+                    AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth);
+                    JsonRows.Add(JsonCols.Clone());
+                end else
                     if ResultRow[1]."Buffer Type" = Enum::"SPB DBraider Buffer Type"::Parent then
                         AddChildrenRowsToJsonCols(JsonRows, JsonCols, ResultRow[1]."Row No.", MaximumDepth)
                     else
@@ -164,9 +165,9 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                 if ResultCol[dataLevel]."Data Type" = Enum::"SPB DBraider Field Data Type"::RelatedId then
                     Suffix := '.id';
                 if ResultCol[dataLevel]."Forced Field Caption" <> '' then
-                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Forced Field Caption" + Suffix), TestJsonValue)
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Forced Field Caption") + Suffix, TestJsonValue)
                 else
-                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name" + Suffix), TestJsonValue);
+                    SafeAddJsonCols(JsonCols, JsonEncode(ResultRow[dataLevel]."Source Table Name") + '.' + JsonEncode(ResultCol[dataLevel]."Field Name") + Suffix, TestJsonValue);
             until ResultCol[dataLevel].Next() = 0;
     end;
 

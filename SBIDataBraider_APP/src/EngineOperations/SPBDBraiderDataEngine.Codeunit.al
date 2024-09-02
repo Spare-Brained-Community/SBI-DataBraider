@@ -194,7 +194,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number <> 0) and (RunForSpecificRecordRef.Number = LineRef.Number);
                 TempSPBDBraiderResultsetCol.Insert(true);
 
-                if SPBDBraiderSetup."Disable Related Id" or DBHeader."Disable Related Id" then begin
+                if (not SPBDBraiderSetup."Disable Related Id") then begin //or (not DBHeader."Disable Related Id") then begin
                     VirtualField.Get(LineRef.Number, FldRef.Number());
                     if VirtualField.RelationTableNo <> 0 then begin
                         RelatedTableRef.Open(VirtualField.RelationTableNo);
@@ -211,7 +211,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                             TempSPBDBraiderResultsetCol2 := TempSPBDBraiderResultsetCol;
                             TempSPBDBraiderResultsetCol2."Data Type" := Enum::"SPB DBraider Field Data Type"::RelatedId;
                             TempSPBDBraiderResultsetCol2."Column No." := NextColNo - 1 + 1900000000;
-                            TempSPBDBraiderResultsetCol2."Value as Text" := Format(RelatedTableSystemIdFieldRef.Value);
+                            TempSPBDBraiderResultsetCol2."Value as Text" := CopyStr(Format(RelatedTableSystemIdFieldRef.Value, 0, 4).ToLower(), 1, MaxStrLen(TempSPBDBraiderResultsetCol2."Value as Text"));
                             TempSPBDBraiderResultsetCol2.GuidCell := RelatedTableSystemIdFieldRef.Value;
                             TempSPBDBraiderResultsetCol := TempSPBDBraiderResultsetCol2;
                             TempSPBDBraiderResultsetCol.Insert(true);

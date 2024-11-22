@@ -559,7 +559,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             FilterObj.Get('table', ValTok);
             // We'll assume Table Number first, but if not found, we'll try to GetTableNoFromTableName
             if not Evaluate(TempSPBDBraiderFilters."Table No.", ValTok.AsValue().AsText()) then begin
-                PossibleTableNo := GetTableNoFromTableName(ValTok.AsValue().AsText());
+                PossibleTableNo := GetTableNoFromTableName(ConfigCode, ValTok.AsValue().AsText());
                 if PossibleTableNo <> 0 then
                     TempSPBDBraiderFilters."Table No." := PossibleTableNo
                 else begin
@@ -593,7 +593,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             if TempSPBDBraiderFilters."Table No." <> 0 then begin
                 FilterObj.Get('field', ValTok);
                 if not Evaluate(TempSPBDBraiderFilters."Field No.", ValTok.AsValue().AsText()) then begin
-                    PossibleFieldNo := GetFieldNoFromFieldName(TempSPBDBraiderFilters."Table No.", ValTok.AsValue().AsText());
+                    PossibleFieldNo := GetFieldNoFromFieldName(ConfigCode, TempSPBDBraiderFilters."Table No.", ValTok.AsValue().AsText());
                     if PossibleFieldNo <> 0 then
                         TempSPBDBraiderFilters."Field No." := PossibleFieldNo
                     else begin
@@ -632,10 +632,13 @@ codeunit 71033600 "SPB DBraider Data Engine"
         TempSPBDBraiderFilters.SetRange(Success);
     end;
 
-    local procedure GetTableNoFromTableName(TableName: Text): Integer
+    local procedure GetTableNoFromTableName(ConfigCode: Code[20]; TableName: Text): Integer
     var
         AllObjWithCaption: Record AllObjWithCaption;
+        DBChildLine: Record "SPB DBraider Config. Line";
+        SPBDBraiderJSONUtilities: Codeunit "SPB DBraider JSON Utilities";
     begin
+        // First we'll try to find the table by name, or by caption, matching the BC Table naming.
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object Name", TableName);
         if AllObjWithCaption.FindFirst() then
@@ -645,13 +648,25 @@ codeunit 71033600 "SPB DBraider Data Engine"
         AllObjWithCaption.SetRange("Object Caption", TableName);
         if AllObjWithCaption.FindFirst() then
             exit(AllObjWithCaption."Object ID");
+
+        // If we still haven't found it, we'll try to find it in the Config Lines using the JSON'd name
+        DBChildLine.SetRange("Config. Code", ConfigCode);
+        DBChildLine.SetAutoCalcFields("Source Table Name");
+        if DBChildLine.FindSet() then
+            repeat
+                if SPBDBraiderJSONUtilities.JsonSafeTableFieldName(DBChildLine."Source Table Name") = TableName then
+                    exit(DBChildLine."Source Table");
+            until DBChildLine.Next() < 1;
         exit(0);
     end;
 
-    local procedure GetFieldNoFromFieldName(TableNo: Integer; FieldName: Text): Integer
+    local procedure GetFieldNoFromFieldName(ConfigCode: Code[20]; TableNo: Integer; FieldName: Text): Integer
     var
         FieldData: Record Field;
+        DBChildFields: Record "SPB DBraider ConfLine Field";
+        SPBDBraiderJSONUtilities: Codeunit "SPB DBraider JSON Utilities";
     begin
+        // Try to match on the Field Name and Field Captions based on the BC information
         FieldData.SetRange(TableNo, TableNo);
         FieldData.SetRange(FieldName, FieldName);
         if FieldData.FindFirst() then
@@ -660,6 +675,18 @@ codeunit 71033600 "SPB DBraider Data Engine"
         FieldData.SetRange("Field Caption", FieldName);
         if FieldData.FindFirst() then
             exit(FieldData."No.");
+
+        // If this fails, we'll try to find it in the Config Lines using the JSON'd name of the field or even the user's defined caption
+        DBChildFields.SetRange("Config. Code", ConfigCode);
+        DBChildFields.SetAutoCalcFields("Field Name", Caption);
+        if DBChildFields.FindSet() then
+            repeat
+                if (SPBDBraiderJSONUtilities.JsonSafeTableFieldName(DBChildFields."Field Name") = FieldName)
+                    or (SPBDBraiderJSONUtilities.JsonSafeTableFieldName(DBChildFields.Caption) = FieldName)
+                    or (DBChildFields."Manual Field Caption" = FieldName)
+                then
+                    exit(DBChildFields."Field No.");
+            until DBChildFields.Next() < 1;
         exit(0);
     end;
 

@@ -378,6 +378,8 @@ codeunit 71033608 "SPB DBraider Utilities"
         NewTextBuilder: TextBuilder;
     begin
         // In this procedure, we will take a string, and using Regex replace any instances of {{%1}} with the value of the Tag field from the SPB DBraider Variable record
+        if not TextToTransform.Contains('{{') then
+            exit(false);
 
         // First, we need to find all instances of {{%1}} in the RawInputText
         RegexPattern := '\{\{|}}';

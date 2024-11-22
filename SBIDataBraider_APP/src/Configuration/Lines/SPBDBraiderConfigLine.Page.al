@@ -33,6 +33,7 @@ page 71033603 "SPB DBraider Config. Line"
                     trigger OnValidate()
                     begin
                         Rec.CalcFields("Source Table Name", "Field Count");
+                        UpdateConfigLineCounts();
                     end;
                 }
                 field("Source Table Name"; Rec."Source Table Name")
@@ -200,6 +201,11 @@ page 71033603 "SPB DBraider Config. Line"
         ConfigLineCount: Integer;
 
     trigger OnAfterGetCurrRecord()
+    begin
+        UpdateConfigLineCounts();
+    end;
+
+    local procedure UpdateConfigLineCounts()
     var
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
     begin

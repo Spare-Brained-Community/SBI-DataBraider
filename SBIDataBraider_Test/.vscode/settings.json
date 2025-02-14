@@ -1,0 +1,4 @@
+{
+    "CRS.ObjectNamePrefix": "SPBTST ",
+    "al.ruleSetPath": "src\\.rulesets\\SPBDataBraiderTest.ruleset.json"
+}

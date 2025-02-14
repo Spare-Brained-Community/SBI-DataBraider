@@ -12,12 +12,6 @@
   "logo": "./logo/AppSource-SBIDataBraider-350x350.png",
   "contextSensitiveHelpUrl": "https://sparebrained.com/appsource/databraider",
   "dependencies": [
-    {
-      "id": "5ddd2a5e-1b5f-47b4-b655-88d2c2a9b382",
-      "name": "Spare Brained Licensing",
-      "publisher": "Spare Brained Ideas AB",
-      "version": "2.0.0.0"
-    }
   ],
   "screenshots": [],
   "platform": "1.0.0.0",

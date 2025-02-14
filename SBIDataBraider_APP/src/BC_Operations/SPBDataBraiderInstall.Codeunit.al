@@ -13,7 +13,7 @@ codeunit 71033602 "SPB DataBraider Install"
 
     trigger OnInstallAppPerDatabase()
     begin
-        RegisterSubscription();
+        //RegisterSubscription();
         CreateIsoVars();
     end;
 
@@ -29,14 +29,14 @@ codeunit 71033602 "SPB DataBraider Install"
 
     local procedure RegisterSubscription()
     var
-        SPBLicenseManagement: Codeunit "SPBLIC Extension Registration";
-        SPBPlatforms: Enum "SPBLIC License Platform";
+        //SPBLicenseManagement: Codeunit "SPBLIC Extension Registration";
+        //SPBPlatforms: Enum "SPBLIC License Platform";
         AppInfo: ModuleInfo;
     begin
         NavApp.GetCurrentModuleInfo(AppInfo);
 
         // Register the Annual Unlimited Submodule
-        SPBLicenseManagement.RegisterExtension(AppInfo,
+        /* SPBLicenseManagement.RegisterExtension(AppInfo,
           GetAnnualUnlimitedId(),                                                   // Submodule ID
           AnnualUnlimitedModuleNameTok,                                             // Submodule Name
           '184992',                                                         // Lemon Squeezy Product Code
@@ -50,7 +50,7 @@ codeunit 71033602 "SPB DataBraider Install"
           60,                                                               // Grace days before activation is required in Sandboxes
           Version.Create('2.0.0.0'),                                        // Minimum version of the Licensing Extension required
           SPBPlatforms::LemonSqueezy,                                       // Which licensing platform to use         
-          true);                                                             // Force an update of the existing settings.
+          true);      */                                                        // Force an update of the existing settings.
 
         // Register the UsageBased Submodule
         // TODO: this will be added later

@@ -1,10 +1,61 @@
 {
-    "folders":  [
-                    {
-                        "path":  ".AL-Go"
-                    }
-                ],
-    "settings":  {
-
-                 }
+  "extensions": {
+    "recommendations": [
+      "sparebrainedideas.sparebrained-al-pack"
+    ]
+  },
+  "folders": [
+    {
+      "name": "_Symbols",
+      "path": ".alpackages"
+    },
+    {
+      "name": "Data Braider",
+      "path": "SBIDataBraider_APP"
+    },
+    {
+      "name": "Test",
+      "path": "SBIDataBraider_Test"
+    },
+  ],
+  "settings": {
+    "al.codeAnalyzers": [
+      "${CodeCop}",
+      "${UICop}"
+    ],
+    "al.enableCodeAnalysis": true,
+    "al.enableCodeActions": true,
+    "al.compilationOptions": {
+      "continueBuildOnError": true
+    },
+    "al.packageCachePath": "../.alpackages",
+    "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+		"CRS.FileNamePatternExtensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+		"CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+		"CRS.OnSaveAlFileAction": "Rename",
+		"CRS.RenameWithGit": false,
+    "CRS.ObjectNamePrefix": "SPB ",
+    "alStudio.advanced.skipInitialScan": true,
+    "alOutline.codeActionsOnSave": [
+      "SortTableFields",
+      "SortProperties",
+      "SortVariables"
+    ],
+    "alOutline.codeCleanupActions": [
+      "AddApplicationAreas",
+      "AddDataClassifications",
+      "AddMissingParentheses",
+      "AddMissingParentheses",
+      "FixIdentifiersCase",
+      "FixKeywordsCase",
+      "RemoveRedundantAppAreas",
+      "RemoveStrSubstNoFromError",
+      "RemoveUnusedVariables",
+      "SortTableFields",
+      "SortProperties",
+      "SortVariables",
+      "RemoveBeginEnd",
+      "RemoveStrSubstNoFromError"
+    ]
+  }
 }

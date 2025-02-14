@@ -204,7 +204,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                             RelatedTablePrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(RelatedTableRef);
                             RelatedTableFieldRef := RelatedTableRef.Field(RelatedTablePrimaryKeyFields.Get(RelatedTablePrimaryKeyFields.Count()));
                         end;
-                        RelatedTableFieldRef.SetFilter(Format(FldRef.Value));
+                        RelatedTableFieldRef.SetRange(Format(FldRef.Value));
                         RelatedTableSystemIdFieldRef := RelatedTableRef.Field(RelatedTableRef.SystemIdNo);
                         if RelatedTableRef.FindFirst() then begin
                             // we'll add the Id version of the field to the columns dataset

@@ -3,6 +3,8 @@
   "appSourceCopMandatoryAffixes": [
     "SPB"
   ],
+  "rulesetFile": "SpareBrainedLicensing_APP/src/.rulesets/SPBLicensing.ruleset.json",
+  "enableExternalRulesets": true,
   "appFolders": [],
   "testFolders": [],
   "bcptTestFolders": [],

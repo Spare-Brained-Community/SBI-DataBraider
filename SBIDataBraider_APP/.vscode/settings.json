@@ -1,8 +1,11 @@
 {
     "al.codeAnalyzers": [
-        "${AppSourceCop}",
         "${CodeCop}",
-        "${UICop}"
+        "${UICop}",
+        "${PerTenantExtensionCop}",
+        "${AppSourceCop}",
+        "${analyzerFolder}BusinessCentral.LinterCop.dll"
     ],
-    "al.ruleSetPath": "src\\.rulesets\\SPBDataBraider.ruleset.json"
+    "al.backgroundCodeAnalysis": "Project",
+    "al.ruleSetPath": "src/.rulesets/SPBDataBraider.ruleset.json"
 }

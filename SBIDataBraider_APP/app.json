@@ -4,15 +4,14 @@
   "publisher": "Spare Brained Ideas AB",
   "brief": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
   "description": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
-  "version": "2.1.0.0",
+  "version": "2.2.0.0",
   "privacyStatement": "https://stefanmaron.com/privacystatement/",
   "EULA": "https://stefanmaron.com/eula/",
   "help": "https://github.com/Spare-Brained-Community/SBI-DataBraider/issues",
   "url": "https://github.com/Spare-Brained-Community/SBI-DataBraider",
   "logo": "./logo/AppSource-SBIDataBraider-350x350.png",
   "contextSensitiveHelpUrl": "https://github.com/Spare-Brained-Community/SBI-DataBraider/issues",
-  "dependencies": [
-  ],
+  "dependencies": [],
   "screenshots": [],
   "platform": "1.0.0.0",
   "application": "24.0.0.0",
@@ -30,7 +29,8 @@
   "target": "Cloud",
   "runtime": "13.0",
   "features": [
-    "TranslationFile", "NoImplicitWith"
+    "TranslationFile",
+    "NoImplicitWith"
   ],
   "internalsVisibleTo": [
     {

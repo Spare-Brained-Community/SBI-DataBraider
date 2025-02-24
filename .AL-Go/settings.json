@@ -5,8 +5,12 @@
   ],
   "rulesetFile": "SBIDataBraider_APP/src/.rulesets/SPBDataBraider.ruleset.json",
   "enableExternalRulesets": true,
-  "appFolders": ["SBIDataBraider_APP"],
-  "testFolders": ["SBIDataBraider_Test"],
+  "appFolders": [
+    "SBIDataBraider_APP"
+  ],
+  "testFolders": [
+    "SBIDataBraider_Test"
+  ],
   "bcptTestFolders": [],
   "appDependencyProbingPaths": [
     {
@@ -16,5 +20,6 @@
       "projects": "*"
     }
   ],
-  "installOnlyReferencedApps": false
+  "installOnlyReferencedApps": false,
+  "repoVersion": "1.1"
 }

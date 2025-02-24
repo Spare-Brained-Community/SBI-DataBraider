@@ -7,7 +7,9 @@ table 71033618 "SPB DBraider ROI Detail Line"
         field(1; "Line No."; Integer)
         {
             Caption = 'Line No.';
+#pragma warning disable LC0006
             AutoIncrement = true;
+#pragma warning restore LC0006
         }
         field(2; Indentation; Integer)
         {

@@ -1,7 +1,7 @@
 {
   "id": "4b65b5d6-3dc0-453e-9ad5-17a64e96a31f",
-  "name": "SBI Data Braider",
-  "publisher": "Spare Brained Ideas AB",
+  "name": "Data Braider",
+  "publisher": "Stefan Maron Consulting",
   "brief": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
   "description": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
   "version": "2.2.0.0",

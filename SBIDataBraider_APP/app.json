@@ -15,7 +15,7 @@
   ],
   "screenshots": [],
   "platform": "1.0.0.0",
-  "application": "22.0.0.0",
+  "application": "24.0.0.0",
   "idRanges": [
     {
       "from": 71033600,
@@ -28,7 +28,7 @@
     "includeSourceInSymbolFile": false
   },
   "target": "Cloud",
-  "runtime": "11.0",
+  "runtime": "13.0",
   "features": [
     "TranslationFile", "NoImplicitWith"
   ],
@@ -43,6 +43,5 @@
       "name": "SBI Data Braider Diag",
       "publisher": "Spare Brained Ideas AB"
     }
-  ],
-  "applicationInsightsConnectionString": "InstrumentationKey=c491446a-3794-4621-8a75-c955183af0d8;IngestionEndpoint=https://northeurope-2.in.applicationinsights.azure.com/"
+  ]
 }

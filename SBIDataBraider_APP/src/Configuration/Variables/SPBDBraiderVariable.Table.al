@@ -1,5 +1,6 @@
 table 71033616 "SPB DBraider Variable"
 {
+    InherentPermissions = RIMDX;
     Caption = 'Data Braider Variable';
     DataClassification = CustomerContent;
     ObsoleteState = Pending;

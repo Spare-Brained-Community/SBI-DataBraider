@@ -1,6 +1,12 @@
 {
   "name": "Licensing ruleset",
   "description": "The ruleset to use for SBI Data Braider",
+  "includedRuleSets": [
+      {
+          "action": "Default",
+          "path": "https://raw.githubusercontent.com/StefanMaron/RulesetFiles/main/appsource.rulset.json"
+      }
+  ],
   "rules": [
     {
       "id": "AA0240",

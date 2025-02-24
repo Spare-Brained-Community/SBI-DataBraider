@@ -8,10 +8,10 @@ controladdin "SPB JsonPrettyDisplay"
     MinimumWidth = 700;
     RequestedHeight = 500;
     RequestedWidth = 700;
-    Scripts = 'LargeTextDisplay\JsonPrettyDisplay\Script\main.js';
-    StartupScript = 'LargeTextDisplay\JsonPrettyDisplay\Script\startup.js';
+    Scripts = 'LargeTextDisplay/JsonPrettyDisplay/Script/main.js';
+    StartupScript = 'LargeTextDisplay/JsonPrettyDisplay/Script/startup.js';
 
-    StyleSheets = 'LargeTextDisplay\JsonPrettyDisplay\Stylesheet\style.css';
+    StyleSheets = 'LargeTextDisplay/JsonPrettyDisplay/Stylesheet/style.css';
     VerticalShrink = true;
     VerticalStretch = true;
 

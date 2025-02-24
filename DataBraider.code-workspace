@@ -34,7 +34,6 @@
 		"CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
 		"CRS.OnSaveAlFileAction": "Rename",
 		"CRS.RenameWithGit": false,
-    "CRS.ObjectNamePrefix": "SPB ",
     "alStudio.advanced.skipInitialScan": true,
     "alOutline.codeActionsOnSave": [
       "SortTableFields",
@@ -56,6 +55,10 @@
       "SortVariables",
       "RemoveBeginEnd",
       "RemoveStrSubstNoFromError"
+    ],
+    "cSpell.words": [
+      "RIMDX",
+      "SPBD"
     ]
   }
 }

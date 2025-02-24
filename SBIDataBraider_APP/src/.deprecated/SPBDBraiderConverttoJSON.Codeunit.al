@@ -1,5 +1,6 @@
 codeunit 71033601 "SPB DBraider Convert to JSON"
 {
+    InherentPermissions = X;
     ObsoleteReason = 'This codeunit is obsolete. Use the SPB DBraider Convert to JSON flat or heirarchical (default) codeunits instead.';
     ObsoleteState = Pending;
 

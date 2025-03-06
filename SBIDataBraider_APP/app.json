@@ -4,7 +4,7 @@
   "publisher": "Stefan Maron Consulting",
   "brief": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
   "description": "Data Braider allows power users, implementors and administrators to configure API datasets to be exposed as JSON.",
-  "version": "2.2.0.0",
+  "version": "2.3.0.0",
   "privacyStatement": "https://stefanmaron.com/privacystatement/",
   "EULA": "https://stefanmaron.com/eula/",
   "help": "https://github.com/Spare-Brained-Community/SBI-DataBraider/issues",

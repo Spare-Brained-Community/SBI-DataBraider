@@ -20,6 +20,11 @@
       "projects": "*"
     }
   ],
+  "deliverToAppSource": {
+    "productId": "c7ff7a11-a0f6-490a-8afd-6a8a3e7c6425",
+    "continuousDelivery": false,
+    "mainAppFolder": "SBIDataBraider_APP"
+  },
   "installOnlyReferencedApps": false,
   "repoVersion": "1.1"
 }

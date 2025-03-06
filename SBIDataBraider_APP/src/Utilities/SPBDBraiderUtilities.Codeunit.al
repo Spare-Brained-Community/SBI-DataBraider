@@ -211,8 +211,13 @@ codeunit 71033608 "SPB DBraider Utilities"
             until SPBDBraiderConfigHeader.Next() = 0;
         Results.Set('TotalReadsCM', ReadsTally);
         Results.Set('TotalWritesCM', WritesTally);
-        Results.Set('AvgReadsCM', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
-        Results.Set('AvgWritesCM', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+        if not SPBDBraiderConfigHeader.IsEmpty() then begin
+            Results.Set('AvgReadsCM', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
+            Results.Set('AvgWritesCM', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+        end else begin
+            Results.Set('AvgReadsCM', 0);
+            Results.Set('AvgWritesCM', 0);
+        end;
 
         // Gather total figures first
         if SPBDBraiderConfigHeader.FindSet(false) then
@@ -224,8 +229,13 @@ codeunit 71033608 "SPB DBraider Utilities"
             until SPBDBraiderConfigHeader.Next() = 0;
         Results.Set('TotalReadsAlltime', ReadsTally);
         Results.Set('TotalWritesAlltime', WritesTally);
-        Results.Set('AvgReadsAlltime', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
-        Results.Set('AvgWritesAlltime', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+        if not SPBDBraiderConfigHeader.IsEmpty() then begin
+            Results.Set('AvgReadsAlltime', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
+            Results.Set('AvgWritesAlltime', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+        end else begin
+            Results.Set('AvgReadsAlltime', 0);
+            Results.Set('AvgWritesAlltime', 0);
+        end;
     end;
 
     procedure GetEndpointTelemetryDataJson(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header") DataJson: Text;

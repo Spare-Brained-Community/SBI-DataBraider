@@ -14,7 +14,7 @@ page 71033618 "SPB Braider Support Wizard"
         {
             group(StandardBanner)
             {
-                Caption = '';
+                Caption = '', Locked = true;
                 Editable = false;
                 Visible = TopBannerVisible and not SubmitActionEnabled;
                 field(MediaResourcesStandard; MediaResourcesStandard."Media Reference")
@@ -26,7 +26,7 @@ page 71033618 "SPB Braider Support Wizard"
             }
             group(SubmitedBanner)
             {
-                Caption = '';
+                Caption = '', Locked = true;
                 Editable = false;
                 Visible = TopBannerVisible and SubmitActionEnabled;
                 field(MediaResourcesDone; MediaResourcesDone."Media Reference")

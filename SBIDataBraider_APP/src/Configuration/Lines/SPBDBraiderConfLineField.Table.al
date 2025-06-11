@@ -79,10 +79,11 @@ table 71033603 "SPB DBraider ConfLine Field"
 
             trigger OnValidate()
             var
+                ConfirmManagement: Codeunit "Confirm Management";
                 DisableAllCautionMsg: Label 'Using the ''Disable All'' option will disable all validation on this field. This can introduce dangerously malformed data and can result in significant expensive problems. Any damages from use of this function are your responsibility.\ \Are you CERTAIN you want to do this?';
             begin
                 if "Disable Validation" = "Disable Validation"::DisableAll then
-                    if not Confirm(DisableAllCautionMsg) then
+                    if not ConfirmManagement.GetResponseOrDefault(DisableAllCautionMsg, false) then
                         "Disable Validation" := "Disable Validation"::" "
             end;
         }
@@ -337,10 +338,11 @@ table 71033603 "SPB DBraider ConfLine Field"
     procedure RemoveInvalidFields()
     var
         DBraiderConfLineFieldSBI: Record "SPB DBraider ConfLine Field";
+        ConfirmManagement: Codeunit "Confirm Management";
         RecRef: RecordRef;
         ConfirmRemovalMsg: Label 'This will remove all fields that are no longer in the source table.  Are you sure you want to do this?';
     begin
-        if Confirm(ConfirmRemovalMsg, true) then begin
+        if ConfirmManagement.GetResponseOrDefault(ConfirmRemovalMsg, true) then begin
             DBraiderConfLineFieldSBI.CopyFilters(Rec);
             if DBraiderConfLineFieldSBI.FindSet() then begin
                 RecRef.Open(DBraiderConfLineFieldSBI."Table No.");

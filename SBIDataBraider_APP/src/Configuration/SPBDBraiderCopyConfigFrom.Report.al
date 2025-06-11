@@ -16,10 +16,11 @@ report 71033600 "SPB DBraider Copy Config From"
         ConfigFlowsTo: Record "SPB DBraider ConfLine Flow";
         ConfigRelFrom: Record "SPB DBraider ConfLine Relation";
         ConfigRelTo: Record "SPB DBraider ConfLine Relation";
+        ConfirmManagement: Codeunit "Confirm Management";
         ConfigLinesList: Page "SPB DBraider Configurations";
         FilterOnConfHeaderCodeLbl: Label '<>%1', Comment = '%1 = DBraider Config Header Code';
     begin
-        if SPBDBraiderConfigHeaderDestination.HasExistingLines() and not Confirm('You have existing lines on this Configuration, which will be deleted and replaced. Continue?', true) then
+        if SPBDBraiderConfigHeaderDestination.HasExistingLines() and not ConfirmManagement.GetResponseOrDefault('You have existing lines on this Configuration, which will be deleted and replaced. Continue?', true) then
             exit
         else begin
             ConfigLinesTo.SetRange("Config. Code", SPBDBraiderConfigHeaderDestination.Code);

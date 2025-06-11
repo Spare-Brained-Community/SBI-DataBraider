@@ -335,6 +335,7 @@ codeunit 71033627 "SPB DBraider Support Submit"
     // This function makes an API call to an SBI endpoint to submit the support case, including the ZIP file
     local procedure SendSupportRequest(CaseDescription: Text; CaseSeverity: Option; CaseContactName: Text; CaseEmail: Text; ZipFileName: Text; SupportFilesInStream: InStream)
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         TempBlob: Codeunit "Temp Blob";
         IsSuccessful: Boolean;
         HttpClient: HttpClient;
@@ -408,7 +409,7 @@ codeunit 71033627 "SPB DBraider Support Submit"
             Response.Content().ReadAs(CaseId);
             Message(SubmitSuccessMsg, CaseId);
         end else begin
-            if not Confirm(SubmitFailMsg, true) then // Halting execution to let the user see what is about to happen
+            if not ConfirmManagement.GetResponseOrDefault(SubmitFailMsg, true) then // Halting execution to let the user see what is about to happen
                 exit;
             DownloadFromStream(SupportFilesInStream, 'Support Case Data File', '', '', ZipFileName);
             Hyperlink(SupportManualURITok);

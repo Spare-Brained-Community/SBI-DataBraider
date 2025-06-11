@@ -37,6 +37,7 @@ table 71033602 "SPB DBraider Config. Line"
             CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table), "Object ID" = field("Source Table")));
             Caption = 'Source Table Name';
             FieldClass = FlowField;
+            Editable = false;
         }
 
         field(20; Indentation; Integer)

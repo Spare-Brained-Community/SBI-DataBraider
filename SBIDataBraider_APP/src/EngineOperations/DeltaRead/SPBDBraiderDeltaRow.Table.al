@@ -45,6 +45,7 @@ table 71033611 "SPB DBraider Delta Row"
             CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table), "Object ID" = field("Source Table")));
             Caption = 'Source Table Name';
             FieldClass = FlowField;
+            Editable = false;
         }
 
         field(200; "Primary Key String"; Text[250])

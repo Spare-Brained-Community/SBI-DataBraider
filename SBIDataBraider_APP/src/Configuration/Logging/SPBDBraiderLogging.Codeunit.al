@@ -37,7 +37,7 @@ codeunit 71033614 "SPB DBraider Logging"
         if not DBHeader."Logging Enabled" then
             exit;
 
-        if format(DBHeader."Clear Older Than") <> '' then begin
+        if Format(DBHeader."Clear Older Than") <> '' then begin
             OlderThenDate := CalcDate(DBHeader."Clear Older Than", Today());
             if OlderThenDate < Today() then begin //we can't delete future entries
                 SPBDBraiderEndpointLog.SetRange("Config. Code", DBHeader.Code);
@@ -53,7 +53,7 @@ codeunit 71033614 "SPB DBraider Logging"
             if SPBDBraiderEndpointLog.Count > DBHeader."Clear Logs Count" then
                 repeat
                     if SPBDBraiderEndpointLog.FindSet() then begin
-                        SPBDBraiderEndpointLog.SetFilter("Entry No.", format(SPBDBraiderEndpointLog."Entry No."));
+                        SPBDBraiderEndpointLog.SetFilter("Entry No.", Format(SPBDBraiderEndpointLog."Entry No."));
                         SPBDBraiderEndpointLog.Delete(true);
                     end;
                     Clear(SPBDBraiderEndpointLog);

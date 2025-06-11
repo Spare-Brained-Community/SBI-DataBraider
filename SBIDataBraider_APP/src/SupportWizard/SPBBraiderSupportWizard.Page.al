@@ -10,7 +10,7 @@ page 71033618 "SPB Braider Support Wizard"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             group(StandardBanner)
             {
@@ -153,7 +153,7 @@ page 71033618 "SPB Braider Support Wizard"
     }
     actions
     {
-        area(processing)
+        area(Processing)
         {
             action(ActionBack)
             {
@@ -282,7 +282,7 @@ page 71033618 "SPB Braider Support Wizard"
     begin
         if Backwards then
             Step := Step - 1
-        ELSE
+        else
             Step := Step + 1;
 
         EnableControls();
@@ -344,11 +344,11 @@ page 71033618 "SPB Braider Support Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.GET('AssistedSetup-NoText-400px.png', FORMAT(CurrentClientType())) AND
-           MediaRepositoryDone.GET('AssistedSetupDone-NoText-400px.png', FORMAT(CurrentClientType()))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(CurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(CurrentClientType()))
         then
-            if MediaResourcesStandard.GET(MediaRepositoryStandard."Media Resources Ref") AND
-               MediaResourcesDone.GET(MediaRepositoryDone."Media Resources Ref")
+            if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
+               MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
             then
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue();
     end;
@@ -356,9 +356,9 @@ page 71033618 "SPB Braider Support Wizard"
     local procedure ValidateCaseDetails() Valid: Boolean
     begin
         // Check all the case values to ensure they have a value, setting Valid to true if they are all filled in
-        Valid := (CaseDescription <> '') AND
-                 (CaseSeverity <> CaseSeverity::" ") AND
-                 (CaseContactName <> '') AND
+        Valid := (CaseDescription <> '') and
+                 (CaseSeverity <> CaseSeverity::" ") and
+                 (CaseContactName <> '') and
                  (CaseEmail <> '');
     end;
 

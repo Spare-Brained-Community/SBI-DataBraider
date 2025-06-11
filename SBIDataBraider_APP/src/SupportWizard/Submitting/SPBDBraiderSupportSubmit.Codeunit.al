@@ -269,7 +269,7 @@ codeunit 71033627 "SPB DBraider Support Submit"
         // We want to save some information from the environment to a CSV file
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'OnPrem', Format(EnvironmentInfo.IsOnPrem(), 0, 9));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsProduction', Format(EnvironmentInfo.IsProduction(), 0, 9));
-        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsSandBox', Format(EnvironmentInfo.IsSandBox(), 0, 9));
+        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsSandBox', Format(EnvironmentInfo.IsSandbox(), 0, 9));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'ApplicationVersion', Format(AppSysConstants.ApplicationVersion()));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'ApplicationBuild', Format(AppSysConstants.ApplicationBuild()));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'PlatformProductVersion', Format(AppSysConstants.PlatformProductVersion()));

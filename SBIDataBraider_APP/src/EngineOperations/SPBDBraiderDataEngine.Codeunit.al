@@ -324,7 +324,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             if (StartFromPage > 1) and (PageSize <> 0) and (DBLine."Parent Table No." = 0) then
                 repeat
                     i += 1;
-                until (LineRef.next() < 0) or (i >= SkipUntilRecord);
+                until (LineRef.Next() < 0) or (i >= SkipUntilRecord);
             i := 0;
             repeat
                 i += 1;
@@ -581,7 +581,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             // Validate that the Table No involved is ON this endpoint's list of Config Lines
             if ConfigCode <> '' then begin // In the off chance someone is using the Deprecated old version with no config, we'll have to skip this check
                 DBChildLine.SetRange("Config. Code", ConfigCode);
-                DBChildLine.setRange("Source Table", TempSPBDBraiderFilters."Table No.");
+                DBChildLine.SetRange("Source Table", TempSPBDBraiderFilters."Table No.");
                 if DBChildLine.IsEmpty() and not AllObjWithCaption.IsEmpty() then begin
                     ProblemWithFilter := true;
                     TempSPBDBraiderFilters."Table No." := 0;

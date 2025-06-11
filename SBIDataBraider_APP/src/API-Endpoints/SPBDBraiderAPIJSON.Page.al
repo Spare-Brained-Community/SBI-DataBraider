@@ -139,7 +139,7 @@ page 71033609 "SPB DBraider API JSON"
         DBraiderConfig.SetRange(Enabled, true);
         Rec.Reset();
         if DBraiderConfig.FindFirst() then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
-                                                  //if DBraiderConfig.Get(rec.Code) then begin
+                                                  //if DBraiderConfig.Get(Rec.Code) then begin
             Rec.DeleteAll();
             Rec.TransferFields(DBraiderConfig);
             // Apply any filters sent in via API

@@ -398,7 +398,7 @@ codeunit 71033617 "SPB DBraider Gen. Postman"
         OptionsObj: JsonObject;
         UrlObj: JsonObject;
     begin
-        TemplateBuilder.Append(StrSubstNo(Actionlbl, ChangeAction));
+        TemplateBuilder.Append(StrSubstNo(ActionLbl, ChangeAction));
         if SPBDBraiderConfLineFields.FindSet() then
             repeat
                 case SPBDBraiderConfLineFields."Field Type" of

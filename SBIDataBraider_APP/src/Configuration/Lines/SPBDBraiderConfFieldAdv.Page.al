@@ -8,7 +8,7 @@ page 71033621 "SPB DBraider Conf Field Adv"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             group(Information)
             {

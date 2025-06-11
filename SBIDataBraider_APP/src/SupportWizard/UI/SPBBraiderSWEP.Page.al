@@ -9,7 +9,7 @@ page 71033619 "SPB Braider SW EP"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {

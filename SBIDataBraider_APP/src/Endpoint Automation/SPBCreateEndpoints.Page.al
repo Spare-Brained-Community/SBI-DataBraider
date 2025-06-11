@@ -15,13 +15,13 @@ page 71033617 "SPB Create Endpoints"
         {
             repeater(EndpointSelections)
             {
-                field("Code"; rec.Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Endpoint Call Code';
-                    editable = false;
+                    Editable = false;
                 }
-                field(Enabled; rec.Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     Caption = 'Create Data Braider Endpoints';
                     ApplicationArea = All;
@@ -29,7 +29,7 @@ page 71033617 "SPB Create Endpoints"
                     Editable = true;
                 }
 
-                field(Overwrite; rec."Logging Enabled") //Used on this page as "Overwrite"
+                field(Overwrite; Rec."Logging Enabled") //Used on this page as "Overwrite"
                 {
                     Caption = 'Overwrite';
                     ApplicationArea = All;
@@ -60,7 +60,7 @@ page 71033617 "SPB Create Endpoints"
                 Image = CancelFALedgerEntries;
                 trigger OnAction()
                 begin
-                    rec.ModifyAll(Enabled, false);
+                    Rec.ModifyAll(Enabled, false);
                 end;
             }
             action(SelectAllEndpoindSelection)
@@ -71,7 +71,7 @@ page 71033617 "SPB Create Endpoints"
                 Image = CancelFALedgerEntries;
                 trigger OnAction()
                 begin
-                    rec.ModifyAll(Enabled, true);
+                    Rec.ModifyAll(Enabled, true);
                 end;
             }
             action(SelectAllOverwrite)
@@ -83,9 +83,9 @@ page 71033617 "SPB Create Endpoints"
                 trigger OnAction()
 
                 begin
-                    rec.SetRange(Enabled, true);
-                    rec.ModifyAll(rec."Logging Enabled", true);
-                    rec.SetRange(Enabled);
+                    Rec.SetRange(Enabled, true);
+                    Rec.ModifyAll(Rec."Logging Enabled", true);
+                    Rec.SetRange(Enabled);
                 end;
             }
             action(AddSelectedEndpoints)
@@ -118,12 +118,11 @@ page 71033617 "SPB Create Endpoints"
     trigger OnOpenPage()
     begin
         foreach EndpointEnumSelectionText in EndpointEnumSelection.Names do begin
-            rec.Init();
-            rec.Code := format(EndpointEnumSelectionText);
-            rec.Description := StrSubstNo(BaseEndpointNameTxt, CopyStr(format(EndpointEnumSelectionText), 4));
-            rec.Enabled := false;
-            rec.Insert();
+            Rec.Init();
+            Rec.Code := Format(EndpointEnumSelectionText);
+            Rec.Description := StrSubstNo(BaseEndpointNameTxt, CopyStr(Format(EndpointEnumSelectionText), 4));
+            Rec.Enabled := false;
+            Rec.Insert();
         end;
     end;
-
 }

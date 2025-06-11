@@ -208,7 +208,7 @@ page 71033601 "SPB DBraider Configurations"
                     Caption = 'Support Wizard';
                     Image = ViewServiceOrder;
                     ToolTip = 'Open the Data Braider Support Wizard';
-                    RunObject = Page "SPB Braider Support Wizard";
+                    RunObject = page "SPB Braider Support Wizard";
                 }
             }
         }

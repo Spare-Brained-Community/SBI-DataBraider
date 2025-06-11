@@ -12,7 +12,7 @@ page 71033620 "SPB Support Wizard List"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {
@@ -132,7 +132,7 @@ page 71033620 "SPB Support Wizard List"
                     Rec.Modify(true);
                 end;
             until Rec.Next() < 1;
-        If Rec.FindFirst() then;
+        if Rec.FindFirst() then;
         CurrPage.Update(false);
     end;
 }

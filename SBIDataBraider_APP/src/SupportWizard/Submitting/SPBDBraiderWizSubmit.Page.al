@@ -7,7 +7,7 @@ page 71033622 "SPB DBraider Wiz Submit"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {

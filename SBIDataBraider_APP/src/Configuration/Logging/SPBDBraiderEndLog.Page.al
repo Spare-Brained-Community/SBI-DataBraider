@@ -68,7 +68,7 @@ page 71033612 "SPB DBraider End. Log"
     {
         area(Promoted)
         {
-            actionref(RetryApiInput_Promoted; RetryAPIInput) { }
+            actionref(RetryApiInput_Promoted; RetryApiInput) { }
         }
         area(Processing)
         {
@@ -112,7 +112,7 @@ page 71033612 "SPB DBraider End. Log"
         Rec.CalcFields("Raw Input", "Raw Output");
 
         // Read the contents of the "Raw Input" and "Raw Output" BLOB fields into texts
-        if rec."Raw Input".HasValue then begin
+        if Rec."Raw Input".HasValue then begin
             Rec."Raw Input".CreateInStream(inS);
             while not inS.EOS do begin
                 inS.ReadText(LineOfText);
@@ -125,7 +125,7 @@ page 71033612 "SPB DBraider End. Log"
         BlobTextBuilder.Clear();
         Clear(inS);
         Clear(LineOfText);
-        if rec."Raw Output".HasValue then begin
+        if Rec."Raw Output".HasValue then begin
             Rec."Raw Output".CreateInStream(inS);
             while not inS.EOS do begin
                 inS.ReadText(LineOfText);

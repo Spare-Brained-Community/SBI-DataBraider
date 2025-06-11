@@ -41,7 +41,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
         exit(JsonRows);
     end;
 
-    internal procedure ProcessDataFlatToJson(DBHeader: Record "SPB DBraider Config. Header") JsonRows: JsonArray;
+    internal procedure ProcessDataFlatToJson(DBHeader: Record "SPB DBraider Config. Header") JsonRows: JsonArray
     var
         UseWriteResponseFiltering: Boolean;
         MaximumDepth: Integer;

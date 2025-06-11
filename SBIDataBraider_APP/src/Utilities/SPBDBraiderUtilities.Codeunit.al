@@ -238,7 +238,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         end;
     end;
 
-    procedure GetEndpointTelemetryDataJson(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header") DataJson: Text;
+    procedure GetEndpointTelemetryDataJson(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header") DataJson: Text
     var
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
         DataStructureJsonArray: JsonArray;
@@ -341,7 +341,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         end;
     end;
 
-    procedure BuildFQSI(var BreadcrumpRecordRefArray: array[100] of RecordRef; ToDepth: Integer) FQSI: Text;
+    procedure BuildFQSI(var BreadcrumpRecordRefArray: array[100] of RecordRef; ToDepth: Integer) FQSI: Text
     var
         i: Integer;
         FQSITextBuilder: TextBuilder;
@@ -354,7 +354,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         FQSI := FQSITextBuilder.ToText();
     end;
 
-    procedure TrimFQSI(InputFQSI: Text) FQSI: Text;
+    procedure TrimFQSI(InputFQSI: Text) FQSI: Text
     var
         i: Integer;
         Parts: List of [Text];

@@ -2,7 +2,7 @@ codeunit 71033615 "SPB DBraider JSON Templ. Maker"
 {
     TableNo = "SPB DBraider Config. Line";
 
-    procedure GenerateTableToTemplate(var Rec: Record "SPB DBraider Config. Header"; MandatoryOnly: Boolean; TemplateActionType: Enum "SPB DBraider Change Action") JsonTemplateResult: Text;
+    procedure GenerateTableToTemplate(var Rec: Record "SPB DBraider Config. Header"; MandatoryOnly: Boolean; TemplateActionType: Enum "SPB DBraider Change Action") JsonTemplateResult: Text
     var
         TempBaseResultCol: Record "SPB DBraider Resultset Col" temporary;
         TempBaseResultRow: Record "SPB DBraider Resultset Row" temporary;

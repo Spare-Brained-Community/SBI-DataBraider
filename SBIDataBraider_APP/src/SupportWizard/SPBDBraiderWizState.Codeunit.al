@@ -7,7 +7,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
         TempSelectedEndpoints: Record "SPB DBraider Config. Header" temporary;
         TempSPBDBraiderWizChecks: Record "SPB DBraider WizChecks" temporary;
 
-    procedure SetSelectedEndpoints(var NewSelectedEndpoints: Record "SPB DBraider Config. Header");
+    procedure SetSelectedEndpoints(var NewSelectedEndpoints: Record "SPB DBraider Config. Header")
     begin
         if not TempSelectedEndpoints.IsTemporary then
             exit;
@@ -20,7 +20,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
         if TempSelectedEndpoints.FindFirst() then;
     end;
 
-    procedure GetSelectedEndpoints(var NewSelectedEndpoints: Record "SPB DBraider Config. Header");
+    procedure GetSelectedEndpoints(var NewSelectedEndpoints: Record "SPB DBraider Config. Header")
     begin
         NewSelectedEndpoints.DeleteAll();
         if TempSelectedEndpoints.FindSet() then
@@ -30,7 +30,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
             until TempSelectedEndpoints.Next() < 1;
     end;
 
-    procedure SetSPBDBraiderWizChecks(var SPBDBraiderWizChecks: Record "SPB DBraider WizChecks");
+    procedure SetSPBDBraiderWizChecks(var SPBDBraiderWizChecks: Record "SPB DBraider WizChecks")
     begin
         if not TempSPBDBraiderWizChecks.IsTemporary then
             exit;
@@ -43,7 +43,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
         if TempSPBDBraiderWizChecks.FindFirst() then;
     end;
 
-    procedure GetSPBDBraiderWizChecks(var SPBDBraiderWizChecks: Record "SPB DBraider WizChecks");
+    procedure GetSPBDBraiderWizChecks(var SPBDBraiderWizChecks: Record "SPB DBraider WizChecks")
     begin
         SPBDBraiderWizChecks.DeleteAll();
         if TempSPBDBraiderWizChecks.FindSet() then
@@ -53,7 +53,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
             until TempSPBDBraiderWizChecks.Next() < 1;
     end;
 
-    procedure IsWizardScanningComplete(): Boolean;
+    procedure IsWizardScanningComplete(): Boolean
     begin
         TempSPBDBraiderWizChecks.SetRange(Status, TempSPBDBraiderWizChecks.Status::" ");
         exit(TempSPBDBraiderWizChecks.IsEmpty);

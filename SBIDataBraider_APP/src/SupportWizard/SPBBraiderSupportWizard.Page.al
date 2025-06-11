@@ -106,7 +106,7 @@ page 71033618 "SPB Braider Support Wizard"
                         ShowMandatory = true;
                         ToolTip = 'Please provide a detailed description of the issue you are experiencing';
 
-                        trigger OnValidate();
+                        trigger OnValidate()
                         begin
                             CheckIfSubmitReady();
                         end;
@@ -118,7 +118,7 @@ page 71033618 "SPB Braider Support Wizard"
                         OptionCaption = ' ,Critical - Production Stopped,High - Production Impacted,Medium - Production Partially Impacted,Low - No Production Impact';
                         ToolTip = 'Please select the severity of the issue';
 
-                        trigger OnValidate();
+                        trigger OnValidate()
                         begin
                             CheckIfSubmitReady();
                         end;
@@ -130,7 +130,7 @@ page 71033618 "SPB Braider Support Wizard"
                         ShowMandatory = true;
                         ToolTip = 'Please provide a name for the case contact';
 
-                        trigger OnValidate();
+                        trigger OnValidate()
                         begin
                             CheckIfSubmitReady();
                         end;
@@ -142,7 +142,7 @@ page 71033618 "SPB Braider Support Wizard"
                         ShowMandatory = true;
                         ToolTip = 'Please provide an email address for the case contact';
 
-                        trigger OnValidate();
+                        trigger OnValidate()
                         begin
                             CheckIfSubmitReady();
                         end;
@@ -162,7 +162,7 @@ page 71033618 "SPB Braider Support Wizard"
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
                 InFooterBar = true;
-                trigger OnAction();
+                trigger OnAction()
                 begin
                     NextStep(true);
                 end;
@@ -174,7 +174,7 @@ page 71033618 "SPB Braider Support Wizard"
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
-                trigger OnAction();
+                trigger OnAction()
                 begin
                     NextStep(false);
                 end;
@@ -186,19 +186,19 @@ page 71033618 "SPB Braider Support Wizard"
                 Enabled = SubmitActionEnabled;
                 Image = Approve;
                 InFooterBar = true;
-                trigger OnAction();
+                trigger OnAction()
                 begin
                     SubmitAction();
                 end;
             }
         }
     }
-    trigger OnInit();
+    trigger OnInit()
     begin
         LoadTopBanners();
     end;
 
-    trigger OnOpenPage();
+    trigger OnOpenPage()
     var
         SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header";
     begin
@@ -245,7 +245,7 @@ page 71033618 "SPB Braider Support Wizard"
         MediaResourcesStandard: Record "Media Resources";
         SPBDBraiderWizState: Codeunit "SPB DBraider Wiz State";
 
-    local procedure EnableControls();
+    local procedure EnableControls()
     begin
         ResetControls();
 
@@ -261,7 +261,7 @@ page 71033618 "SPB Braider Support Wizard"
         end;
     end;
 
-    local procedure SubmitAction();
+    local procedure SubmitAction()
     var
         TempSelectedEndpoints: Record "SPB DBraider Config. Header" temporary;
         TempSPBDBraiderWizChecks: Record "SPB DBraider WizChecks" temporary;
@@ -278,7 +278,7 @@ page 71033618 "SPB Braider Support Wizard"
         CurrPage.Close();
     end;
 
-    local procedure NextStep(Backwards: Boolean);
+    local procedure NextStep(Backwards: Boolean)
     begin
         if Backwards then
             Step := Step - 1
@@ -288,7 +288,7 @@ page 71033618 "SPB Braider Support Wizard"
         EnableControls();
     end;
 
-    local procedure ShowStep1();
+    local procedure ShowStep1()
     begin
         Step1Visible := true;
 
@@ -296,12 +296,12 @@ page 71033618 "SPB Braider Support Wizard"
         BackActionEnabled := false;
     end;
 
-    local procedure ShowStep2();
+    local procedure ShowStep2()
     begin
         Step2Visible := true;
     end;
 
-    local procedure ShowStep3();
+    local procedure ShowStep3()
     var
         TempSelectedEndpoints: Record "SPB DBraider Config. Header" temporary;
         TempSPBDBraiderWizChecks: Record "SPB DBraider WizChecks" temporary;
@@ -320,7 +320,7 @@ page 71033618 "SPB Braider Support Wizard"
         Step3Visible := true;
     end;
 
-    local procedure ShowStep4();
+    local procedure ShowStep4()
     begin
         Step4Visible := true;
 
@@ -330,7 +330,7 @@ page 71033618 "SPB Braider Support Wizard"
         SubmitActionEnabled := true;
     end;
 
-    local procedure ResetControls();
+    local procedure ResetControls()
     begin
         SubmitActionEnabled := false;
         BackActionEnabled := true;
@@ -342,7 +342,7 @@ page 71033618 "SPB Braider Support Wizard"
         Step4Visible := false;
     end;
 
-    local procedure LoadTopBanners();
+    local procedure LoadTopBanners()
     begin
         if MediaRepositoryStandard.GET('AssistedSetup-NoText-400px.png', FORMAT(CurrentClientType())) AND
            MediaRepositoryDone.GET('AssistedSetupDone-NoText-400px.png', FORMAT(CurrentClientType()))

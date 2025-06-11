@@ -41,7 +41,7 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         exit(JsonRows);
     end;
 
-    internal procedure ProcessDataHierarchyToJson() JsonRows: JsonArray;
+    internal procedure ProcessDataHierarchyToJson() JsonRows: JsonArray
     var
         IntValue: Integer;
         JsonCols: JsonObject;

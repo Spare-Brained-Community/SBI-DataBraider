@@ -55,7 +55,7 @@ codeunit 71033607 "SPB DBraider Input Processor"
 
     local procedure TryToBatchWriteData(var SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header";
     var TempJSONBuffer: Record "JSON Buffer" temporary;
-    var JsonResultArray: JsonArray) CompleteSuccess: Boolean;
+    var JsonResultArray: JsonArray) CompleteSuccess: Boolean
     var
         SPBDBraiderWriteData: Codeunit "SPB DBraider Write Data";
         WriteFailLbl: Label 'Writing data failed: %1', Comment = '%1 = Last Error Message';
@@ -75,7 +75,7 @@ codeunit 71033607 "SPB DBraider Input Processor"
 
     local procedure TryToSingleWriteData(var SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header";
     var TempJSONBuffer: Record "JSON Buffer" temporary;
-    var JsonResultArray: JsonArray) CompleteSuccess: Boolean;
+    var JsonResultArray: JsonArray) CompleteSuccess: Boolean
     var
         TempContentJsonBuffer: Record "JSON Buffer" temporary;
         TempHeaderJsonBuffer: Record "JSON Buffer" temporary;

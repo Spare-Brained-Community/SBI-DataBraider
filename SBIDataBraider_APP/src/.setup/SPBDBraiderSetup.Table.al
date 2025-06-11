@@ -10,6 +10,7 @@ table 71033600 "SPB DBraider Setup"
         field(1; "Primary Key"; Code[10])
         {
             Caption = 'Primary Key';
+            NotBlank = false;
         }
         field(5; EnabledGlobally; Boolean)
         {

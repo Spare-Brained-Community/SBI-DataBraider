@@ -9,6 +9,7 @@ table 71033601 "SPB DBraider Config. Header"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            NotBlank = true;
         }
         field(10; Description; Text[100])
         {

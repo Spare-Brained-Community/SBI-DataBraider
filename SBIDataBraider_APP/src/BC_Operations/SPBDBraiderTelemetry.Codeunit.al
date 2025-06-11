@@ -62,7 +62,7 @@ codeunit 71033609 "SPB DBraider Telemetry"
 
 
     #region UsageStats
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", OnSendDailyTelemetry, '', true, true)]
     local procedure SendDailyTelemetry()
     begin
         SendActivityTelemetry(true);

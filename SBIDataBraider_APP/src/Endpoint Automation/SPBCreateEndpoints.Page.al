@@ -17,14 +17,12 @@ page 71033617 "SPB Create Endpoints"
             {
                 field("Code"; Rec.Code)
                 {
-                    ApplicationArea = All;
                     ToolTip = 'Endpoint Call Code';
                     Editable = false;
                 }
                 field(Enabled; Rec.Enabled)
                 {
                     Caption = 'Create Data Braider Endpoints';
-                    ApplicationArea = All;
                     ToolTip = 'Endpoint Enabled or not';
                     Editable = true;
                 }

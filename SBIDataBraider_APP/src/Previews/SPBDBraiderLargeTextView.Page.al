@@ -14,7 +14,6 @@ page 71033616 "SPB DBraider Large Text View"
         {
             field(dynamicCaptionField; DynamicCaption)
             {
-                ApplicationArea = All;
                 Editable = false;
                 MultiLine = true;
                 ShowCaption = false;

@@ -8,19 +8,16 @@ table 71033602 "SPB DBraider Config. Line"
         field(1; "Config. Code"; Code[20])
         {
             Caption = 'Config. Code';
-            DataClassification = SystemMetadata;
             TableRelation = "SPB DBraider Config. Header".Code;
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
-            DataClassification = SystemMetadata;
         }
 
         field(10; "Source Table"; Integer)
         {
             Caption = 'Source Table';
-            DataClassification = SystemMetadata;
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
@@ -45,31 +42,26 @@ table 71033602 "SPB DBraider Config. Line"
         field(20; Indentation; Integer)
         {
             Caption = 'Indentation';
-            DataClassification = SystemMetadata;
         }
         field(21; "Parent Table No."; Integer)
         {
             Caption = 'Parent Table No.';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
 
         field(50; "Relation Type"; Enum "SPB DBraider Relation Type")
         {
             Caption = 'Relation Type';
-            DataClassification = SystemMetadata;
         }
 
         field(55; "Relation Operation"; Enum "SPB DBraider Rel. Operation")
         {
             Caption = 'Relation Operation';
-            DataClassification = SystemMetadata;
         }
 
         field(59; "Relationship Configured"; Boolean)
         {
             Caption = 'Relationship Configured';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
 

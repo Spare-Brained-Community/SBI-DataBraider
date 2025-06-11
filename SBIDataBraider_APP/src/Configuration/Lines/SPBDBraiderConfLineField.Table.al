@@ -47,7 +47,6 @@ table 71033603 "SPB DBraider ConfLine Field"
         field(30; "Filter"; Text[250])
         {
             Caption = 'Filter';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -127,7 +126,6 @@ table 71033603 "SPB DBraider ConfLine Field"
         field(130; "Primary Key"; Boolean)
         {
             Caption = 'Primary Key';
-            DataClassification = SystemMetadata;
             Description = 'Denotes if a field is part of the primary key';
             Editable = false;
         }

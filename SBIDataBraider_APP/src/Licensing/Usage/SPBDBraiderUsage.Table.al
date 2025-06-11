@@ -9,27 +9,22 @@ table 71033608 "SPB DBraider Usage"
         field(1; "Endpoint Id"; Guid)
         {
             Caption = 'Endpoint Id';
-            DataClassification = SystemMetadata;
         }
         field(2; "Month Start Date"; Date)
         {
             Caption = 'Month Start Date';
-            DataClassification = SystemMetadata;
         }
         field(10; "Call Tally"; Integer)
         {
             Caption = 'Call Tally';
-            DataClassification = SystemMetadata;
         }
         field(20; "Rows Read"; BigInteger)
         {
             Caption = 'Rows Read';
-            DataClassification = SystemMetadata;
         }
         field(21; "Rows Written"; BigInteger)
         {
             Caption = 'Rows Written';
-            DataClassification = SystemMetadata;
         }
     }
     keys

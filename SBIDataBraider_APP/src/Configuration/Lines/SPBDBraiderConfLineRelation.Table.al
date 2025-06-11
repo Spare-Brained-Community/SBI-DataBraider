@@ -7,27 +7,23 @@ table 71033604 "SPB DBraider ConfLine Relation"
         field(1; "Config. Code"; Code[20])
         {
             Caption = 'Config. Code';
-            DataClassification = SystemMetadata;
             TableRelation = "SPB DBraider Config. Header".Code;
         }
         field(2; "Config. Line No."; Integer)
         {
             Caption = 'Line No.';
-            DataClassification = SystemMetadata;
             TableRelation = "SPB DBraider Config. Line"."Line No." where("Config. Code" = field("Config. Code"));
         }
 
         field(5; "Relation Line No."; Integer)
         {
             Caption = 'Field No.';
-            DataClassification = SystemMetadata;
         }
 
 
         field(10; "Parent Table"; Integer)
         {
             Caption = 'Parent Table';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(11; "Parent Table Name"; Text[30])
@@ -41,7 +37,6 @@ table 71033604 "SPB DBraider ConfLine Relation"
         field(20; "Child Table"; Integer)
         {
             Caption = 'Child Table';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(21; "Child Table Name"; Text[30])
@@ -55,7 +50,6 @@ table 71033604 "SPB DBraider ConfLine Relation"
         field(50; "Parent Field No."; Integer)
         {
             Caption = 'Parent Field';
-            DataClassification = SystemMetadata;
             TableRelation = Field."No." where(TableNo = field("Parent Table"));
 
             trigger OnValidate()
@@ -80,7 +74,6 @@ table 71033604 "SPB DBraider ConfLine Relation"
         field(70; "Child Field No."; Integer)
         {
             Caption = 'Child Field';
-            DataClassification = SystemMetadata;
             TableRelation = Field."No." where(TableNo = field("Child Table"));
 
             trigger OnValidate()
@@ -105,7 +98,6 @@ table 71033604 "SPB DBraider ConfLine Relation"
         field(100; "Manual Linking"; Boolean)
         {
             Caption = 'Manual Linking';
-            DataClassification = SystemMetadata;
         }
     }
 

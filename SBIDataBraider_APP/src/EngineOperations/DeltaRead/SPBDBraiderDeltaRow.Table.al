@@ -8,32 +8,26 @@ table 71033611 "SPB DBraider Delta Row"
         field(1; "Row No."; Integer)
         {
             Caption = 'Row No.';
-            DataClassification = SystemMetadata;
         }
         field(10; "Data Level"; Integer)
         {
             Caption = 'Data Level';
-            DataClassification = SystemMetadata;
         }
         field(20; Keyname; Text[50])
         {
             Caption = 'Keyname';
-            DataClassification = SystemMetadata;
         }
         field(30; "Header Row"; Boolean)
         {
             Caption = 'Header Row';
-            DataClassification = SystemMetadata;
         }
         field(40; "Belongs To Row No."; Integer)
         {
             Caption = 'Belongs To Row No.';
-            DataClassification = SystemMetadata;
         }
         field(50; "Config. Code"; Code[20])
         {
             Caption = 'Config. Code';
-            DataClassification = SystemMetadata;
             TableRelation = "SPB DBraider Config. Header";
         }
         field(51; "Version No."; Integer)
@@ -44,7 +38,6 @@ table 71033611 "SPB DBraider Delta Row"
         field(100; "Source Table"; Integer)
         {
             Caption = 'Source Table';
-            DataClassification = SystemMetadata;
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(110; "Source Table Name"; Text[30])
@@ -57,27 +50,22 @@ table 71033611 "SPB DBraider Delta Row"
         field(200; "Primary Key String"; Text[250])
         {
             Caption = 'Primary Key String';
-            DataClassification = SystemMetadata;
         }
         field(201; "Source SystemId"; Guid)
         {
             Caption = 'Source SystemId';
-            DataClassification = SystemMetadata;
         }
         field(202; "Top-Level SystemId"; Guid)
         {
             Caption = 'Top-Level SystemId';
-            DataClassification = SystemMetadata;
         }
         field(300; "Delta Type"; Enum "SPB DBraider Delta Type")
         {
             Caption = 'Delta Type';
-            DataClassification = SystemMetadata;
         }
         field(25000; "FQ SystemId"; Text[400])
         {
             Caption = 'FQ SystemId';
-            DataClassification = SystemMetadata;
         }
     }
     keys

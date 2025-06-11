@@ -9,22 +9,18 @@ table 71033601 "SPB DBraider Config. Header"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
-            DataClassification = SystemMetadata;
         }
         field(10; Description; Text[100])
         {
             Caption = 'Description';
-            DataClassification = SystemMetadata;
         }
         field(20; "Last Run Duration"; Duration)
         {
             Caption = 'Last Run Duration';
-            DataClassification = SystemMetadata;
         }
         field(30; "Endpoint Type"; Enum "SPB DBraider Endpoint Type")
         {
             Caption = 'Endpoint Type';
-            DataClassification = SystemMetadata;
             ValuesAllowed = "Read Only", "Per Record", Batch;
 
             trigger OnValidate()
@@ -66,71 +62,60 @@ table 71033601 "SPB DBraider Config. Header"
         field(35; Enabled; Boolean)
         {
             Caption = 'Enabled';
-            DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(40; "Require PK"; Boolean)
         {
             Caption = 'Require Entire Primary Key';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
 
         field(50; "Insert Allowed"; Boolean)
         {
             Caption = 'Insert Allowed';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(51; "Modify Allowed"; Boolean)
         {
             Caption = 'Modify Allowed';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(52; "Delete Allowed"; Boolean)
         {
             Caption = 'Delete Allowed';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(53; "Prevent Reading"; Boolean)
         {
             Caption = 'Prevent Reading';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
 
         field(60; "Disable Auto ModifiedAt"; Boolean)
         {
             Caption = 'Disable Auto ModifiedAt';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(61; "Disable Auto SystemId"; Boolean)
         {
             Caption = 'Disable Auto SystemId';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(62; "Hide from Lists"; Boolean)
         {
             Caption = 'Hide from Lists';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
         field(80; "Disable Related Id"; Boolean)
         {
             Caption = 'Disable Related Id';
-            DataClassification = SystemMetadata;
             InitValue = false;
         }
 
         field(100; "Output JSON Type"; Enum "SPB DBraider Output Json Type")
         {
             Caption = 'Output JSON Type';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -141,12 +126,10 @@ table 71033601 "SPB DBraider Config. Header"
         field(200; "Logging Enabled"; Boolean)
         {
             Caption = 'Logging Enabled';
-            DataClassification = SystemMetadata;
         }
         field(201; "Clear Logs Count"; Integer)
         {
             Caption = 'Clear Logs Count';
-            DataClassification = SystemMetadata;
             InitValue = 100;
             MaxValue = 10000;
             MinValue = 0;
@@ -154,13 +137,11 @@ table 71033601 "SPB DBraider Config. Header"
         field(202; "Clear Older Than"; DateFormula)
         {
             Caption = 'Clear Older Than';
-            DataClassification = SystemMetadata;
         }
         field(210; "Page Size"; Integer)
         {
             BlankZero = true;
             Caption = 'Page Size';
-            DataClassification = SystemMetadata;
             MaxValue = 200000;
             MinValue = 0;
         }
@@ -168,27 +149,22 @@ table 71033601 "SPB DBraider Config. Header"
         field(220; "Emit Telemetry Read Before"; Boolean)
         {
             Caption = 'Emit Telemetry - Read OnBefore';
-            DataClassification = SystemMetadata;
         }
         field(221; "Emit Telemetry Read After"; Boolean)
         {
             Caption = 'Emit Telemetry - Read OnAfter';
-            DataClassification = SystemMetadata;
         }
         field(222; "Emit Telemetry Write Before"; Boolean)
         {
             Caption = 'Emit Telemetry - Write OnBefore';
-            DataClassification = SystemMetadata;
         }
         field(223; "Emit Telemetry Write After"; Boolean)
         {
             Caption = 'Emit Telemetry - Write OnAfter';
-            DataClassification = SystemMetadata;
         }
         field(225; "Emit Telemetry Include Body"; Boolean)
         {
             Caption = 'Emit Telemetry - Include Body';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             var
@@ -202,7 +178,6 @@ table 71033601 "SPB DBraider Config. Header"
         field(250; "Data Archive Versions"; Integer)
         {
             Caption = 'Data Archive Versions';
-            DataClassification = SystemMetadata;
             InitValue = 1;
             MaxValue = 10;
             MinValue = 0;

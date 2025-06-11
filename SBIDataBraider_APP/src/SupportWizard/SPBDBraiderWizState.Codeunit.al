@@ -9,7 +9,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
 
     procedure SetSelectedEndpoints(var NewSelectedEndpoints: Record "SPB DBraider Config. Header")
     begin
-        if not TempSelectedEndpoints.IsTemporary then
+        if not TempSelectedEndpoints.IsTemporary() then
             exit;
         TempSelectedEndpoints.DeleteAll();
         if NewSelectedEndpoints.FindSet() then
@@ -32,7 +32,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
 
     procedure SetSPBDBraiderWizChecks(var SPBDBraiderWizChecks: Record "SPB DBraider WizChecks")
     begin
-        if not TempSPBDBraiderWizChecks.IsTemporary then
+        if not TempSPBDBraiderWizChecks.IsTemporary() then
             exit;
         TempSPBDBraiderWizChecks.DeleteAll();
         if SPBDBraiderWizChecks.FindSet() then
@@ -56,7 +56,7 @@ codeunit 71033626 "SPB DBraider Wiz State"
     procedure IsWizardScanningComplete(): Boolean
     begin
         TempSPBDBraiderWizChecks.SetRange(Status, TempSPBDBraiderWizChecks.Status::" ");
-        exit(TempSPBDBraiderWizChecks.IsEmpty);
+        exit(TempSPBDBraiderWizChecks.IsEmpty());
     end;
 
 }

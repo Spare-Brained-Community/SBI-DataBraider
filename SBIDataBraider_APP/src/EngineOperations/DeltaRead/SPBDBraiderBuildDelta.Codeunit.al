@@ -186,7 +186,7 @@ codeunit 71033616 "SPB DBraider Build Delta"
                 TempResultRow2.SetFilter("Data Level", '<>%1', 10000);  //top level
                 TempResultRow2.SetRange("Top-Level SystemId", TempNewResultRow."Source SystemId");
                 TempResultRow2.SetFilter("Delta Type", '<>%1', TempResultRow2."Delta Type"::" ");
-                if not TempResultRow2.IsEmpty then begin
+                if not TempResultRow2.IsEmpty() then begin
                     TempNewResultRow."Delta Type" := TempNewResultRow."Delta Type"::ChildUpdates;
                     TempNewResultRow.Modify();
                 end;

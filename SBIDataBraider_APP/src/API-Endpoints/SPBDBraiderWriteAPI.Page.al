@@ -54,7 +54,7 @@ page 71033611 "SPB DBraider Write API"
         LicenseConnector: Codeunit "SPB DBraider Licensing";
     begin
         Licensed := LicenseConnector.CheckIfActive(false);
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
     end;
 

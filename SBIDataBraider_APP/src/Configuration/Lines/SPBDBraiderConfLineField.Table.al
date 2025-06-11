@@ -255,8 +255,8 @@ table 71033603 "SPB DBraider ConfLine Field"
         if Rec."Table No." <> 0 then begin
             RecRef.Open(Rec."Table No.");
             FieldsRef := RecRef.Field(FieldNo);
-            Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-            Rec."Field Class" := Format(FieldsRef.Class);
+            Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+            Rec."Field Class" := Format(FieldsRef.Class());
         end;
     end;
 
@@ -291,18 +291,18 @@ table 71033603 "SPB DBraider ConfLine Field"
             // Populate the dataset
             RecRef.Open("Table No.");
             PKFieldNumbers := SPBDBraiderUtilities.GetPrimaryKeyFields(RecRef);
-            for i := 1 to RecRef.FieldCount do begin
+            for i := 1 to RecRef.FieldCount() do begin
                 FieldsRef := RecRef.FieldIndex(i);
-                if not DBraiderConfLineFieldSBI2.Get(Rec."Config. Code", Rec."Config. Line No.", FieldsRef.Number) then begin
+                if not DBraiderConfLineFieldSBI2.Get(Rec."Config. Code", Rec."Config. Line No.", FieldsRef.Number()) then begin
                     DBraiderConfLineFieldSBI.Init();
                     DBraiderConfLineFieldSBI."Config. Code" := Rec."Config. Code";
                     DBraiderConfLineFieldSBI."Config. Line No." := Rec."Config. Line No.";
-                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number;
+                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number();
                     DBraiderConfLineFieldSBI."Table No." := Rec."Table No.";
                     DBraiderConfLineFieldSBI."Processing Order" := 10;
-                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
-                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
+                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class());
+                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number());
                     DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
                     DBraiderConfLineFieldSBI."Fixed Field Name" := DBraiderConfLineFieldSBI."Field Name";
                     DBraiderConfLineFieldSBI."Fixed Field Caption" := DBraiderConfLineFieldSBI.Caption;
@@ -321,7 +321,7 @@ table 71033603 "SPB DBraider ConfLine Field"
                 if not RecRef.FieldExist(DBraiderConfLineFieldSBI2."Field No.") then begin
                     TempErrorMessage.Init();
                     TempErrorMessage.ID := DBraiderConfLineFieldSBI2."Field No.";
-                    TempErrorMessage."Table Name" := CopyStr(RecRef.Name, 1, MaxStrLen(TempErrorMessage."Table Name"));
+                    TempErrorMessage."Table Name" := CopyStr(RecRef.Name(), 1, MaxStrLen(TempErrorMessage."Table Name"));
                     TempErrorMessage."Table Number" := DBraiderConfLineFieldSBI2."Table No.";
                     TempErrorMessage."Field Name" := CopyStr(DBraiderConfLineFieldSBI2."Fixed Field Name", 1, MaxStrLen(TempErrorMessage."Field Name"));
                     TempErrorMessage."Field Number" := DBraiderConfLineFieldSBI2."Field No.";
@@ -330,7 +330,7 @@ table 71033603 "SPB DBraider ConfLine Field"
                     TempErrorMessage.Insert();
                 end;
             until DBraiderConfLineFieldSBI2.Next() = 0;
-        if not TempErrorMessage.IsEmpty then
+        if not TempErrorMessage.IsEmpty() then
             Page.RunModal(Page::"Error Messages", TempErrorMessage);
     end;
 

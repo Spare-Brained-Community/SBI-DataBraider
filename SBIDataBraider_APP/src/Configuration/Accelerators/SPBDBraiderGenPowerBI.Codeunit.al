@@ -81,17 +81,17 @@ in
                     until SPBDBraiderConfLineField.Next() < 1;
             until SPBDBraiderConfLine.Next() < 1;
 
-        for i := 1 to FromName.Count do begin
+        for i := 1 to FromName.Count() do begin
             FieldList := FieldList + '"' + FromName.Get(i) + '"';
-            if i < FromName.Count then
+            if i < FromName.Count() then
                 FieldList := FieldList + ', ';
         end;
         ResultBuilder.AppendLine('    #"Expanded ' + Rec.Description + '" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {' + FieldList + '}),');
 
         // For i to FromName.Count do, also get the ToName of the same index, and then Add the FromName and ToName to the FieldMappingList in the format of {"FromName", "ToName"},
-        for i := 1 to FromName.Count do begin
+        for i := 1 to FromName.Count() do begin
             FieldMappingList := FieldMappingList + '{"' + FromName.Get(i) + '", "' + ToName.Get(i) + '"}';
-            if i < FromName.Count then
+            if i < FromName.Count() then
                 FieldMappingList := FieldMappingList + ', ';
         end;
 

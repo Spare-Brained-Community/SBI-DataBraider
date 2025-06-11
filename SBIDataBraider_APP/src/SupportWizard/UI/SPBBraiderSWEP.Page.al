@@ -31,7 +31,7 @@ page 71033619 "SPB Braider SW EP"
 
     procedure SetData(var NewRec: Record "SPB DBraider Config. Header")
     begin
-        if not Rec.IsTemporary then
+        if not Rec.IsTemporary() then
             exit;
         Rec.DeleteAll();
         if NewRec.FindSet() then
@@ -54,7 +54,7 @@ page 71033619 "SPB Braider SW EP"
                 SelectedEndpoints.Insert();
             until Rec.Next() < 1;
         CurrPage.SetSelectionFilter(SelectedEndpoints);
-        if SelectedEndpoints.Count = 1 then begin
+        if SelectedEndpoints.Count() = 1 then begin
             SelectedEndpoints.Reset();
             SelectedEndpoints.SetPosition(SelectionPosition);
             SelectedEndpoints.SetRecFilter();

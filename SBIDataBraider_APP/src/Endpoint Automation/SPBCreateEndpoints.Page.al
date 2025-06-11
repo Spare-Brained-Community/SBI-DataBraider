@@ -117,7 +117,7 @@ page 71033617 "SPB Create Endpoints"
 
     trigger OnOpenPage()
     begin
-        foreach EndpointEnumSelectionText in EndpointEnumSelection.Names do begin
+        foreach EndpointEnumSelectionText in EndpointEnumSelection.Names() do begin
             Rec.Init();
             Rec.Code := Format(EndpointEnumSelectionText);
             Rec.Description := StrSubstNo(BaseEndpointNameTxt, CopyStr(Format(EndpointEnumSelectionText), 4));

@@ -50,7 +50,7 @@ codeunit 71033614 "SPB DBraider Logging"
         if DBHeader."Clear Logs Count" > 0 then begin  //can not delete negitive entries
             Clear(SPBDBraiderEndpointLog);
             SPBDBraiderEndpointLog.SetRange("Config. Code", DBHeader.Code);
-            if SPBDBraiderEndpointLog.Count > DBHeader."Clear Logs Count" then
+            if SPBDBraiderEndpointLog.Count() > DBHeader."Clear Logs Count" then
                 repeat
                     if SPBDBraiderEndpointLog.FindSet() then begin
                         SPBDBraiderEndpointLog.SetFilter("Entry No.", Format(SPBDBraiderEndpointLog."Entry No."));
@@ -58,7 +58,7 @@ codeunit 71033614 "SPB DBraider Logging"
                     end;
                     Clear(SPBDBraiderEndpointLog);
                     SPBDBraiderEndpointLog.SetRange("Config. Code", DBHeader.Code);
-                until SPBDBraiderEndpointLog.Count = DBHeader."Clear Logs Count";
+                until SPBDBraiderEndpointLog.Count() = DBHeader."Clear Logs Count";
         end;
     end;
 

@@ -153,10 +153,10 @@ table 71033610 "SPB DBraider ConfLine Flow"
         until NothingFound;
 
         // Now all the 'Possible Parents' are marked, so we can present that sub-list to the user
-        for i := 1 to PossibleValidParentTableNos.Count do begin
+        for i := 1 to PossibleValidParentTableNos.Count() do begin
             PossibleValidParentTableNos.Get(i, PossibleTableNo);
             PossibleValidTableFilterBuilder.Append(Format(PossibleTableNo));
-            if i < PossibleValidParentTableNos.Count then
+            if i < PossibleValidParentTableNos.Count() then
                 PossibleValidTableFilterBuilder.Append('|');
         end;
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);

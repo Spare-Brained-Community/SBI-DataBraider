@@ -70,15 +70,15 @@ page 71033609 "SPB DBraider API JSON"
     begin
         Licensed := LicenseConnector.CheckIfActive(false);
         CheckIfGloballyEnbled();
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
-        if FilterJsonArray.Count <> 0 then
+        if FilterJsonArray.Count() <> 0 then
             Rec.Insert();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean   //GET
     begin
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
 
         if Licensed then begin
@@ -143,7 +143,7 @@ page 71033609 "SPB DBraider API JSON"
             Rec.DeleteAll();
             Rec.TransferFields(DBraiderConfig);
             // Apply any filters sent in via API
-            if FilterJsonArray.Count > 0 then
+            if FilterJsonArray.Count() > 0 then
                 DBraiderEngine.BuildFiltersFromJson(DBraiderConfig.Code, FilterJsonArray);
             if FilterJson <> '' then
                 DBraiderEngine.SetFilterJson(FilterJson);  // Passing this along for eventing

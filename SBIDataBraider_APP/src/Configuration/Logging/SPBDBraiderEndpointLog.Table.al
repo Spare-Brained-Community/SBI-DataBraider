@@ -51,9 +51,9 @@ table 71033609 "SPB DBraider Endpoint Log"
 
     begin
         Rec.CalcFields("Raw Input");
-        if Rec."Raw Input".HasValue then begin
+        if Rec."Raw Input".HasValue() then begin
             Rec."Raw Input".CreateInStream(inS);
-            while not inS.EOS do begin
+            while not inS.EOS() do begin
                 inS.ReadText(LineOfText);
                 BlobTextBuilder.AppendLine(LineOfText);
             end;

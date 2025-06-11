@@ -286,7 +286,7 @@ table 71033601 "SPB DBraider Config. Header"
         ConfigLines: Record "SPB DBraider Config. Line";
     begin
         ConfigLines.SetRange("Config. Code", Rec.Code);
-        exit(not ConfigLines.IsEmpty);
+        exit(not ConfigLines.IsEmpty());
     end;
 
     internal procedure WriteableConfig(): Boolean

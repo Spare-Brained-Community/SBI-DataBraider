@@ -144,21 +144,21 @@ table 71033602 "SPB DBraider Config. Line"
         if Rec."Line No." <> 0 then begin
             DBraiderConfLineFieldSBI.SetRange("Config. Code", Rec."Config. Code");
             DBraiderConfLineFieldSBI.SetRange("Config. Line No.", Rec."Line No.");
-            if DBraiderConfLineFieldSBI.IsEmpty then begin
+            if DBraiderConfLineFieldSBI.IsEmpty() then begin
                 // Populate the dataset
                 RecRef.Open("Source Table");
                 PKFieldNumbers := SPBDBraiderUtilities.GetPrimaryKeyFields(RecRef);
-                for i := 1 to RecRef.FieldCount do begin
+                for i := 1 to RecRef.FieldCount() do begin
                     FieldsRef := RecRef.FieldIndex(i);
                     DBraiderConfLineFieldSBI.Init();
                     DBraiderConfLineFieldSBI."Config. Code" := Rec."Config. Code";
                     DBraiderConfLineFieldSBI."Config. Line No." := Rec."Line No.";
-                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number;
+                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number();
                     DBraiderConfLineFieldSBI."Table No." := Rec."Source Table";
                     DBraiderConfLineFieldSBI."Processing Order" := 10;
-                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
-                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
+                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class());
+                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number());
                     DBraiderConfLineFieldSBI.Insert(true);
                     // Because flowfields aren't searchable, we need to copy the caption to a Normal class field
                     DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
@@ -211,7 +211,7 @@ table 71033602 "SPB DBraider Config. Line"
     begin
         DBRelation.SetRange("Config. Code", Rec."Config. Code");
         DBRelation.SetRange("Config. Line No.", Rec."Line No.");
-        if not DBRelation.IsEmpty then begin
+        if not DBRelation.IsEmpty() then begin
             if DBRelation.FindSet(false) then
                 repeat
                     MissingInfo := (DBRelation."Parent Field No." = 0) or (DBRelation."Child Field No." = 0);

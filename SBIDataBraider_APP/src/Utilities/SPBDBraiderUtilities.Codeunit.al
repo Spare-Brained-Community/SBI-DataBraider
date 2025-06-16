@@ -122,7 +122,7 @@ codeunit 71033608 "SPB DBraider Utilities"
             end;
         end;
 
-        if Fields.Count() = 0 then
+        if Fields.IsEmpty() then
             // Suuuuuper ugly, hard-coding some of these because we have little choice
             case ParentTableNo of
                 36:  // Sales Header

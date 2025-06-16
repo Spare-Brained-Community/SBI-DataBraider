@@ -1,5 +1,6 @@
 codeunit 71033619 "SPB DBraider Events"
 {
+    Access = Public;
     /* Since API calls are SUPPOSED to be fast, subscribers should take caution to add any extra DB operations */
 
     [IntegrationEvent(false, false)]

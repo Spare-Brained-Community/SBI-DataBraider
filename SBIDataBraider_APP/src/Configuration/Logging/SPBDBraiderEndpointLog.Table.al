@@ -48,7 +48,7 @@ table 71033609 "SPB DBraider Endpoint Log"
         BlobTextBuilder: TextBuilder;
         RequestJsonString: Text;
         RequestDataErr: Label 'This Entry has invalid request data.';
-
+        DeltaReadNotSupportedErr: Label 'Delta Read is not supported in this context';
     begin
         Rec.CalcFields("Raw Input");
         if Rec."Raw Input".HasValue() then begin
@@ -65,7 +65,7 @@ table 71033609 "SPB DBraider Endpoint Log"
                 "SPB DBraider Endpoint Type"::Batch, "SPB DBraider Endpoint Type"::"Per Record":
                     SBPDBraiderInputProcessor.ProcessWriteData(DBHeader.Code, RequestJsonString);
                 "SPB DBraider Endpoint Type"::"Delta Read":
-                    Error('Delta Read is not supported in this context');
+                    Error(DeltaReadNotSupportedErr);
                 "SPB DBraider Endpoint Type"::"Read Only":
                     begin
                         if RequestJsonString <> '' then

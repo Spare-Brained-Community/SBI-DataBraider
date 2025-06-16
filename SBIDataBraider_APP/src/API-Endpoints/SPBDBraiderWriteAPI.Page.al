@@ -3,7 +3,6 @@ page 71033611 "SPB DBraider Write API"
     APIGroup = 'databraider';
     APIPublisher = 'sparebrained';
     APIVersion = 'v2.0';
-    ApplicationArea = All;
     Caption = 'Data Braider Write API';
     DelayedInsert = true;
     EntityName = 'write';

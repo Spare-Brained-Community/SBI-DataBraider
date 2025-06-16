@@ -3,7 +3,6 @@ page 71033609 "SPB DBraider API JSON"
     APIGroup = 'databraider';
     APIPublisher = 'sparebrained';
     APIVersion = 'v2.0';
-    ApplicationArea = All;
     Caption = 'Data Braider Read API';
     DelayedInsert = true;
     EntityName = 'read';

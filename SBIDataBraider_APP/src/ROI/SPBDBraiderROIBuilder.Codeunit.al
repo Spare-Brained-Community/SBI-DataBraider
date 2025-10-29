@@ -157,7 +157,7 @@ codeunit 71033629 "SPB DBraider ROI Builder"
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
     begin
         SPBDBraiderConfigLine.SetRange("Config. Code", SPBDBraiderConfigHeader.Code);
-        if SPBDBraiderConfigLine.Count = 1 then begin
+        if SPBDBraiderConfigLine.Count() = 1 then begin
             SPBDBraiderConfigLine.FindFirst();
             CalculateFieldROI(SPBDBraiderConfigHeader, EndpointHeaderLineNo, SPBDBraiderConfigLine);
             exit;

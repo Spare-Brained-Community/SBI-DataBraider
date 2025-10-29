@@ -47,7 +47,6 @@ table 71033603 "SPB DBraider ConfLine Field"
         field(30; "Filter"; Text[250])
         {
             Caption = 'Filter';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -80,10 +79,11 @@ table 71033603 "SPB DBraider ConfLine Field"
 
             trigger OnValidate()
             var
+                ConfirmManagement: Codeunit "Confirm Management";
                 DisableAllCautionMsg: Label 'Using the ''Disable All'' option will disable all validation on this field. This can introduce dangerously malformed data and can result in significant expensive problems. Any damages from use of this function are your responsibility.\ \Are you CERTAIN you want to do this?';
             begin
                 if "Disable Validation" = "Disable Validation"::DisableAll then
-                    if not Confirm(DisableAllCautionMsg) then
+                    if not ConfirmManagement.GetResponseOrDefault(DisableAllCautionMsg, false) then
                         "Disable Validation" := "Disable Validation"::" "
             end;
         }
@@ -127,7 +127,6 @@ table 71033603 "SPB DBraider ConfLine Field"
         field(130; "Primary Key"; Boolean)
         {
             Caption = 'Primary Key';
-            DataClassification = SystemMetadata;
             Description = 'Denotes if a field is part of the primary key';
             Editable = false;
         }
@@ -257,8 +256,8 @@ table 71033603 "SPB DBraider ConfLine Field"
         if Rec."Table No." <> 0 then begin
             RecRef.Open(Rec."Table No.");
             FieldsRef := RecRef.Field(FieldNo);
-            Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-            Rec."Field Class" := Format(FieldsRef.Class);
+            Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+            Rec."Field Class" := Format(FieldsRef.Class());
         end;
     end;
 
@@ -293,18 +292,18 @@ table 71033603 "SPB DBraider ConfLine Field"
             // Populate the dataset
             RecRef.Open("Table No.");
             PKFieldNumbers := SPBDBraiderUtilities.GetPrimaryKeyFields(RecRef);
-            for i := 1 to RecRef.FieldCount do begin
+            for i := 1 to RecRef.FieldCount() do begin
                 FieldsRef := RecRef.FieldIndex(i);
-                if not DBraiderConfLineFieldSBI2.Get(Rec."Config. Code", Rec."Config. Line No.", FieldsRef.Number) then begin
+                if not DBraiderConfLineFieldSBI2.Get(Rec."Config. Code", Rec."Config. Line No.", FieldsRef.Number()) then begin
                     DBraiderConfLineFieldSBI.Init();
                     DBraiderConfLineFieldSBI."Config. Code" := Rec."Config. Code";
                     DBraiderConfLineFieldSBI."Config. Line No." := Rec."Config. Line No.";
-                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number;
+                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number();
                     DBraiderConfLineFieldSBI."Table No." := Rec."Table No.";
                     DBraiderConfLineFieldSBI."Processing Order" := 10;
-                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
-                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
+                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class());
+                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number());
                     DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
                     DBraiderConfLineFieldSBI."Fixed Field Name" := DBraiderConfLineFieldSBI."Field Name";
                     DBraiderConfLineFieldSBI."Fixed Field Caption" := DBraiderConfLineFieldSBI.Caption;
@@ -323,7 +322,7 @@ table 71033603 "SPB DBraider ConfLine Field"
                 if not RecRef.FieldExist(DBraiderConfLineFieldSBI2."Field No.") then begin
                     TempErrorMessage.Init();
                     TempErrorMessage.ID := DBraiderConfLineFieldSBI2."Field No.";
-                    TempErrorMessage."Table Name" := CopyStr(RecRef.Name, 1, MaxStrLen(TempErrorMessage."Table Name"));
+                    TempErrorMessage."Table Name" := CopyStr(RecRef.Name(), 1, MaxStrLen(TempErrorMessage."Table Name"));
                     TempErrorMessage."Table Number" := DBraiderConfLineFieldSBI2."Table No.";
                     TempErrorMessage."Field Name" := CopyStr(DBraiderConfLineFieldSBI2."Fixed Field Name", 1, MaxStrLen(TempErrorMessage."Field Name"));
                     TempErrorMessage."Field Number" := DBraiderConfLineFieldSBI2."Field No.";
@@ -332,17 +331,18 @@ table 71033603 "SPB DBraider ConfLine Field"
                     TempErrorMessage.Insert();
                 end;
             until DBraiderConfLineFieldSBI2.Next() = 0;
-        if not TempErrorMessage.IsEmpty then
+        if not TempErrorMessage.IsEmpty() then
             Page.RunModal(Page::"Error Messages", TempErrorMessage);
     end;
 
     procedure RemoveInvalidFields()
     var
         DBraiderConfLineFieldSBI: Record "SPB DBraider ConfLine Field";
+        ConfirmManagement: Codeunit "Confirm Management";
         RecRef: RecordRef;
         ConfirmRemovalMsg: Label 'This will remove all fields that are no longer in the source table.  Are you sure you want to do this?';
     begin
-        if Confirm(ConfirmRemovalMsg, true) then begin
+        if ConfirmManagement.GetResponseOrDefault(ConfirmRemovalMsg, true) then begin
             DBraiderConfLineFieldSBI.CopyFilters(Rec);
             if DBraiderConfLineFieldSBI.FindSet() then begin
                 RecRef.Open(DBraiderConfLineFieldSBI."Table No.");

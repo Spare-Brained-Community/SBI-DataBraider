@@ -3,7 +3,6 @@ page 71033609 "SPB DBraider API JSON"
     APIGroup = 'databraider';
     APIPublisher = 'sparebrained';
     APIVersion = 'v2.0';
-    ApplicationArea = All;
     Caption = 'Data Braider Read API';
     DelayedInsert = true;
     EntityName = 'read';
@@ -70,15 +69,15 @@ page 71033609 "SPB DBraider API JSON"
     begin
         Licensed := LicenseConnector.CheckIfActive(false);
         CheckIfGloballyEnbled();
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
-        if FilterJsonArray.Count <> 0 then
+        if FilterJsonArray.Count() <> 0 then
             Rec.Insert();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean   //GET
     begin
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
 
         if Licensed then begin
@@ -139,11 +138,11 @@ page 71033609 "SPB DBraider API JSON"
         DBraiderConfig.SetRange(Enabled, true);
         Rec.Reset();
         if DBraiderConfig.FindFirst() then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
-                                                  //if DBraiderConfig.Get(rec.Code) then begin
+                                                  //if DBraiderConfig.Get(Rec.Code) then begin
             Rec.DeleteAll();
             Rec.TransferFields(DBraiderConfig);
             // Apply any filters sent in via API
-            if FilterJsonArray.Count > 0 then
+            if FilterJsonArray.Count() > 0 then
                 DBraiderEngine.BuildFiltersFromJson(DBraiderConfig.Code, FilterJsonArray);
             if FilterJson <> '' then
                 DBraiderEngine.SetFilterJson(FilterJson);  // Passing this along for eventing

@@ -8,19 +8,16 @@ table 71033602 "SPB DBraider Config. Line"
         field(1; "Config. Code"; Code[20])
         {
             Caption = 'Config. Code';
-            DataClassification = SystemMetadata;
             TableRelation = "SPB DBraider Config. Header".Code;
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
-            DataClassification = SystemMetadata;
         }
 
         field(10; "Source Table"; Integer)
         {
             Caption = 'Source Table';
-            DataClassification = SystemMetadata;
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
@@ -40,36 +37,32 @@ table 71033602 "SPB DBraider Config. Line"
             CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table), "Object ID" = field("Source Table")));
             Caption = 'Source Table Name';
             FieldClass = FlowField;
+            Editable = false;
         }
 
         field(20; Indentation; Integer)
         {
             Caption = 'Indentation';
-            DataClassification = SystemMetadata;
         }
         field(21; "Parent Table No."; Integer)
         {
             Caption = 'Parent Table No.';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
 
         field(50; "Relation Type"; Enum "SPB DBraider Relation Type")
         {
             Caption = 'Relation Type';
-            DataClassification = SystemMetadata;
         }
 
         field(55; "Relation Operation"; Enum "SPB DBraider Rel. Operation")
         {
             Caption = 'Relation Operation';
-            DataClassification = SystemMetadata;
         }
 
         field(59; "Relationship Configured"; Boolean)
         {
             Caption = 'Relationship Configured';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
 
@@ -152,21 +145,21 @@ table 71033602 "SPB DBraider Config. Line"
         if Rec."Line No." <> 0 then begin
             DBraiderConfLineFieldSBI.SetRange("Config. Code", Rec."Config. Code");
             DBraiderConfLineFieldSBI.SetRange("Config. Line No.", Rec."Line No.");
-            if DBraiderConfLineFieldSBI.IsEmpty then begin
+            if DBraiderConfLineFieldSBI.IsEmpty() then begin
                 // Populate the dataset
                 RecRef.Open("Source Table");
                 PKFieldNumbers := SPBDBraiderUtilities.GetPrimaryKeyFields(RecRef);
-                for i := 1 to RecRef.FieldCount do begin
+                for i := 1 to RecRef.FieldCount() do begin
                     FieldsRef := RecRef.FieldIndex(i);
                     DBraiderConfLineFieldSBI.Init();
                     DBraiderConfLineFieldSBI."Config. Code" := Rec."Config. Code";
                     DBraiderConfLineFieldSBI."Config. Line No." := Rec."Line No.";
-                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number;
+                    DBraiderConfLineFieldSBI."Field No." := FieldsRef.Number();
                     DBraiderConfLineFieldSBI."Table No." := Rec."Source Table";
                     DBraiderConfLineFieldSBI."Processing Order" := 10;
-                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type);
-                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class);
-                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number);
+                    DBraiderConfLineFieldSBI."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
+                    DBraiderConfLineFieldSBI."Field Class" := Format(FieldsRef.Class());
+                    DBraiderConfLineFieldSBI."Primary Key" := PKFieldNumbers.Contains(FieldsRef.Number());
                     DBraiderConfLineFieldSBI.Insert(true);
                     // Because flowfields aren't searchable, we need to copy the caption to a Normal class field
                     DBraiderConfLineFieldSBI.CalcFields("Field Name", Caption);
@@ -219,7 +212,7 @@ table 71033602 "SPB DBraider Config. Line"
     begin
         DBRelation.SetRange("Config. Code", Rec."Config. Code");
         DBRelation.SetRange("Config. Line No.", Rec."Line No.");
-        if not DBRelation.IsEmpty then begin
+        if not DBRelation.IsEmpty() then begin
             if DBRelation.FindSet(false) then
                 repeat
                     MissingInfo := (DBRelation."Parent Field No." = 0) or (DBRelation."Child Field No." = 0);

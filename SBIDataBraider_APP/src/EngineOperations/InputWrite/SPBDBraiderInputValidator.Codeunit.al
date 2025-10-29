@@ -195,7 +195,7 @@ codeunit 71033605 "SPB DBraider Input Validator"
             repeat
                 // Build a List of the Field Numbers that are mandatory for this config line
                 MandatoryFields := SPBDBraiderUtilities.GetMandatoryFieldsForConfig(TempStartRecordJsonBuffer."SPB Config. Code", TempStartRecordJsonBuffer."SPB Config. Line No.");
-                if MandatoryFields.Count <> 0 then begin
+                if MandatoryFields.Count() <> 0 then begin
                     // The TempMapJsonBuffer is a way to see what the Table/Field Names are, so prep the filters
                     TempMapJsonBuffer.SetRange("SPB Record Id", TempStartRecordJsonBuffer."SPB Record Id");
                     TempMapJsonBuffer.SetRange("SPB Config. Code", TempStartRecordJsonBuffer."SPB Config. Code");
@@ -241,15 +241,15 @@ codeunit 71033605 "SPB DBraider Input Validator"
         TargetKeyRef: KeyRef;
     begin
         // Initialize a Temporary (and blank) rec from the same table to get the InitValue for comparison
-        TempSampleRecordRef.Open(TargetTableRecordRef.Number, true);
+        TempSampleRecordRef.Open(TargetTableRecordRef.Number(), true);
 
         AllFieldsOK := true;
 
         TargetKeyRef := TargetTableRecordRef.KeyIndex(1);  // Primary Key
-        for i := 1 to TargetKeyRef.FieldCount do begin
+        for i := 1 to TargetKeyRef.FieldCount() do begin
             TargetFieldRef := TargetKeyRef.FieldIndex(i);
             SampleFieldRef := TempSampleRecordRef.FieldIndex(i);
-            AllFieldsOK := AllFieldsOK and (Format(TargetFieldRef.Value) <> Format(SampleFieldRef.Value));
+            AllFieldsOK := AllFieldsOK and (Format(TargetFieldRef.Value()) <> Format(SampleFieldRef.Value()));
         end;
     end;
 

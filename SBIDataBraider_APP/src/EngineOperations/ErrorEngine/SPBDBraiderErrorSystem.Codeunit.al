@@ -97,7 +97,7 @@ codeunit 71033613 "SPB DBraider Error System"
             ResultArray.Add(ThisJsonToken.Clone());
     end;
 
-    procedure GetBufferedErrors(): Record "SPB DBraider Result Buffer" temporary;
+    procedure GetBufferedErrors(): Record "SPB DBraider Result Buffer" temporary
     begin
         TempSPBDBraiderResultBuffer.SetRange("Result Type", Enum::"SPB DBraider Result Type"::Error);
         exit(TempSPBDBraiderResultBuffer);

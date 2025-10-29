@@ -39,7 +39,7 @@ page 71033606 "SPB DBraider Result Subpage"
 
     procedure SetTempData(var ResultCol: Record "SPB DBraider Resultset Col" temporary)
     begin
-        if not Rec.IsTemporary then
+        if not Rec.IsTemporary() then
             exit;
 
         Rec.DeleteAll();

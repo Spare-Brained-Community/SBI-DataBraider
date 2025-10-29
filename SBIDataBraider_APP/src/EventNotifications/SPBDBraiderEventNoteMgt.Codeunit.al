@@ -7,7 +7,7 @@ codeunit 71033628 "SPB DBraider Event Note Mgt"
         EventNote: Record "SPBDBraider Event Notification";
         NextLineNo: Integer;
 
-    internal procedure CreateEventNote(DBConfigCode: Code[20]; TableID: Integer; RecID: RecordId; ActionType: text; DeletedPK: Text);
+    internal procedure CreateEventNote(DBConfigCode: Code[20]; TableID: Integer; RecID: RecordId; ActionType: Text; DeletedPK: Text)
     begin
         if EventNote.FindLast() then
             NextLineNo := EventNote.LineNo + 1

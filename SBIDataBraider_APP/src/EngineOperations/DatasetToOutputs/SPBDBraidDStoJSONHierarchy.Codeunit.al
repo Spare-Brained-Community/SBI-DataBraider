@@ -8,7 +8,7 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         ResultTextLbl: Label 'No Result was found with the given filter(s)';
         ResultText: Text;
     begin
-        if BaseResultCol.IsEmpty or BaseResultRow.IsEmpty then begin
+        if BaseResultCol.IsEmpty() or BaseResultRow.IsEmpty() then begin
             ResultText := ResultTextLbl;
             exit(ResultText);
         end;
@@ -41,7 +41,7 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         exit(JsonRows);
     end;
 
-    internal procedure ProcessDataHierarchyToJson() JsonRows: JsonArray;
+    internal procedure ProcessDataHierarchyToJson() JsonRows: JsonArray
     var
         IntValue: Integer;
         JsonCols: JsonObject;

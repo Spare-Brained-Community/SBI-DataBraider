@@ -1,8 +1,7 @@
 permissionset 71033601 "SPB DBraider User"
 {
     Assignable = true;
-    Caption = 'DataBraider User';
-
+    Caption = 'DataBraider User', MaxLength = 30;
     Permissions =
         tabledata "SPB DBraider Setup" = R,
         tabledata "SPB DBraider Config. Header" = R,

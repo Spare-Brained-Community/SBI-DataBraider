@@ -76,7 +76,7 @@ page 71033605 "SPB DBraider Results"
 
     procedure SetTempData(var RowData: Record "SPB DBraider Resultset Row" temporary; var ColData: Record "SPB DBraider Resultset Col" temporary)
     begin
-        if not Rec.IsTemporary then
+        if not Rec.IsTemporary() then
             exit;
 
         Rec.DeleteAll();

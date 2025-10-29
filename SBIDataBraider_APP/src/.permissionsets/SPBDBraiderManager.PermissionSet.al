@@ -1,8 +1,9 @@
 permissionset 71033600 "SPB DBraider Manager"
 {
     Assignable = true;
-    Caption = 'DataBraider Manager';
-    Permissions = tabledata "SPB DBraider Setup" = RIMD,
+    Caption = 'DataBraider Manager', MaxLength = 30;
+    Permissions =
+        tabledata "SPB DBraider Setup" = RIMD,
         tabledata "SPB DBraider Config. Header" = RIMD,
         tabledata "SPB DBraider Config. Line" = RIMD,
         tabledata "SPB DBraider ConfLine Field" = RIMD,

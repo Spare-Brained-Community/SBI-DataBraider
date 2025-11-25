@@ -47,7 +47,7 @@ codeunit 71033607 "SPB DBraider Input Processor"
                         SPBDBraiderErrorSystem.WriteErrors(JsonResult);
             end
         end else begin
-            SPBDBraiderErrorSystem.AddError(-1, StrSubstNo(Error1Lbl, GetLastErrorText()));
+            SPBDBraiderErrorSystem.AddError(-1, StrSubstNo(Error1Lbl, GetLastErrorText()), SPBDBraiderConfigHeader."Logging Enabled");
             SPBDBraiderErrorSystem.WriteErrors(JsonResult);
         end;
         SPBDBraiderEvents.OnAfterWriteData(SPBDBraiderConfigHeader, JsonInput, JsonResult, not SPBDBraiderErrorSystem.HasErrors());
@@ -61,10 +61,11 @@ codeunit 71033607 "SPB DBraider Input Processor"
         WriteFailLbl: Label 'Writing data failed: %1', Comment = '%1 = Last Error Message';
     begin
         CompleteSuccess := true;
+        SPBDBraiderWriteData.SetConfigHeader(SPBDBraiderConfigHeader);
         if SPBDBraiderWriteData.Run(TempJSONBuffer) then
             SPBDBraiderErrorSystem.AddArrayToResultArray(SPBDBraiderWriteData.GetResults(SPBDBraiderConfigHeader), JsonResultArray)
         else begin
-            SPBDBraiderErrorSystem.AddError(-1, StrSubstNo(WriteFailLbl, GetLastErrorText()));
+            SPBDBraiderErrorSystem.AddError(-1, StrSubstNo(WriteFailLbl, GetLastErrorText()), SPBDBraiderConfigHeader."Logging Enabled");
             CompleteSuccess := false;
         end;
         if CompleteSuccess then begin
@@ -93,8 +94,9 @@ codeunit 71033607 "SPB DBraider Input Processor"
                 TempContentJsonBuffer.SetRange("SPB Record Id", TempHeaderJsonBuffer."SPB Record Id");
                 TempContentJsonBuffer.FilterGroup(0);
                 Clear(SPBDBraiderWriteData);
+                SPBDBraiderWriteData.SetConfigHeader(SPBDBraiderConfigHeader);
                 if not SPBDBraiderWriteData.Run(TempContentJsonBuffer) then begin
-                    SPBDBraiderErrorSystem.AddError(TempHeaderJsonBuffer."SPB Record Id", StrSubstNo(WriteFailLbl, GetLastErrorText()));
+                    SPBDBraiderErrorSystem.AddError(TempHeaderJsonBuffer."SPB Record Id", StrSubstNo(WriteFailLbl, GetLastErrorText()), SPBDBraiderConfigHeader."Logging Enabled");
                     CompleteSuccess := false;
                 end else
                     SPBDBraiderErrorSystem.AddArrayToResultArray(SPBDBraiderWriteData.GetResults(SPBDBraiderConfigHeader), JsonResultArray);

@@ -3,6 +3,7 @@ codeunit 71033606 "SPB DBraider Write Data"
     TableNo = "JSON Buffer";
 
     var
+        GlobalConfigHeader: Record "SPB DBraider Config. Header";
         SPBDBraiderErrorSystem: Codeunit "SPB DBraider Error System";
         EventNoteMgt: Codeunit "SPB DBraider Event Note Mgt";
         LastRecordPosition: Dictionary of [Integer, Text];
@@ -218,6 +219,7 @@ codeunit 71033606 "SPB DBraider Write Data"
         SPBDBraiderIDatasetToText: Interface "SPB DBraider IDatasetToText";
         JsonResult: JsonArray;
         ResultJsonObject: JsonObject;
+        ConfigCodeToUse: Code[20];
     begin
         Clear(DBraiderEngine);
         TempResultRow.DeleteAll();
@@ -226,7 +228,14 @@ codeunit 71033606 "SPB DBraider Write Data"
         SpecificRecordRef.Open(TargetRecordRef.Number());
         SpecificRecordRef.SetPosition(TargetRecordRef.GetPosition());
         SpecificRecordRef.SetRecFilter();
-        if DBraiderConfig.Get(TempContentJsonBuffer."SPB Config. Code") then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
+        
+        // Use Config Code from buffer if available, otherwise use global config header
+        if TempContentJsonBuffer."SPB Config. Code" <> '' then
+            ConfigCodeToUse := TempContentJsonBuffer."SPB Config. Code"
+        else
+            ConfigCodeToUse := GlobalConfigHeader.Code;
+            
+        if DBraiderConfig.Get(ConfigCodeToUse) then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
             DBraiderEngine.GenerateRecordData(DBraiderConfig.Code, SpecificRecordRef);
             DBraiderEngine.GetResults(TempResultRow, TempResultCol);
 
@@ -288,8 +297,15 @@ codeunit 71033606 "SPB DBraider Write Data"
     var
         SPBDBraiderConfig: Record "SPB DBraider Config. Header";
         SPBDBraiderChangeAction: Enum "SPB DBraider Change Action";
+        ConfigCodeToUse: Code[20];
     begin
-        SPBDBraiderConfig.Get(TempHeaderJsonBuffer."SPB Config. Code");
+        // Use Config Code from buffer if available, otherwise use global config header
+        if TempHeaderJsonBuffer."SPB Config. Code" <> '' then
+            ConfigCodeToUse := TempHeaderJsonBuffer."SPB Config. Code"
+        else
+            ConfigCodeToUse := GlobalConfigHeader.Code;
+            
+        SPBDBraiderConfig.Get(ConfigCodeToUse);
         case TempHeaderJsonBuffer."SPB Record Action" of
             SPBDBraiderChangeAction::Insert:
                 exit(SPBDBraiderConfig."Insert Allowed");
@@ -462,6 +478,11 @@ codeunit 71033606 "SPB DBraider Write Data"
     internal procedure SetLastRecord(WhichRecordRef: RecordRef)
     begin
         SetLastRecord(WhichRecordRef.Number(), WhichRecordRef.GetPosition());
+    end;
+
+    procedure SetConfigHeader(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header")
+    begin
+        GlobalConfigHeader := SPBDBraiderConfigHeader;
     end;
 
     [IntegrationEvent(false, false)]

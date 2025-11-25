@@ -304,7 +304,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
 
         // If we're being asked for a page beyond the records that exist
         if (StartFromPage > 1) and (PageSize <> 0) and (DBLine."Parent Table No." = 0) then begin
-            i := ((StartFromPage - 1) * PageSize) + (PageSize - 1);
+            i := ((StartFromPage - 1) * PageSize) + 1;
             if LineRef.Count() < i then begin
                 SPBDBraiderErrorSystem.AddError(1, 'The requested page is beyond the records that exist');
                 LineRef.Close();

@@ -42,7 +42,7 @@ page 71033610 "SPB DBraider End. Logs"
     {
         area(Promoted)
         {
-            actionref(RetryApiInput_Promoted; RetryAPIInput) { }
+            actionref(RetryApiInput_Promoted; RetryApiInput) { }
         }
 
         area(Processing)

@@ -62,7 +62,7 @@ codeunit 71033609 "SPB DBraider Telemetry"
 
 
     #region UsageStats
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", OnSendDailyTelemetry, '', true, true)]
     local procedure SendDailyTelemetry()
     begin
         SendActivityTelemetry(true);
@@ -96,20 +96,20 @@ codeunit 71033609 "SPB DBraider Telemetry"
         if not DailySend then begin
             if IsolatedStorage.Get('DataBraider-Telementry', DataScope::Module, LastTelemetrySentDateText) then
                 if Evaluate(LastTelemetrySentDate, LastTelemetrySentDateText) then;
-            if (CurrentDateTime - LastTelemetrySentDate) < (24 * 60 * 60 * 1000) then
+            if (CurrentDateTime() - LastTelemetrySentDate) < (24 * 60 * 60 * 1000) then
                 exit;
         end else
-            LastTelemetrySentDate := CurrentDateTime - (24 * 60 * 60 * 1000);
+            LastTelemetrySentDate := CurrentDateTime() - (24 * 60 * 60 * 1000);
 
         // Braider Usage Info
 
         // # of Read Endpoints Configured
         SPBDBraiderConfigHeader.SetRange("Endpoint Type", Enum::"SPB DBraider Endpoint Type"::"Read Only");
-        EmitTraceTag(ReadEndpointsLbl, SPBDBraiderConfigHeader.Count, 'SPB0101');
+        EmitTraceTag(ReadEndpointsLbl, SPBDBraiderConfigHeader.Count(), 'SPB0101');
 
         // # of Write Single Endpoints Configured
         SPBDBraiderConfigHeader.SetRange("Endpoint Type", Enum::"SPB DBraider Endpoint Type"::"Per Record");
-        EmitTraceTag(WriteSingleEndpointsLbl, SPBDBraiderConfigHeader.Count, 'SPB0102');
+        EmitTraceTag(WriteSingleEndpointsLbl, SPBDBraiderConfigHeader.Count(), 'SPB0102');
 
         SPBDBraiderUtilities.GetTelemetryFigures(Results);
         // # Avg Reads per Endpoint (CM)
@@ -165,10 +165,10 @@ codeunit 71033609 "SPB DBraider Telemetry"
         // User/Company/DB info
         // # of Active Users in DB
         Users.SetRange(State, Users.State::Enabled);
-        EmitTraceTag(DBActiveUsersLbl, Users.Count, 'SPB0120');
+        EmitTraceTag(DBActiveUsersLbl, Users.Count(), 'SPB0120');
 
         // # of Companies in DB
-        EmitTraceTag(DBCompaniesLbl, CompanyRec.Count, 'SPB0121');
+        EmitTraceTag(DBCompaniesLbl, CompanyRec.Count(), 'SPB0121');
 
         IsolatedStorage.Set('DataBraider-Telemetry', Format(LastTelemetrySentDate, 0, 9), DataScope::Module);
     end;
@@ -184,7 +184,7 @@ codeunit 71033609 "SPB DBraider Telemetry"
         TraceTagMessage := StrSubstNo(TraceTagTelemetryMsg, FeatureName, FeatureCount);
         TelemetryDimension.Add(CustomFeatureCountLbl, Format(FeatureCount));
         //TODO: When MS will add the company name to log message this can be obsoleted
-        TelemetryDimension.Add(CustomCompanyNameLbl, CompanyName);
+        TelemetryDimension.Add(CustomCompanyNameLbl, CompanyName());
         Session.LogMessage(Tag, TraceTagMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimension);
     end;
 
@@ -259,14 +259,14 @@ codeunit 71033609 "SPB DBraider Telemetry"
         thisValue: Text;
     begin
         TraceTagMessage := StrSubstNo(TraceTagTelemetryMsg, DBHeader.Code, EventName);
-        TelemetryDimension.Add(CustomCompanyNameLbl, CompanyName);
+        TelemetryDimension.Add(CustomCompanyNameLbl, CompanyName());
         TelemetryDimension.Add(EndpointCodeLbl, DBHeader.Code);
         TelemetryDimension.Add(EndpointTypeLbl, Format(DBHeader."Endpoint Type"));
         if DBHeader."Emit Telemetry Include Body" then
             TelemetryDimension.Add('Body', RawContent);
-        if ExtraDimensions.Count > 0 then
-            for i := 1 to ExtraDimensions.Count do begin
-                thisKey := ExtraDimensions.Keys.Get(i);
+        if ExtraDimensions.Count() > 0 then
+            for i := 1 to ExtraDimensions.Count() do begin
+                thisKey := ExtraDimensions.Keys().Get(i);
                 thisValue := ExtraDimensions.Get(thisKey);
                 TelemetryDimension.Add(thisKey, thisValue);
             end;

@@ -67,7 +67,7 @@ page 71033604 "SPB DBraider Config. Fields"
                 }
                 field("Write Enabled"; Rec."Write Enabled")
                 {
-                    Enabled = rec.Included;
+                    Enabled = Rec.Included;
                     ToolTip = 'Specifies the value of the Write Enabled field.';
                     Visible = WriteEndpoint;
                 }

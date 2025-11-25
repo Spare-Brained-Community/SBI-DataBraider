@@ -113,7 +113,7 @@ page 71033600 "SPB DBraider Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                RunObject = Page "SPB Create Endpoints";
+                RunObject = page "SPB Create Endpoints";
                 ToolTip = 'This function will setup the Business Central standard endpoints.';
             }
             action(UpdateFieldCaptions)
@@ -144,7 +144,7 @@ page 71033600 "SPB DBraider Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                RunObject = Page "SPB DBraider Variables";
+                RunObject = page "SPB DBraider Variables";
                 ToolTip = 'This function will open the Variables page.';
 
             }

@@ -238,7 +238,7 @@ page 71033602 "SPB DBraider Configuration"
                 var
                     MissingEndpointNameErrorLbl: Label 'You need to enter an Endpoint Name before you can copy lines from another Endpoint, the ''Code'' field can not be blank.';
                 begin
-                    if rec.Code = '' then //Added to preventing creating an endpoint with no name(Code).
+                    if Rec.Code = '' then //Added to preventing creating an endpoint with no name(Code).
                         Error(MissingEndpointNameErrorLbl)
                     else
                         CopyLinesFromOtherConfig();

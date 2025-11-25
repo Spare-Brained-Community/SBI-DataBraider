@@ -35,6 +35,22 @@ codeunit 71033613 "SPB DBraider Error System"
         AddEntry(RowNo, ResultMessage, Enum::"SPB DBraider Result Type"::Error);
     end;
 
+    procedure AddError(RowNo: Integer; ResultMessage: Text; IncludeCallStack: Boolean)
+    var
+        CallStack: Text;
+        EnhancedMessage: Text;
+    begin
+        if IncludeCallStack then begin
+            CallStack := GetLastErrorCallStack();
+            if CallStack <> '' then
+                EnhancedMessage := ResultMessage + ' | Call Stack: ' + CallStack
+            else
+                EnhancedMessage := ResultMessage;
+            AddEntry(RowNo, EnhancedMessage, Enum::"SPB DBraider Result Type"::Error);
+        end else
+            AddError(RowNo, ResultMessage);
+    end;
+
     procedure AddEntry(RowNo: Integer; ResultMessage: Text; ResultType: Enum "SPB DBraider Result Type")
     begin
         if not NextRowLineNo.ContainsKey(RowNo) then
@@ -97,7 +113,7 @@ codeunit 71033613 "SPB DBraider Error System"
             ResultArray.Add(ThisJsonToken.Clone());
     end;
 
-    procedure GetBufferedErrors(): Record "SPB DBraider Result Buffer" temporary;
+    procedure GetBufferedErrors(): Record "SPB DBraider Result Buffer" temporary
     begin
         TempSPBDBraiderResultBuffer.SetRange("Result Type", Enum::"SPB DBraider Result Type"::Error);
         exit(TempSPBDBraiderResultBuffer);

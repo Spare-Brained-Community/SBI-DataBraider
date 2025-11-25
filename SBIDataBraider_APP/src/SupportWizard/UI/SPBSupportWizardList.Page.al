@@ -12,7 +12,7 @@ page 71033620 "SPB Support Wizard List"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {
@@ -90,7 +90,7 @@ page 71033620 "SPB Support Wizard List"
 
     procedure SetData(var NewRec: Record "SPB DBraider WizChecks")
     begin
-        if not Rec.IsTemporary then
+        if not Rec.IsTemporary() then
             exit;
         Rec.DeleteAll();
         if NewRec.FindSet() then
@@ -113,7 +113,7 @@ page 71033620 "SPB Support Wizard List"
                 SelectedChecks.Insert();
             until Rec.Next() < 1;
         CurrPage.SetSelectionFilter(SelectedChecks);
-        if SelectedChecks.Count = 1 then begin
+        if SelectedChecks.Count() = 1 then begin
             SelectedChecks.Reset();
             SelectedChecks.SetPosition(SelectionPosition);
             SelectedChecks.SetRecFilter();
@@ -132,7 +132,7 @@ page 71033620 "SPB Support Wizard List"
                     Rec.Modify(true);
                 end;
             until Rec.Next() < 1;
-        If Rec.FindFirst() then;
+        if Rec.FindFirst() then;
         CurrPage.Update(false);
     end;
 }

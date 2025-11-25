@@ -133,7 +133,7 @@ codeunit 71033624 "SPB DB Supp - Endpoint Check"
         if SPBDBraiderConfigHeader.Get(Rec."Endpoint Code") then begin
             SPBDBraiderConfLine.SetRange(SPBDBraiderConfLine."Config. Code", SPBDBraiderConfigHeader."Code");
             // if there is only 1 config line, then there are no relationships, and we can mark this as a Skipped test
-            if SPBDBraiderConfLine.Count = 1 then
+            if SPBDBraiderConfLine.Count() = 1 then
                 RegisterSkipped(Rec)
             else begin
                 SPBDBraiderConfLine.SetFilter(Indentation, '>0');

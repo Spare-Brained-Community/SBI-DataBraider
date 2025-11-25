@@ -7,7 +7,7 @@ page 71033622 "SPB DBraider Wiz Submit"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {
@@ -25,7 +25,7 @@ page 71033622 "SPB DBraider Wiz Submit"
 
     procedure SetData(var NewRec: Record "SPB DBraider Wiz Submit")
     begin
-        if not Rec.IsTemporary then
+        if not Rec.IsTemporary() then
             exit;
         Rec.DeleteAll();
         if NewRec.FindSet() then
@@ -38,7 +38,7 @@ page 71033622 "SPB DBraider Wiz Submit"
 
     procedure GetData(var DestRec: Record "SPB DBraider Wiz Submit")
     begin
-        if not DestRec.IsTemporary then
+        if not DestRec.IsTemporary() then
             exit;
         DestRec.DeleteAll();
         if Rec.FindSet() then

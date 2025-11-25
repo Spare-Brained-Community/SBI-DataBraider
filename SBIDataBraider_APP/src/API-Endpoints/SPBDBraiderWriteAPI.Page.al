@@ -3,7 +3,6 @@ page 71033611 "SPB DBraider Write API"
     APIGroup = 'databraider';
     APIPublisher = 'sparebrained';
     APIVersion = 'v2.0';
-    ApplicationArea = All;
     Caption = 'Data Braider Write API';
     DelayedInsert = true;
     EntityName = 'write';
@@ -54,7 +53,7 @@ page 71033611 "SPB DBraider Write API"
         LicenseConnector: Codeunit "SPB DBraider Licensing";
     begin
         Licensed := LicenseConnector.CheckIfActive(false);
-        if not Rec.IsTemporary and GuiAllowed then
+        if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
     end;
 

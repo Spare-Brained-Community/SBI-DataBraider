@@ -297,7 +297,7 @@ codeunit 71033622 "SPB DBraider Gen Automate"
                     ResultBuilder.AppendLine('                }')
             until SPBDBraiderConfigLine.Next() < 1;
 
-        ResultBuilder.Remove(ResultBuilder.Length - 1, 1); // Remove that last comma
+        ResultBuilder.Remove(ResultBuilder.Length() - 1, 1); // Remove that last comma
         ResultBuilder.AppendLine('              }');
         ResultBuilder.AppendLine('            }');
         ResultBuilder.AppendLine('          }');

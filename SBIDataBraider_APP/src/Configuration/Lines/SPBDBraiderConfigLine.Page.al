@@ -167,7 +167,7 @@ page 71033603 "SPB DBraider Config. Line"
                         IndentErr: Label 'You can not indent a single table.';
                     begin
                         if Rec.CheckIndentation() then begin
-                            Rec.LockTable();
+                            Rec.ReadIsolation(IsolationLevel::UpdLock);
                             Rec.Indentation += 1;
                             Rec.UpdateParent();
                             Rec.CheckRelationshipConfigured();

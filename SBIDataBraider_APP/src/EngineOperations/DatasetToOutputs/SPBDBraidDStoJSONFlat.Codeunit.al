@@ -8,7 +8,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
         ResultTextLbl: Label 'No Result was found with the given filter(s)';
         ResultText: Text;
     begin
-        if BaseResultCol.IsEmpty or BaseResultRow.IsEmpty then begin
+        if BaseResultCol.IsEmpty() or BaseResultRow.IsEmpty() then begin
             ResultText := ResultTextLbl;
             exit(ResultText);
         end;
@@ -41,7 +41,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
         exit(JsonRows);
     end;
 
-    internal procedure ProcessDataFlatToJson(DBHeader: Record "SPB DBraider Config. Header") JsonRows: JsonArray;
+    internal procedure ProcessDataFlatToJson(DBHeader: Record "SPB DBraider Config. Header") JsonRows: JsonArray
     var
         UseWriteResponseFiltering: Boolean;
         MaximumDepth: Integer;
@@ -77,7 +77,7 @@ codeunit 71033612 "SPB DBraid DStoJSON Flat" implements "SPB DBraider IDatasetTo
                 foreach FieldFullname in FieldList do
                     JsonCols.Add(FieldFullname, ''); */
 
-                if JsonPrefixes.Keys.Count <> 0 then
+                if JsonPrefixes.Keys().Count() <> 0 then
                     // This is a way to 'prepend' some values to the json, used by the WriteTemplate system
                     JsonCols := JsonPrefixes.Clone().AsObject();
 

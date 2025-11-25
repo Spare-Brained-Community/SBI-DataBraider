@@ -9,7 +9,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         DestinationFieldRef: FieldRef;
     begin
         DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
-        if DestinationFieldRef.Type = FieldType::Option then begin
+        if DestinationFieldRef.Type() = FieldType::Option then begin
             Evaluate(DestinationFieldRef, NewValue);
             DestinationFieldRef.Validate();
         end else
@@ -21,7 +21,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         DestinationFieldRef: FieldRef;
     begin
         DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
-        if not (DestinationFieldRef.Type in
+        if not (DestinationFieldRef.Type() in
             [FieldType::Code, FieldType::Text])
         then begin
             Evaluate(DestinationFieldRef, NewValue);
@@ -49,9 +49,9 @@ codeunit 71033608 "SPB DBraider Utilities"
 
     begin
         DestinationFieldRef := DestinationRecordRef.Field(FieldNo);
-        case DestinationFieldRef.Type of
+        case DestinationFieldRef.Type() of
             FieldType::Code, FieldType::Text:
-                exit(StrLen(NewValue) <= DestinationFieldRef.Length);
+                exit(StrLen(NewValue) <= DestinationFieldRef.Length());
             FieldType::Integer:
                 exit(Evaluate(int, NewValue));
             FieldType::Decimal:
@@ -77,12 +77,11 @@ codeunit 71033608 "SPB DBraider Utilities"
         TargetKeyRef: KeyRef;
     begin
         TargetKeyRef := TargetTableRecordRef.KeyIndex(1);  // Primary Key
-        for i := 1 to TargetKeyRef.FieldCount do begin
+        for i := 1 to TargetKeyRef.FieldCount() do begin
             TargetFieldRef := TargetKeyRef.FieldIndex(i);
             if FieldNamesList = '' then
-                FieldNamesList := TargetFieldRef.Name
-            else
-                FieldNamesList := FieldNamesList + ', ' + TargetFieldRef.Name;
+                FieldNamesList := TargetFieldRef.Name() else
+                FieldNamesList := FieldNamesList + ', ' + TargetFieldRef.Name();
         end;
     end;
 
@@ -93,9 +92,9 @@ codeunit 71033608 "SPB DBraider Utilities"
         TargetKeyRef: KeyRef;
     begin
         TargetKeyRef := TargetTableRecordRef.KeyIndex(1);  // Primary Key
-        for i := 1 to TargetKeyRef.FieldCount do begin
+        for i := 1 to TargetKeyRef.FieldCount() do begin
             TargetFieldRef := TargetKeyRef.FieldIndex(i);
-            FieldNumbers.Add(TargetFieldRef.Number);
+            FieldNumbers.Add(TargetFieldRef.Number());
         end;
     end;
 
@@ -123,7 +122,7 @@ codeunit 71033608 "SPB DBraider Utilities"
             end;
         end;
 
-        if Fields.Count = 0 then
+        if Fields.IsEmpty() then
             // Suuuuuper ugly, hard-coding some of these because we have little choice
             case ParentTableNo of
                 36:  // Sales Header
@@ -204,7 +203,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         // Gather current month figures first
         if SPBDBraiderConfigHeader.FindSet(false) then
             repeat
-                SPBDBraiderConfigHeader.SetRange("Date Filter", CalcDate('<-CM>', Today), CalcDate('<CM>', Today));
+                SPBDBraiderConfigHeader.SetRange("Date Filter", CalcDate('<-CM>', Today()), CalcDate('<CM>', Today()));
                 SPBDBraiderConfigHeader.CalcFields(Usage, "Rows Read", "Rows Written");
                 ReadsTally += SPBDBraiderConfigHeader."Rows Read";
                 WritesTally += SPBDBraiderConfigHeader."Rows Written";
@@ -212,8 +211,8 @@ codeunit 71033608 "SPB DBraider Utilities"
         Results.Set('TotalReadsCM', ReadsTally);
         Results.Set('TotalWritesCM', WritesTally);
         if not SPBDBraiderConfigHeader.IsEmpty() then begin
-            Results.Set('AvgReadsCM', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
-            Results.Set('AvgWritesCM', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+            Results.Set('AvgReadsCM', Round(ReadsTally / SPBDBraiderConfigHeader.Count(), 0.01));
+            Results.Set('AvgWritesCM', Round(WritesTally / SPBDBraiderConfigHeader.Count(), 0.01));
         end else begin
             Results.Set('AvgReadsCM', 0);
             Results.Set('AvgWritesCM', 0);
@@ -230,15 +229,15 @@ codeunit 71033608 "SPB DBraider Utilities"
         Results.Set('TotalReadsAlltime', ReadsTally);
         Results.Set('TotalWritesAlltime', WritesTally);
         if not SPBDBraiderConfigHeader.IsEmpty() then begin
-            Results.Set('AvgReadsAlltime', Round(ReadsTally / SPBDBraiderConfigHeader.Count, 0.01));
-            Results.Set('AvgWritesAlltime', Round(WritesTally / SPBDBraiderConfigHeader.Count, 0.01));
+            Results.Set('AvgReadsAlltime', Round(ReadsTally / SPBDBraiderConfigHeader.Count(), 0.01));
+            Results.Set('AvgWritesAlltime', Round(WritesTally / SPBDBraiderConfigHeader.Count(), 0.01));
         end else begin
             Results.Set('AvgReadsAlltime', 0);
             Results.Set('AvgWritesAlltime', 0);
         end;
     end;
 
-    procedure GetEndpointTelemetryDataJson(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header") DataJson: Text;
+    procedure GetEndpointTelemetryDataJson(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header") DataJson: Text
     var
         SPBDBraiderConfigLine: Record "SPB DBraider Config. Line";
         DataStructureJsonArray: JsonArray;
@@ -341,7 +340,7 @@ codeunit 71033608 "SPB DBraider Utilities"
         end;
     end;
 
-    procedure BuildFQSI(var BreadcrumpRecordRefArray: array[100] of RecordRef; ToDepth: Integer) FQSI: Text;
+    procedure BuildFQSI(var BreadcrumpRecordRefArray: array[100] of RecordRef; ToDepth: Integer) FQSI: Text
     var
         i: Integer;
         FQSITextBuilder: TextBuilder;
@@ -349,12 +348,12 @@ codeunit 71033608 "SPB DBraider Utilities"
         for i := 1 to ToDepth do begin
             if i > 1 then
                 FQSITextBuilder.Append('.');
-            FQSITextBuilder.Append(Format(BreadcrumpRecordRefArray[i].Field(BreadcrumpRecordRefArray[i].SystemIdNo).Value));
+            FQSITextBuilder.Append(Format(BreadcrumpRecordRefArray[i].Field(BreadcrumpRecordRefArray[i].SystemIdNo()).Value()));
         end;
         FQSI := FQSITextBuilder.ToText();
     end;
 
-    procedure TrimFQSI(InputFQSI: Text) FQSI: Text;
+    procedure TrimFQSI(InputFQSI: Text) FQSI: Text
     var
         i: Integer;
         Parts: List of [Text];
@@ -366,9 +365,9 @@ codeunit 71033608 "SPB DBraider Utilities"
         if InputFQSI = '' then
             exit;
         Parts := InputFQSI.Split('.');
-        if Parts.Count < 2 then
+        if Parts.Count() < 2 then
             exit(InputFQSI);
-        for i := 1 to Parts.Count - 1 do begin
+        for i := 1 to Parts.Count() - 1 do begin
             if i > 1 then
                 FQSITextBuilder.Append('.');
             Parts.Get(i, ThisPart);

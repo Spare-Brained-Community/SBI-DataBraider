@@ -4,7 +4,7 @@ enum 71033610 "SPB DBraider Buffer Type"
 
     value(0; " ")
     {
-        Caption = ' ';
+        Caption = ' ', Locked = true;
     }
     value(1; Direct)
     {

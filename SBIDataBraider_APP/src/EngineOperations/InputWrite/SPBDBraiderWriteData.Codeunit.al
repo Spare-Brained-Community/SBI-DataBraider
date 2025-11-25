@@ -3,6 +3,7 @@ codeunit 71033606 "SPB DBraider Write Data"
     TableNo = "JSON Buffer";
 
     var
+        GlobalConfigHeader: Record "SPB DBraider Config. Header";
         SPBDBraiderErrorSystem: Codeunit "SPB DBraider Error System";
         EventNoteMgt: Codeunit "SPB DBraider Event Note Mgt";
         LastRecordPosition: Dictionary of [Integer, Text];
@@ -86,14 +87,14 @@ codeunit 71033606 "SPB DBraider Write Data"
             exit(false);
         AllObjects.SetRange("Object Type", AllObjects."Object Type"::Table);
         AllObjects.SetRange("Object ID", TempContentJsonBuffer."SPB Table No.");
-        if AllObjects.IsEmpty then
+        if AllObjects.IsEmpty() then
             exit(false);
 
 
         TargetRecordRef.Open(TempContentJsonBuffer."SPB Table No.");
         PrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(TargetRecordRef);
 
-        for i := 1 to PrimaryKeyFields.Count do begin
+        for i := 1 to PrimaryKeyFields.Count() do begin
             PrimaryKeyFields.Get(i, FieldNo);
             TempFieldsJsonBuffer.SetRange("SPB Field No.", FieldNo);
             if TempFieldsJsonBuffer.FindFirst() then begin
@@ -110,10 +111,10 @@ codeunit 71033606 "SPB DBraider Write Data"
         //TODO: This needs to lookup the fields by what's submitted, sure, BUT we may also be 'assuming' some part of the PK from the parent record.
         ApplyInferredParentData(TempContentJsonBuffer, TargetRecordRef, LocatedKeyFields, MissingKeyFields);
 
-        if MissingKeyFields.Count > 0 then
+        if MissingKeyFields.Count() > 0 then
             exit(false);
 
-        foreach FieldNo in LocatedKeyFields.Keys do begin
+        foreach FieldNo in LocatedKeyFields.Keys() do begin
             TargetFieldRef := TargetRecordRef.Field(FieldNo);
             TargetFieldRef.SetFilter(LocatedKeyFields.Get(FieldNo));
         end;
@@ -199,7 +200,7 @@ codeunit 71033606 "SPB DBraider Write Data"
         if FindRecordRefByContent(TempContentJsonBuffer, TargetRecordRef, PKString) then begin
             TargetRecordRef.Delete(true);
             AddDeletedRecordToResults(PKString);
-            EventNoteMgt.CreateEventNote('', TargetRecordRef.Number, TargetRecordRef.RecordId, 'delete', PKString);
+            EventNoteMgt.CreateEventNote('', TargetRecordRef.Number(), TargetRecordRef.RecordId(), 'delete', PKString);
             RecordsAffected += 1;
         end else begin
             SPBDBraiderErrorSystem.AddError(TempContentJsonBuffer.GetRangeMin("SPB Record Id"), StrSubstNo(UnableToDeleteRecLbl, PKString));
@@ -218,15 +219,23 @@ codeunit 71033606 "SPB DBraider Write Data"
         SPBDBraiderIDatasetToText: Interface "SPB DBraider IDatasetToText";
         JsonResult: JsonArray;
         ResultJsonObject: JsonObject;
+        ConfigCodeToUse: Code[20];
     begin
         Clear(DBraiderEngine);
         TempResultRow.DeleteAll();
         TempResultCol.DeleteAll();
 
-        SpecificRecordRef.Open(TargetRecordRef.Number);
+        SpecificRecordRef.Open(TargetRecordRef.Number());
         SpecificRecordRef.SetPosition(TargetRecordRef.GetPosition());
         SpecificRecordRef.SetRecFilter();
-        if DBraiderConfig.Get(TempContentJsonBuffer."SPB Config. Code") then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
+        
+        // Use Config Code from buffer if available, otherwise use global config header
+        if TempContentJsonBuffer."SPB Config. Code" <> '' then
+            ConfigCodeToUse := TempContentJsonBuffer."SPB Config. Code"
+        else
+            ConfigCodeToUse := GlobalConfigHeader.Code;
+            
+        if DBraiderConfig.Get(ConfigCodeToUse) then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
             DBraiderEngine.GenerateRecordData(DBraiderConfig.Code, SpecificRecordRef);
             DBraiderEngine.GetResults(TempResultRow, TempResultCol);
 
@@ -245,7 +254,7 @@ codeunit 71033606 "SPB DBraider Write Data"
             ResultJsonObject.Add('action', ActionName);
             ResultJsonObject.Add('data', JsonResult);
             JsonResultArray.Add(ResultJsonObject.Clone());
-            EventNoteMgt.CreateEventNote(DBraiderConfig.Code, TargetRecordRef.Number, TargetRecordRef.RecordId, ActionName, '');
+            EventNoteMgt.CreateEventNote(DBraiderConfig.Code, TargetRecordRef.Number(), TargetRecordRef.RecordId(), ActionName, '');
         end;
     end;
 
@@ -288,8 +297,15 @@ codeunit 71033606 "SPB DBraider Write Data"
     var
         SPBDBraiderConfig: Record "SPB DBraider Config. Header";
         SPBDBraiderChangeAction: Enum "SPB DBraider Change Action";
+        ConfigCodeToUse: Code[20];
     begin
-        SPBDBraiderConfig.Get(TempHeaderJsonBuffer."SPB Config. Code");
+        // Use Config Code from buffer if available, otherwise use global config header
+        if TempHeaderJsonBuffer."SPB Config. Code" <> '' then
+            ConfigCodeToUse := TempHeaderJsonBuffer."SPB Config. Code"
+        else
+            ConfigCodeToUse := GlobalConfigHeader.Code;
+            
+        SPBDBraiderConfig.Get(ConfigCodeToUse);
         case TempHeaderJsonBuffer."SPB Record Action" of
             SPBDBraiderChangeAction::Insert:
                 exit(SPBDBraiderConfig."Insert Allowed");
@@ -327,15 +343,14 @@ codeunit 71033606 "SPB DBraider Write Data"
                     // then apply the parent field value to the TargetRecordRef's child field.
                     if LastRecordPosition.ContainsKey(SPBDBraiderConfLineRelation."Parent Table") then begin
                         ParentRecordRef.Open(SPBDBraiderConfLineRelation."Parent Table");
-                        ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number));
+                        ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number()));
                         if ParentRecordRef.Find('=') then begin
                             ParentFieldRef := ParentRecordRef.Field(SPBDBraiderConfLineRelation."Parent Field No.");
                             ChildFieldRef := TargetRecordRef.Field(SPBDBraiderConfLineRelation."Child Field No.");
                             //TODO: Consider an Advanced Setting to control this behavior
                             if SPBDBraiderConfLineField."Disable Validation" = SPBDBraiderConfLineField."Disable Validation"::DisableAll then
-                                ChildFieldRef.Value := ParentFieldRef.Value
-                            else
-                                ChildFieldRef.Validate(ParentFieldRef.Value);
+                                ChildFieldRef.Value := ParentFieldRef.Value() else
+                                ChildFieldRef.Validate(ParentFieldRef.Value());
                         end;
                         ParentRecordRef.Close();
                     end;
@@ -367,10 +382,10 @@ codeunit 71033606 "SPB DBraider Write Data"
                         // then apply the parent field value to the TargetRecordRef's child field.
                         if LastRecordPosition.ContainsKey(SPBDBraiderConfLineRelation."Parent Table") then begin
                             ParentRecordRef.Open(SPBDBraiderConfLineRelation."Parent Table");
-                            ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number));
+                            ParentRecordRef.SetPosition(LastRecordPosition.Get(ParentRecordRef.Number()));
                             if ParentRecordRef.Find('=') then begin
                                 ParentFieldRef := ParentRecordRef.Field(SPBDBraiderConfLineRelation."Parent Field No.");
-                                LocatedKeyFields.Add(FieldNo, ParentFieldRef.Value);
+                                LocatedKeyFields.Add(FieldNo, ParentFieldRef.Value());
                                 InferredFields.Add(FieldNo);
                             end;
                             ParentRecordRef.Close();
@@ -394,7 +409,7 @@ codeunit 71033606 "SPB DBraider Write Data"
         // If we're dealing with a Modify, and the field is unchanged, we may not want to re-validate it.
         if InternalActionType = InternalActionType::Update then
             if not SPBDBraiderConfLineField."Modification Re-Validate" then
-                if Format(DestinationRecordRef.Field(FieldNo).Value) = Format(NewValue) then
+                if Format(DestinationRecordRef.Field(FieldNo).Value()) = Format(NewValue) then
                     exit;
 
         if SPBDBraiderConfLineField."Disable Validation" = SPBDBraiderConfLineField."Disable Validation"::DisableAll then
@@ -417,27 +432,27 @@ codeunit 71033606 "SPB DBraider Write Data"
         PrimaryKeyFields: List of [Integer];
     begin
         PrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(TargetRecordRef);
-        LastFieldNo := PrimaryKeyFields.Get(PrimaryKeyFields.Count);
+        LastFieldNo := PrimaryKeyFields.Get(PrimaryKeyFields.Count());
         DestRecordLastFieldRef := TargetRecordRef.Field(LastFieldNo);
-        if DestRecordLastFieldRef.Type = FieldType::Integer then
+        if DestRecordLastFieldRef.Type() = FieldType::Integer then
             // Disable check from the Field settings on the ConfLine Field table
             if SPBDBraiderConfLineField.Get(TempContentJsonBuffer."SPB Config. Code", TempContentJsonBuffer."SPB Config. Line No.", LastFieldNo) then
                 if SPBDBraiderConfLineField."Disable Auto-Split Key" then
                     exit;
 
-        if Evaluate(i, Format(DestRecordLastFieldRef.Value)) then
+        if Evaluate(i, Format(DestRecordLastFieldRef.Value())) then
             // if the last field is an integer with a value of zero:
             if i = 0 then begin
                 // Find the 'last' record in the table with the other PK values if possible
-                TargetRecordRef2.Open(TargetRecordRef.Number);
-                if PrimaryKeyFields.Count > 1 then
-                    for i := 1 to (PrimaryKeyFields.Count - 1) do begin
+                TargetRecordRef2.Open(TargetRecordRef.Number());
+                if PrimaryKeyFields.Count() > 1 then
+                    for i := 1 to (PrimaryKeyFields.Count() - 1) do begin
                         TargetFieldRef1 := TargetRecordRef.Field(PrimaryKeyFields.Get(i));
                         TargetFieldRef2 := TargetRecordRef2.Field(PrimaryKeyFields.Get(i));
-                        TargetFieldRef2.SetFilter(Format(TargetFieldRef1.Value));
+                        TargetFieldRef2.SetFilter(Format(TargetFieldRef1.Value()));
                     end;
                 if TargetRecordRef2.FindLast() then
-                    Evaluate(NextLineNo, Format(TargetRecordRef2.Field(LastFieldNo).Value))
+                    Evaluate(NextLineNo, Format(TargetRecordRef2.Field(LastFieldNo).Value()))
                 else
                     NextLineNo := 0;
                 NextLineNo += 10000;
@@ -462,7 +477,12 @@ codeunit 71033606 "SPB DBraider Write Data"
 
     internal procedure SetLastRecord(WhichRecordRef: RecordRef)
     begin
-        SetLastRecord(WhichRecordRef.Number, WhichRecordRef.GetPosition());
+        SetLastRecord(WhichRecordRef.Number(), WhichRecordRef.GetPosition());
+    end;
+
+    procedure SetConfigHeader(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header")
+    begin
+        GlobalConfigHeader := SPBDBraiderConfigHeader;
     end;
 
     [IntegrationEvent(false, false)]

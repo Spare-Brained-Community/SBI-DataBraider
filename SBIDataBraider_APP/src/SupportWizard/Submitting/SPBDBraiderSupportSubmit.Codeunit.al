@@ -269,7 +269,7 @@ codeunit 71033627 "SPB DBraider Support Submit"
         // We want to save some information from the environment to a CSV file
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'OnPrem', Format(EnvironmentInfo.IsOnPrem(), 0, 9));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsProduction', Format(EnvironmentInfo.IsProduction(), 0, 9));
-        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsSandBox', Format(EnvironmentInfo.IsSandBox(), 0, 9));
+        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'IsSandBox', Format(EnvironmentInfo.IsSandbox(), 0, 9));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'ApplicationVersion', Format(AppSysConstants.ApplicationVersion()));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'ApplicationBuild', Format(AppSysConstants.ApplicationBuild()));
         WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'PlatformProductVersion', Format(AppSysConstants.PlatformProductVersion()));
@@ -280,8 +280,8 @@ codeunit 71033627 "SPB DBraider Support Submit"
 
         // We also want some data about Braider
         NavApp.GetCurrentModuleInfo(NavAppModuleInfo);
-        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'BraiderAppVersion', Format(NavAppModuleInfo.AppVersion));
-        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'BraiderDataVersion', Format(NavAppModuleInfo.DataVersion));
+        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'BraiderAppVersion', Format(NavAppModuleInfo.AppVersion()));
+        WriteKeyValueToCSV(TempCSVBuffer, NextLineNo, 'BraiderDataVersion', Format(NavAppModuleInfo.DataVersion()));
 
         // now add the CSV to the zip
         TempCSVBuffer.SaveDataToBlob(TempBlob, ';');
@@ -297,19 +297,19 @@ codeunit 71033627 "SPB DBraider Support Submit"
         i: Integer;
     begin
         TempCSVBuffer.Init();
-        for i := 1 to RecordRef.FieldCount do begin
+        for i := 1 to RecordRef.FieldCount() do begin
             FieldRef := RecordRef.FieldIndex(i);
-            if SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldRef.Type) <> Enum::"SPB DBraider Field Data Type"::Unsupported then begin
+            if SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldRef.Type()) <> Enum::"SPB DBraider Field Data Type"::Unsupported then begin
                 TempCSVBuffer.Init();
                 TempCSVBuffer."Line No." := i;
                 TempCSVBuffer."Field No." := 1;
-                TempCSVBuffer.Value := CopyStr(FieldRef.Name, 1, MaxStrLen(TempCSVBuffer.Value));
+                TempCSVBuffer.Value := CopyStr(FieldRef.Name(), 1, MaxStrLen(TempCSVBuffer.Value));
                 TempCSVBuffer.Insert();
 
                 TempCSVBuffer.Init();
                 TempCSVBuffer."Line No." := i;
                 TempCSVBuffer."Field No." := 2;
-                TempCSVBuffer.Value := Format(FieldRef.Value, 0, 9);
+                TempCSVBuffer.Value := Format(FieldRef.Value(), 0, 9);
                 TempCSVBuffer.Insert();
             end;
         end;
@@ -335,6 +335,7 @@ codeunit 71033627 "SPB DBraider Support Submit"
     // This function makes an API call to an SBI endpoint to submit the support case, including the ZIP file
     local procedure SendSupportRequest(CaseDescription: Text; CaseSeverity: Option; CaseContactName: Text; CaseEmail: Text; ZipFileName: Text; SupportFilesInStream: InStream)
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         TempBlob: Codeunit "Temp Blob";
         IsSuccessful: Boolean;
         HttpClient: HttpClient;
@@ -405,10 +406,10 @@ codeunit 71033627 "SPB DBraider Support Submit"
         Window.Close();
 
         if IsSuccessful then begin
-            Response.Content.ReadAs(CaseId);
+            Response.Content().ReadAs(CaseId);
             Message(SubmitSuccessMsg, CaseId);
         end else begin
-            if not Confirm(SubmitFailMsg, true) then // Halting execution to let the user see what is about to happen
+            if not ConfirmManagement.GetResponseOrDefault(SubmitFailMsg, true) then // Halting execution to let the user see what is about to happen
                 exit;
             DownloadFromStream(SupportFilesInStream, 'Support Case Data File', '', '', ZipFileName);
             Hyperlink(SupportManualURITok);

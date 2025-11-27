@@ -130,6 +130,10 @@ page 71033602 "SPB DBraider Configuration"
                 {
                     ToolTip = 'Specifies the value of the Disable Related Id field.', Comment = '%';
                 }
+                field("Emit Raw Diagnostic Data"; Rec."Emit Raw Diagnostic Data")
+                {
+                    ToolTip = 'When enabled, includes raw row and column buffer data in API responses for debugging. Shows the internal data structure before JSON conversion.';
+                }
             }
             group(Telemetry)
             {

@@ -141,6 +141,7 @@ codeunit 71033606 "SPB DBraider Write Data"
                         ChooseValidateFieldValue(TempContentJsonBuffer, Enum::"SPB DBraider Change Action"::Insert, TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
                 until TempContentJsonBuffer.Next() = 0;
             TargetRecordRef.Insert(true);
+            TargetRecordRef.Find('='); // Refresh position after insert
             AddRecordRefToResults(TempContentJsonBuffer, 'insert', TargetRecordRef);
             SetLastRecord(TargetRecordRef);
             SPBDBraiderErrorSystem.AddResult(TempContentJsonBuffer.GetRangeMin("SPB Record Id"), StrSubstNo('', PKString));
@@ -166,6 +167,7 @@ codeunit 71033606 "SPB DBraider Write Data"
                     ChooseValidateFieldValue(TempContentJsonBuffer, Enum::"SPB DBraider Change Action"::Update, TargetRecordRef, TempContentJsonBuffer."SPB Field No.", TempContentJsonBuffer.Value);
                 until TempContentJsonBuffer.Next() = 0;
             TargetRecordRef.Modify(true);
+            TargetRecordRef.Find('='); // Refresh position after modify
             AddRecordRefToResults(TempContentJsonBuffer, 'modify', TargetRecordRef);
             SetLastRecord(TargetRecordRef);
             TempContentJsonBuffer.SetRange("SPB Primary Key Field");
@@ -215,44 +217,83 @@ codeunit 71033606 "SPB DBraider Write Data"
         TempResultRow: Record "SPB DBraider Resultset Row" temporary;
 
         DBraiderEngine: Codeunit "SPB DBraider Data Engine";
+        SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
         SpecificRecordRef: RecordRef;
+        ConfigCodeToUse: Code[20];
         SPBDBraiderIDatasetToText: Interface "SPB DBraider IDatasetToText";
         JsonResult: JsonArray;
         ResultJsonObject: JsonObject;
-        ConfigCodeToUse: Code[20];
+        PrimaryKeyFields: List of [Integer];
+        FieldNo: Integer;
+        FieldRef: FieldRef;
+        i: Integer;
+        FilterDebugInfo: Text;
     begin
         Clear(DBraiderEngine);
         TempResultRow.DeleteAll();
         TempResultCol.DeleteAll();
 
+        // Build filter manually using primary key fields instead of SetRecFilter
         SpecificRecordRef.Open(TargetRecordRef.Number());
-        SpecificRecordRef.SetPosition(TargetRecordRef.GetPosition());
-        SpecificRecordRef.SetRecFilter();
-        
+        PrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(TargetRecordRef);
+        foreach FieldNo in PrimaryKeyFields do begin
+            FieldRef := SpecificRecordRef.Field(FieldNo);
+            FieldRef.SetFilter(Format(TargetRecordRef.Field(FieldNo).Value()));
+        end;
+
+        // Position the RecordRef on the found record
+        if not SpecificRecordRef.FindFirst() then begin
+            FilterDebugInfo := StrSubstNo('TargetPos=%1|TargetFilters=%2|SpecificFilters=%3|SpecificCount=%4|FindResult=FALSE',
+                TargetRecordRef.GetPosition(), TargetRecordRef.GetFilters(), SpecificRecordRef.GetFilters(), SpecificRecordRef.Count());
+            exit; // Can't generate data if we can't find the record
+        end;
+
+        // Debug: Store filter info after successful find
+        FilterDebugInfo := StrSubstNo('TargetPos=%1|TargetFilters=%2|SpecificFilters=%3|SpecificCount=%4|FindResult=TRUE|SpecificPos=%5',
+            TargetRecordRef.GetPosition(), TargetRecordRef.GetFilters(), SpecificRecordRef.GetFilters(), SpecificRecordRef.Count(),
+            SpecificRecordRef.GetPosition());
+
         // Use Config Code from buffer if available, otherwise use global config header
         if TempContentJsonBuffer."SPB Config. Code" <> '' then
             ConfigCodeToUse := TempContentJsonBuffer."SPB Config. Code"
         else
             ConfigCodeToUse := GlobalConfigHeader.Code;
-            
+
         if DBraiderConfig.Get(ConfigCodeToUse) then begin  // Intentional: You can only get one result set, so findfirst.  If they filter on a range, first only!
             DBraiderEngine.GenerateRecordData(DBraiderConfig.Code, SpecificRecordRef);
             DBraiderEngine.GetResults(TempResultRow, TempResultCol);
 
-            OnBeforeWriteResultRecord(DBraiderConfig, TempContentJsonBuffer, TempResultRow, TempResultCol);
+            // If filters result in zero result rows, inject a minimal placeholder row for serializer to carry Config Code.
+            if TempResultRow.IsEmpty() then begin
+                TempResultRow.Init();
+                TempResultRow."Row No." := 1; // Minimal row id
+                TempResultRow."Config. Code" := DBraiderConfig.Code;
+                TempResultRow.Insert();
+            end;
 
-            /* TempResultRow.SetRange("Write Result Record", false);
-            TempResultRow.DeleteAll();
-            TempResultRow.Reset();
-            TempResultCol.SetRange("Write Result Record", false);
-            TempResultCol.DeleteAll();
-            TempResultCol.Reset(); */
+            OnBeforeWriteResultRecord(DBraiderConfig, TempContentJsonBuffer, TempResultRow, TempResultCol);
 
             SPBDBraiderIDatasetToText := DBraiderConfig."Output JSON Type";
             JsonResult := SPBDBraiderIDatasetToText.ConvertToJSON(TempResultRow, TempResultCol);
             Clear(ResultJsonObject);
             ResultJsonObject.Add('action', ActionName);
             ResultJsonObject.Add('data', JsonResult);
+
+            // Add diagnostics if enabled
+            if DBraiderConfig."Emit Raw Diagnostic Data" then
+                ResultJsonObject.Add('diagnostics', BuildDiagnostics(TempResultRow, TempResultCol));
+
+            // Add note if result set is empty (record written but doesn't match read filters)
+            if JsonResult.Count() = 0 then begin
+                TempResultCol.SetRange("Write Result Record", true);
+                TempResultRow.SetRange("Buffer Type", Enum::"SPB DBraider Buffer Type"::Child);
+                ResultJsonObject.Add('note', StrSubstNo('DIAG: TotalRows=%1, TotalCols=%2, WriteResultCols=%3, ChildRows=%4, TargetTable=%5 | %6',
+                    TempResultRow.Count(), TempResultCol.Count(), TempResultCol.Count(), TempResultRow.Count(), TargetRecordRef.Number(),
+                    FilterDebugInfo));
+                TempResultCol.SetRange("Write Result Record");
+                TempResultRow.SetRange("Buffer Type");
+            end;
+
             JsonResultArray.Add(ResultJsonObject.Clone());
             EventNoteMgt.CreateEventNote(DBraiderConfig.Code, TargetRecordRef.Number(), TargetRecordRef.RecordId(), ActionName, '');
         end;
@@ -296,15 +337,15 @@ codeunit 71033606 "SPB DBraider Write Data"
     local procedure IsAllowedActionType(var TempHeaderJsonBuffer: Record "JSON Buffer" temporary): Boolean
     var
         SPBDBraiderConfig: Record "SPB DBraider Config. Header";
-        SPBDBraiderChangeAction: Enum "SPB DBraider Change Action";
         ConfigCodeToUse: Code[20];
+        SPBDBraiderChangeAction: Enum "SPB DBraider Change Action";
     begin
         // Use Config Code from buffer if available, otherwise use global config header
         if TempHeaderJsonBuffer."SPB Config. Code" <> '' then
             ConfigCodeToUse := TempHeaderJsonBuffer."SPB Config. Code"
         else
             ConfigCodeToUse := GlobalConfigHeader.Code;
-            
+
         SPBDBraiderConfig.Get(ConfigCodeToUse);
         case TempHeaderJsonBuffer."SPB Record Action" of
             SPBDBraiderChangeAction::Insert:
@@ -483,6 +524,48 @@ codeunit 71033606 "SPB DBraider Write Data"
     procedure SetConfigHeader(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header")
     begin
         GlobalConfigHeader := SPBDBraiderConfigHeader;
+    end;
+
+    local procedure BuildDiagnostics(var TempResultRow: Record "SPB DBraider Resultset Row" temporary; var TempResultCol: Record "SPB DBraider Resultset Col" temporary) DiagJson: JsonObject
+    var
+        RowsArray: JsonArray;
+        ColsArray: JsonArray;
+        RowJson: JsonObject;
+        ColJson: JsonObject;
+    begin
+        // Build rows array
+        if TempResultRow.FindSet() then
+            repeat
+                Clear(RowJson);
+                RowJson.Add('RowNo', TempResultRow."Row No.");
+                RowJson.Add('ConfigCode', TempResultRow."Config. Code");
+                RowJson.Add('BelongsToRowNo', TempResultRow."Belongs To Row No.");
+                RowJson.Add('BufferType', Format(TempResultRow."Buffer Type"));
+                RowJson.Add('DataMode', Format(TempResultRow."Data Mode"));
+                RowJson.Add('DeltaType', Format(TempResultRow."Delta Type"));
+                TempResultRow.CalcFields("Source Table Name");
+                RowJson.Add('SourceTableName', TempResultRow."Source Table Name");
+                RowsArray.Add(RowJson);
+            until TempResultRow.Next() = 0;
+
+        // Build cols array
+        if TempResultCol.FindSet() then
+            repeat
+                Clear(ColJson);
+                ColJson.Add('RowNo', TempResultCol."Row No.");
+                ColJson.Add('ColNo', TempResultCol."Column No.");
+                ColJson.Add('FieldName', TempResultCol."Field Name");
+                ColJson.Add('ForcedFieldCaption', TempResultCol."Forced Field Caption");
+                ColJson.Add('DataType', Format(TempResultCol."Data Type"));
+                ColJson.Add('ValueAsText', TempResultCol."Value as Text");
+                ColJson.Add('WriteResultRecord', TempResultCol."Write Result Record");
+                ColsArray.Add(ColJson);
+            until TempResultCol.Next() = 0;
+
+        DiagJson.Add('rows', RowsArray);
+        DiagJson.Add('cols', ColsArray);
+        DiagJson.Add('rowCount', TempResultRow.Count());
+        DiagJson.Add('colCount', TempResultCol.Count());
     end;
 
     [IntegrationEvent(false, false)]

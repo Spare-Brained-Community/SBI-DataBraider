@@ -52,15 +52,25 @@ codeunit 71033600 "SPB DBraider Data Engine"
             PageSize := SPBDBraiderSetup."Default Page Size";
 
         StartTime := Time();
-        DBLine.SetRange(Indentation, 0);
-        // For each base level Line, generate the data!
-        if DBLine.FindSet(false) then
-            repeat
-                AddDataFromConfigLine(TempSPBDBraiderResultsetRowTopLevel, DBHeader, DBLine, NextRowNo, ParentLineRef);
-            until DBLine.Next() = 0;
 
-        if RunForSpecificRecordRef.Number() <> 0 then
-            MarkInclusionRecords();
+        // Check if we're running for a specific record (write mode)
+        if RunForSpecificRecordRef.Number() <> 0 then begin
+            // Find the config line that matches this specific record's table
+            DBLine.SetRange("Source Table", RunForSpecificRecordRef.Number());
+            if DBLine.FindFirst() then begin
+                // Process only this specific config line with the filtered RecordRef
+                AddDataFromConfigLine(TempSPBDBraiderResultsetRowTopLevel, DBHeader, DBLine, NextRowNo, ParentLineRef);
+                // Mark the generated data as write result
+                MarkInclusionRecords();
+            end;
+        end else begin
+            // Normal read mode - process all top-level config lines
+            DBLine.SetRange(Indentation, 0);
+            if DBLine.FindSet(false) then
+                repeat
+                    AddDataFromConfigLine(TempSPBDBraiderResultsetRowTopLevel, DBHeader, DBLine, NextRowNo, ParentLineRef);
+                until DBLine.Next() = 0;
+        end;
 
         EndTime := Time();
         RunDuration := EndTime - StartTime;
@@ -87,6 +97,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
     procedure GenerateRecordData(ConfigCode: Code[20]; var newFilterRecordRef: RecordRef)
     begin
         RunForSpecificRecordRef := newFilterRecordRef;
+        RunForSpecificRecordRef.Copy(newFilterRecordRef, true);  // true = share table, copy filters
         GenerateData(ConfigCode);
     end;
 
@@ -221,6 +232,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 end;
             until DBField.Next() = 0;
         end;
+        DBField.SetRange(Included);
         DBField.SetRange("Filter");
     end;
 
@@ -288,7 +300,8 @@ codeunit 71033600 "SPB DBraider Data Engine"
             until TempSPBDBraiderFilters.Next() = 0;
 
         // If this Line is a Child of a table, apply the link/filter
-        if DBLine."Parent Table No." <> 0 then begin
+        // Skip parent filtering in write mode - the specific record filters are already applied
+        if (DBLine."Parent Table No." <> 0) and (RunForSpecificRecordRef.Number() = 0) then begin
             DBRelation.SetRange("Config. Code", DBLine."Config. Code");
             DBRelation.SetRange("Config. Line No.", DBLine."Line No.");
             if DBRelation.FindSet(false) then
@@ -355,7 +368,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
                     // Tie all records to the top level
                     TempSPBDBraiderResultsetRow."Top-Level SystemId" := TempSPBDBraiderResultsetRowTopLevel."Source SystemId";
                 TempSPBDBraiderResultsetRow."Config. Code" := DBLine."Config. Code";
-                TempSPBDBraiderResultsetRow."FQ SystemId" := CopyStr(SPBDBraiderUtilities.BuildFQSI(BreadcrumbRecordRefArray, DBLine.Indentation + 1), 1, MaxStrLen(TempSPBDBraiderResultsetRow."FQ SystemId"));
+                // Skip FQSI in write mode - breadcrumb array won't be fully populated
+                if RunForSpecificRecordRef.Number() = 0 then
+                    TempSPBDBraiderResultsetRow."FQ SystemId" := CopyStr(SPBDBraiderUtilities.BuildFQSI(BreadcrumbRecordRefArray, DBLine.Indentation + 1), 1, MaxStrLen(TempSPBDBraiderResultsetRow."FQ SystemId"));
                 if (RunForSpecificRecordRef.Number() <> 0) then begin
                     // if we're running for a specific record, it's from the write engine.
                     TempSPBDBraiderResultsetRow."Data Mode" := TempSPBDBraiderResultsetRow."Data Mode"::Write;
@@ -377,12 +392,15 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 AddSystemFields(DBHeader, LineRef);
 
                 // Locate and process any 'children' lines
-                DBChildLine.SetRange("Config. Code", DBLine."Config. Code");
-                DBChildLine.SetRange("Parent Table No.", DBLine."Source Table");
-                if DBChildLine.FindSet() then
-                    repeat
-                        AddDataFromConfigLine(TempSPBDBraiderResultsetRow, DBHeader, DBChildLine, NextRowNo, LineRef);
-                    until DBChildLine.Next() = 0;
+                // Skip child processing in write mode - only return the specific record's data
+                if RunForSpecificRecordRef.Number() = 0 then begin
+                    DBChildLine.SetRange("Config. Code", DBLine."Config. Code");
+                    DBChildLine.SetRange("Parent Table No.", DBLine."Source Table");
+                    if DBChildLine.FindSet() then
+                        repeat
+                            AddDataFromConfigLine(TempSPBDBraiderResultsetRow, DBHeader, DBChildLine, NextRowNo, LineRef);
+                        until DBChildLine.Next() = 0;
+                end;
 
                 PageSizeLimitReached := (PageSize <> 0) and (i >= PageSize);
             until PageSizeLimitReached or (LineRef.Next() = 0);
@@ -408,6 +426,10 @@ codeunit 71033600 "SPB DBraider Data Engine"
         i: Integer;
         ParentFlowfieldErr: Label 'Unable to find parent record for FlowField', Locked = true;
     begin
+        // Skip FlowField processing in write mode - breadcrumb arrays won't be populated
+        if RunForSpecificRecordRef.Number() <> 0 then
+            exit;
+
         SPBDBraiderConfLineFlow.SetRange("Config. Code", DBLine."Config. Code");
         SPBDBraiderConfLineFlow.SetRange("Config. Line No.", DBLine."Line No.");
         SPBDBraiderConfLineFlow.SetFilter("Parent Table No.", '<>%1', 0);
@@ -753,6 +775,10 @@ codeunit 71033600 "SPB DBraider Data Engine"
         TempSPBDBraiderResultsetRow.SetFilter("Belongs To Row No.", '<>0');
         if TempSPBDBraiderResultsetRow.FindSet() then
             repeat
+                // Add the child row itself to the list
+                if not RowsToMark.Contains(TempSPBDBraiderResultsetRow."Row No.") then
+                    RowsToMark.Add(TempSPBDBraiderResultsetRow."Row No.");
+                // Then add its parent chain
                 GetRowChain(TempSPBDBraiderResultsetRow."Row No.", RowsToMark);
             until TempSPBDBraiderResultsetRow.Next() < 1;
 

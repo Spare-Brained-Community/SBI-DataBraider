@@ -113,6 +113,11 @@ table 71033601 "SPB DBraider Config. Header"
             Caption = 'Disable Related Id';
             InitValue = false;
         }
+        field(81; "Emit Raw Diagnostic Data"; Boolean)
+        {
+            Caption = 'Emit Raw Diagnostic Data';
+            InitValue = false;
+        }
 
         field(100; "Output JSON Type"; Enum "SPB DBraider Output Json Type")
         {

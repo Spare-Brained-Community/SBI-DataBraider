@@ -4,19 +4,36 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
 
     procedure ConvertToJSONText(var BaseResultRow: Record "SPB DBraider Resultset Row" temporary; var BaseResultCol: Record "SPB DBraider Resultset Col" temporary): Text
     var
+        DBHeader: Record "SPB DBraider Config. Header";
         JsonRows: JsonArray;
+        JsonRoot: JsonObject;
         ResultTextLbl: Label 'No Result was found with the given filter(s)';
         ResultText: Text;
+        ConfigCode: Code[20];
     begin
         if BaseResultCol.IsEmpty() or BaseResultRow.IsEmpty() then begin
             ResultText := ResultTextLbl;
             exit(ResultText);
         end;
 
+        // Get config code from first row
+        if BaseResultRow.FindFirst() then
+            ConfigCode := BaseResultRow."Config. Code";
+
         JsonRows := ConvertToJSON(BaseResultRow, BaseResultCol);
-        SPBDBraiderEvents.OnBeforeConvertJSONtoText(BaseResultRow."Config. Code", JsonRows, ResultText);
-        JsonRows.WriteTo(ResultText);
-        SPBDBraiderEvents.OnAfterConvertJSONtoText(BaseResultRow."Config. Code", JsonRows, ResultText);
+
+        // Check if diagnostics should be emitted
+        if DBHeader.Get(ConfigCode) and DBHeader."Emit Raw Diagnostic Data" then begin
+            JsonRoot.Add('data', JsonRows);
+            JsonRoot.Add('diagnostics', BuildDiagnostics(BaseResultRow, BaseResultCol));
+            SPBDBraiderEvents.OnBeforeConvertJSONtoText(ConfigCode, JsonRows, ResultText);
+            JsonRoot.WriteTo(ResultText);
+            SPBDBraiderEvents.OnAfterConvertJSONtoText(ConfigCode, JsonRows, ResultText);
+        end else begin
+            SPBDBraiderEvents.OnBeforeConvertJSONtoText(ConfigCode, JsonRows, ResultText);
+            JsonRows.WriteTo(ResultText);
+            SPBDBraiderEvents.OnAfterConvertJSONtoText(ConfigCode, JsonRows, ResultText);
+        end;
         exit(ResultText);
     end;
 
@@ -200,6 +217,48 @@ codeunit 71033611 "SPB DBraid DStoJSON Hierarchy" implements "SPB DBraider IData
         if InputText.EndsWith('timestamp') then
             exit(InputText);
         exit(SPBDBraiderJSONUtilities.JsonSafeTableFieldName(InputText))
+    end;
+
+    local procedure BuildDiagnostics(var BaseResultRow: Record "SPB DBraider Resultset Row" temporary; var BaseResultCol: Record "SPB DBraider Resultset Col" temporary) DiagJson: JsonObject
+    var
+        RowsArray: JsonArray;
+        ColsArray: JsonArray;
+        RowJson: JsonObject;
+        ColJson: JsonObject;
+    begin
+        // Build rows array
+        if BaseResultRow.FindSet() then
+            repeat
+                Clear(RowJson);
+                RowJson.Add('RowNo', BaseResultRow."Row No.");
+                RowJson.Add('ConfigCode', BaseResultRow."Config. Code");
+                RowJson.Add('BelongsToRowNo', BaseResultRow."Belongs To Row No.");
+                RowJson.Add('BufferType', Format(BaseResultRow."Buffer Type"));
+                RowJson.Add('DataMode', Format(BaseResultRow."Data Mode"));
+                RowJson.Add('DeltaType', Format(BaseResultRow."Delta Type"));
+                BaseResultRow.CalcFields("Source Table Name");
+                RowJson.Add('SourceTableName', BaseResultRow."Source Table Name");
+                RowsArray.Add(RowJson);
+            until BaseResultRow.Next() = 0;
+
+        // Build cols array
+        if BaseResultCol.FindSet() then
+            repeat
+                Clear(ColJson);
+                ColJson.Add('RowNo', BaseResultCol."Row No.");
+                ColJson.Add('ColNo', BaseResultCol."Column No.");
+                ColJson.Add('FieldName', BaseResultCol."Field Name");
+                ColJson.Add('ForcedFieldCaption', BaseResultCol."Forced Field Caption");
+                ColJson.Add('DataType', Format(BaseResultCol."Data Type"));
+                ColJson.Add('ValueAsText', BaseResultCol."Value as Text");
+                ColJson.Add('WriteResultRecord', BaseResultCol."Write Result Record");
+                ColsArray.Add(ColJson);
+            until BaseResultCol.Next() = 0;
+
+        DiagJson.Add('rows', RowsArray);
+        DiagJson.Add('cols', ColsArray);
+        DiagJson.Add('rowCount', BaseResultRow.Count());
+        DiagJson.Add('colCount', BaseResultCol.Count());
     end;
     #endregion Utility
 

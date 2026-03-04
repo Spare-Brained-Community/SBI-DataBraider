@@ -337,7 +337,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
             if (StartFromPage > 1) and (PageSize <> 0) and (DBLine."Parent Table No." = 0) then
                 repeat
                     i += 1;
-                until (LineRef.Next() < 0) or (i >= SkipUntilRecord);
+                until (LineRef.Next() = 0) or (i >= SkipUntilRecord);
             i := 0;
             repeat
                 i += 1;
@@ -815,6 +815,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
     internal procedure SetPagination(newStartFromPage: Integer)
     begin
         StartFromPage := newStartFromPage;
+        SPBDBraiderSetup.GetRecordOnce();
         PageSize := SPBDBraiderSetup."Default Page Size";
     end;
 

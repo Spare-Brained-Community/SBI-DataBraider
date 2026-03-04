@@ -205,7 +205,7 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 TempSPBDBraiderResultsetCol."Write Result Record" := (RunForSpecificRecordRef.Number() <> 0) and (RunForSpecificRecordRef.Number() = LineRef.Number());
                 TempSPBDBraiderResultsetCol.Insert(true);
 
-                if (not SPBDBraiderSetup."Disable Related Id") then begin //or (not DBHeader."Disable Related Id") then begin
+                if (not SPBDBraiderSetup."Disable Related Id") and (not DBHeader."Disable Related Id") and (not DBField."Disable Related Id") then begin
                     VirtualField.Get(LineRef.Number(), FldRef.Number());
                     if VirtualField.RelationTableNo <> 0 then begin
                         RelatedTableRef.Open(VirtualField.RelationTableNo);

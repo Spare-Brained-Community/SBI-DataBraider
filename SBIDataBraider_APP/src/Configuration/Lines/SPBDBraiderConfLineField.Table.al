@@ -95,6 +95,11 @@ table 71033603 "SPB DBraider ConfLine Field"
         {
             Caption = 'Modification Re-Validate';
         }
+        field(47; "Disable Related Id"; Boolean)
+        {
+            Caption = 'Disable Related Id';
+            InitValue = false;
+        }
         field(50; "DateTime Timezone"; Text[250])
         {
             Caption = 'DateTime Timezone';

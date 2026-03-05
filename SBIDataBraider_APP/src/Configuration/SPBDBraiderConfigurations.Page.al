@@ -280,14 +280,12 @@ page 71033601 "SPB DBraider Configurations"
     trigger OnOpenPage()
     var
         SPBDraiderSetup: Record "SPB DBraider Setup";
-        LicenseConnector: Codeunit "SPB DBraider Licensing";
     begin
         if SPBDraiderSetup.Get() then
             ShowROIPanel := not SPBDraiderSetup."Hide ROI Panel"
         else
             ShowROIPanel := true;
 
-        LicenseConnector.CheckIfActive(true);
         CalculateRoi();
     end;
 

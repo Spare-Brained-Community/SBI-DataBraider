@@ -50,12 +50,6 @@ page 71033602 "SPB DBraider Configuration"
                     Editable = false;
                     ToolTip = 'Every time the API is called for this configuration, this field is updated to help diagnose any performance issues.';
                 }
-                group(DemoWarning)
-                {
-                    InstructionalText = 'Demo Install, Limited Results Returned.';
-                    ShowCaption = false;
-                    Visible = IsDemoInstall;
-                }
             }
             part(Lines; "SPB DBraider Config. Line")
             {
@@ -327,16 +321,7 @@ page 71033602 "SPB DBraider Configuration"
 
     var
         AllowRename: Boolean;
-        IsDemoInstall: Boolean;
         IsReadOnly: Boolean;
-
-    trigger OnOpenPage()
-    var
-        SPBDBLicensing: Codeunit "SPB DBraider Licensing";
-    begin
-        IsDemoInstall := SPBDBLicensing.IsDemoInstall();
-
-    end;
 
     trigger OnAfterGetRecord()
     begin

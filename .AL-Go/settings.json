@@ -13,14 +13,6 @@
     "SBIDataBraider_Test"
   ],
   "bcptTestFolders": [],
-  "appDependencyProbingPaths": [
-    {
-      "repo": "https://github.com/Spare-Brained-Community/Spare-Brained-Licensing",
-      "version": "latest",
-      "release_status": "release",
-      "projects": "*"
-    }
-  ],
   "deliverToAppSource": {
     "productId": "c7ff7a11-a0f6-490a-8afd-6a8a3e7c6425",
     "continuousDelivery": false,

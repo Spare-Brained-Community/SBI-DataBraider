@@ -247,20 +247,16 @@ codeunit 71033600 "SPB DBraider Data Engine"
         DBField: Record "SPB DBraider ConfLine Field";
         DBRelation: Record "SPB DBraider ConfLine Relation";
         SPBDBraiderErrorSystem: Codeunit "SPB DBraider Error System";
-        SPBDBLicensing: Codeunit "SPB DBraider Licensing";
         SPBDBraiderUtilities: Codeunit "SPB DBraider Utilities";
         LineRef: RecordRef;
         FldRef: FieldRef;
         ParentFldRef: FieldRef;
-        IsDemoInstall: Boolean;
         PageSizeLimitReached: Boolean;
         i: Integer;
         NextColumnNo: Integer;
         SkipUntilRecord: Integer;
         ProcessedFilterText: Text;
     begin
-        IsDemoInstall := SPBDBLicensing.IsDemoInstall();
-
         DBLine.CalcFields("Source Table Name");
         DBField.SetRange("Config. Code", DBLine."Config. Code");
         DBField.SetRange("Config. Line No.", DBLine."Line No.");
@@ -346,10 +342,6 @@ codeunit 71033600 "SPB DBraider Data Engine"
                 TempSPBDBraiderResultsetRow."Row No." := NextRowNo;
                 NextRowNo += 1;
                 NextColumnNo := 1;
-
-                // Bail out after 5 records if a Demo key
-                if IsDemoInstall and (NextRowNo > 50) then
-                    exit;
 
                 // Update the 'breadcrumb' arrays after all the filtering is done and the records are in position/ready
                 BreadcrumbRecordConfigLine[DBLine.Indentation + 1] := DBLine;

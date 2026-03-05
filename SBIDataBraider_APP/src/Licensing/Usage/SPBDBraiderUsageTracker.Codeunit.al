@@ -7,8 +7,6 @@ codeunit 71033610 "SPB DBraider Usage Tracker"
     // Log Usage of an Endpoint to Isolated Storage, as we do not want to use a table for this
     internal procedure LogUsageToIso()
     var
-    //DBraiderUsage: Record "SPB DBraider Usage";
-    //DBLicense: Codeunit "SPB DBraider Licensing";
     begin
         //TODO: For testing only, need the correct filter from Licensing
         //INFO: Usage Support not yet implemented

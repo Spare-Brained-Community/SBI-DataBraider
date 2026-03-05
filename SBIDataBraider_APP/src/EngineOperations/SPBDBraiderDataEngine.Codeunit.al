@@ -144,7 +144,6 @@ codeunit 71033600 "SPB DBraider Data Engine"
         RelatedTableFieldRef: FieldRef;
         RelatedTableSystemIdFieldRef: FieldRef;
         ThisDateTime: DateTime;
-        RelatedTablePrimaryKeyFields: List of [Integer];
     begin
         DBField.SetRange(Included, true);
         if DBField.FindSet(false) then begin
@@ -207,14 +206,9 @@ codeunit 71033600 "SPB DBraider Data Engine"
 
                 if (not SPBDBraiderSetup."Disable Related Id") and (not DBHeader."Disable Related Id") and (not DBField."Disable Related Id") then begin
                     VirtualField.Get(LineRef.Number(), FldRef.Number());
-                    if VirtualField.RelationTableNo <> 0 then begin
+                    if (VirtualField.RelationTableNo <> 0) and (VirtualField.RelationFieldNo <> 0) and (Format(FldRef.Value()) <> '') then begin
                         RelatedTableRef.Open(VirtualField.RelationTableNo);
-                        if VirtualField.RelationFieldNo <> 0 then
-                            RelatedTableFieldRef := RelatedTableRef.Field(VirtualField.RelationFieldNo)
-                        else begin
-                            RelatedTablePrimaryKeyFields := SPBDBraiderUtilities.GetPrimaryKeyFields(RelatedTableRef);
-                            RelatedTableFieldRef := RelatedTableRef.Field(RelatedTablePrimaryKeyFields.Get(RelatedTablePrimaryKeyFields.Count()));
-                        end;
+                        RelatedTableFieldRef := RelatedTableRef.Field(VirtualField.RelationFieldNo);
                         RelatedTableFieldRef.SetRange(Format(FldRef.Value()));
                         RelatedTableSystemIdFieldRef := RelatedTableRef.Field(RelatedTableRef.SystemIdNo());
                         if RelatedTableRef.FindFirst() then begin

@@ -49,6 +49,7 @@ permissionset 71033600 "SPB DBraider Manager"
         codeunit "SPB DBraider Input Validator" = X,
         codeunit "SPB DBraider JSON Templ. Maker" = X,
         codeunit "SPB DBraider JSON Utilities" = X,
+        codeunit "SPB DBraider Licensing" = X,
         codeunit "SPB DBraider Logging" = X,
         codeunit "SPB DBraider Telemetry" = X,
         codeunit "SPB DBraider Usage Tracker" = X,

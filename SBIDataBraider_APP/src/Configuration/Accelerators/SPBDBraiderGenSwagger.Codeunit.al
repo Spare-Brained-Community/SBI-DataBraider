@@ -27,8 +27,8 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         // info object
         OpenApiJson.Add('info', InfoObject());
 
-        // servers array with placeholder URI
-        ServerObj.Add('url', '{baseuri}/api/sparebrained/databraider/v2.0/companies({companyid})');
+        // servers array - use the real BC SaaS cloud URI
+        ServerObj.Add('url', GetServerUrl());
         ServersArr.Add(ServerObj);
         OpenApiJson.Add('servers', ServersArr);
 
@@ -59,16 +59,41 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         Result.Add('version', '2.0');
     end;
 
+    local procedure GetServerUrl(): Text
+    var
+        AzureADTenant: Codeunit "Azure AD Tenant";
+        EnvironmentInformation: Codeunit "Environment Information";
+        Company: Record Company;
+        CompanyId: Text;
+    begin
+        Company.Get(CompanyName());
+        // Format GUID as lowercase without braces for use in BC API URLs
+        CompanyId := LowerCase(DelChr(Format(Company.SystemId, 0, 4), '=', '{}'));
+        exit(StrSubstNo(
+            'https://api.businesscentral.dynamics.com/v2.0/%1/%2/api/sparebrained/databraider/v2.0/companies(%3)',
+            AzureADTenant.GetAadTenantId(),
+            EnvironmentInformation.GetEnvironmentName(),
+            CompanyId));
+    end;
+
+    local procedure GetTokenUrl(): Text
+    var
+        AzureADTenant: Codeunit "Azure AD Tenant";
+    begin
+        exit(StrSubstNo(
+            'https://login.microsoftonline.com/%1/oauth2/v2.0/token',
+            AzureADTenant.GetAadTenantId()));
+    end;
+
     local procedure SecuritySchemes() Result: JsonObject
     var
         ClientCredentialsObj: JsonObject;
-        FlowObj: JsonObject;
         FlowsObj: JsonObject;
         OAuth2Obj: JsonObject;
         ScopesObj: JsonObject;
     begin
         ScopesObj.Add('https://api.businesscentral.dynamics.com/.default', 'Business Central API access');
-        ClientCredentialsObj.Add('tokenUrl', 'https://login.microsoftonline.com/{tenantid}/oauth2/v2.0/token');
+        ClientCredentialsObj.Add('tokenUrl', GetTokenUrl());
         ClientCredentialsObj.Add('scopes', ScopesObj);
         FlowsObj.Add('clientCredentials', ClientCredentialsObj);
         OAuth2Obj.Add('type', 'oauth2');

@@ -153,6 +153,22 @@ page 71033601 "SPB DBraider Configurations"
                         SPBDBraiderGenPowerBI.Run(Rec);
                     end;
                 }
+                action(GenerateSwaggerAction)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Generate Swagger';
+                    Image = ExportFile;
+                    ToolTip = 'Generate a Swagger/OpenAPI 3.0 specification for the selected configurations.';
+
+                    trigger OnAction()
+                    var
+                        SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header";
+                        SPBDBraiderGenSwagger: Codeunit "SPB DBraider Gen. Swagger";
+                    begin
+                        CurrPage.SetSelectionFilter(SPBDBraiderConfigHeader);
+                        SPBDBraiderGenSwagger.Run(SPBDBraiderConfigHeader);
+                    end;
+                }
                 action(GeneratePowerAutomateAction)
                 {
                     ApplicationArea = All;
@@ -238,6 +254,9 @@ page 71033601 "SPB DBraider Configurations"
                 {
                 }
                 actionref(GeneratePowerBIQueryAction_Promoted; GeneratePowerBIQueryAction)
+                {
+                }
+                actionref(GenerateSwaggerAction_Promoted; GenerateSwaggerAction)
                 {
                 }
                 actionref(GeneratePowerAutomateAction_Promoted; GeneratePowerAutomateAction)

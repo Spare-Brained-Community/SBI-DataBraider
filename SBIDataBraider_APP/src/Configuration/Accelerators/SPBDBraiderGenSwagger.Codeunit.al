@@ -1,4 +1,4 @@
-codeunit 71033622 "SPB DBraider Gen. Swagger"
+codeunit 71033625 "SPB DBraider Gen. Swagger"
 {
     Access = Internal;
     TableNo = "SPB DBraider Config. Header";

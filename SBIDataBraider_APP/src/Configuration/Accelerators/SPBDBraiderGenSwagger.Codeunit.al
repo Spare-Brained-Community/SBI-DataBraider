@@ -111,6 +111,41 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         Result.Add(SecurityObj);
     end;
 
+    local procedure ReadResponse200(SchemaName: Text) Result: JsonObject
+    var
+        CodeSchemaObj: JsonObject;
+        ContentObj: JsonObject;
+        DescSchemaObj: JsonObject;
+        IncludedCountSchemaObj: JsonObject;
+        JsonResponseObj: JsonObject;
+        JsonResultItemsObj: JsonObject;
+        JsonResultSchemaObj: JsonObject;
+        MediaTypeObj: JsonObject;
+        ResponsePropertiesObj: JsonObject;
+        ResponseSchemaObj: JsonObject;
+        TopLevelCountSchemaObj: JsonObject;
+    begin
+        CodeSchemaObj.Add('type', 'string');
+        DescSchemaObj.Add('type', 'string');
+        JsonResultItemsObj.Add('$ref', '#/components/schemas/' + SchemaName);
+        JsonResultSchemaObj.Add('type', 'array');
+        JsonResultSchemaObj.Add('items', JsonResultItemsObj);
+        TopLevelCountSchemaObj.Add('type', 'integer');
+        IncludedCountSchemaObj.Add('type', 'integer');
+        ResponsePropertiesObj.Add('code', CodeSchemaObj);
+        ResponsePropertiesObj.Add('description', DescSchemaObj);
+        ResponsePropertiesObj.Add('jsonResult', JsonResultSchemaObj);
+        ResponsePropertiesObj.Add('topLevelRecordCount', TopLevelCountSchemaObj);
+        ResponsePropertiesObj.Add('includedRecordCount', IncludedCountSchemaObj);
+        ResponseSchemaObj.Add('type', 'object');
+        ResponseSchemaObj.Add('properties', ResponsePropertiesObj);
+        MediaTypeObj.Add('schema', ResponseSchemaObj);
+        ContentObj.Add('application/json', MediaTypeObj);
+        JsonResponseObj.Add('description', 'Successful response');
+        JsonResponseObj.Add('content', ContentObj);
+        Result.Add('200', JsonResponseObj);
+    end;
+
     local procedure StringResponse200() Result: JsonObject
     var
         ContentObj: JsonObject;
@@ -135,7 +170,7 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         // Determine the type of Endpoint we are dealing with
         case SPBDBraiderConfigHeader."Endpoint Type" of
             Enum::"SPB DBraider Endpoint Type"::"Read Only":
-                AddReadOnlyPaths(SPBDBraiderConfigHeader, PathsObj);
+                AddReadOnlyPaths(SPBDBraiderConfigHeader, PathsObj, SchemasObj);
             //INFO: Delta Read is not yet implemented
             // Enum::"SPB DBraider Endpoint Type"::"Delta Read":
             //     AddDeltaReadPaths(SPBDBraiderConfigHeader, PathsObj, SchemasObj);
@@ -150,8 +185,9 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         end;
     end;
 
-    local procedure AddReadOnlyPaths(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header"; var PathsObj: JsonObject)
+    local procedure AddReadOnlyPaths(SPBDBraiderConfigHeader: Record "SPB DBraider Config. Header"; var PathsObj: JsonObject; var SchemasObj: JsonObject)
     var
+        SPBDBraiderConfLineFields: Record "SPB DBraider ConfLine Field";
         GetOperationObj: JsonObject;
         GetPathObj: JsonObject;
         PostOperationObj: JsonObject;
@@ -163,15 +199,24 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         RequestBodySchemaPropsObj: JsonObject;
         CodePropObj: JsonObject;
         FilterJsonPropObj: JsonObject;
+        SchemaName: Text;
     begin
-        // GET /read('{code}') — summary from Config Header Description, response 200 with jsonResult string
+        SchemaName := SPBDBraiderConfigHeader."Code" + 'ReadItem';
+
+        // Build the response schema for included fields and add it to components/schemas
+        SPBDBraiderConfLineFields.SetRange("Config. Code", SPBDBraiderConfigHeader."Code");
+        SPBDBraiderConfLineFields.SetRange(Included, true);
+        SPBDBraiderConfLineFields.SetAutoCalcFields("Table Name", "Field Name");
+        SchemasObj.Add(SchemaName, BuildFieldSchema(SPBDBraiderConfLineFields));
+
+        // GET /read('{code}') — summary from Config Header Description, response 200 with schema
         GetOperationObj.Add('summary', SPBDBraiderConfigHeader.Description);
         GetOperationObj.Add('security', SecurityRequirement());
-        GetOperationObj.Add('responses', StringResponse200());
+        GetOperationObj.Add('responses', ReadResponse200(SchemaName));
         GetPathObj.Add('get', GetOperationObj);
         PathsObj.Add('/read(''' + SPBDBraiderConfigHeader."Code" + ''')', GetPathObj);
 
-        // POST /read — body: { code, filterJson }, response 200
+        // POST /read — body: { code, filterJson }, response 200 with schema
         CodePropObj.Add('type', 'string');
         FilterJsonPropObj.Add('type', 'string');
         RequestBodySchemaPropsObj.Add('code', CodePropObj);
@@ -185,7 +230,7 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         PostOperationObj.Add('summary', SPBDBraiderConfigHeader.Description + ' (Filtered)');
         PostOperationObj.Add('security', SecurityRequirement());
         PostOperationObj.Add('requestBody', RequestBodyObj);
-        PostOperationObj.Add('responses', StringResponse200());
+        PostOperationObj.Add('responses', ReadResponse200(SchemaName));
         PostPathObj.Add('post', PostOperationObj);
         PathsObj.Add('/read/' + SPBDBraiderConfigHeader."Code", PostPathObj);
     end;
@@ -213,7 +258,7 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         SPBDBraiderConfLineFields.SetRange("Config. Code", SPBDBraiderConfigHeader."Code");
         SPBDBraiderConfLineFields.SetRange("Write Enabled", true);
         SPBDBraiderConfLineFields.SetAutoCalcFields("Table Name", "Field Name");
-        SchemasObj.Add(SchemaName, BuildWriteSchema(SPBDBraiderConfLineFields));
+        SchemasObj.Add(SchemaName, BuildFieldSchema(SPBDBraiderConfLineFields));
 
         // POST /write — body schema by reference
         SchemaRefObj.Add('$ref', '#/components/schemas/' + SchemaName);
@@ -229,7 +274,7 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
         PathsObj.Add('/write/' + SPBDBraiderConfigHeader."Code", PostPathObj);
     end;
 
-    local procedure BuildWriteSchema(var SPBDBraiderConfLineFields: Record "SPB DBraider ConfLine Field") Result: JsonObject
+    local procedure BuildFieldSchema(var SPBDBraiderConfLineFields: Record "SPB DBraider ConfLine Field") Result: JsonObject
     var
         SPBDBraiderJsonUtilities: Codeunit "SPB DBraider JSON Utilities";
         PropertiesObj: JsonObject;

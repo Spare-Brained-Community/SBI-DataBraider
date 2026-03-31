@@ -81,6 +81,10 @@ page 71033621 "SPB DBraider Conf Field Adv"
                     ToolTip = 'Specifies the value of the Processing Order field. This is the order in which the fields are processed. Lower numbers are processed first. Fields sharing the same Processing Order will then be handled by Field No.';
                     Visible = WriteEndpoint;
                 }
+                field("Disable Related Id"; Rec."Disable Related Id")
+                {
+                    ToolTip = 'When enabled, the Related Id lookup for this field will be skipped, preventing filter errors for fields with values containing special characters.';
+                }
             }
             group(Validation)
             {

@@ -14,6 +14,15 @@ page 71033602 "SPB DBraider Configuration"
         area(Content)
         {
 
+            group(DemoWarning)
+            {
+                InstructionalText = 'Demo Install, Limited Results Returned.';
+                ObsoleteReason = 'Data Braider is now a free, unlicensed product. This group is no longer used.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '2.3.0.0';
+                ShowCaption = false;
+                Visible = false;
+            }
             group(General)
             {
                 AboutText = 'This area is where you define the basic settings for the API Endpoint';

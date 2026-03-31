@@ -38,23 +38,10 @@ page 71033611 "SPB DBraider Write API"
     var
         SBPDBraiderInputProcessor: Codeunit "SPB DBraider Input Processor";
     begin
-        CheckIfLicensed();
         CheckIfGloballyEnbled();
-        if Licensed then
-            JsonResult := SBPDBraiderInputProcessor.ProcessWriteData(Rec.Code, JsonInput)
-        else begin
-            JsonResult := UnlicensedErr;
-            exit(true);
-        end;
-    end;
-
-    local procedure CheckIfLicensed()
-    var
-        LicenseConnector: Codeunit "SPB DBraider Licensing";
-    begin
-        Licensed := LicenseConnector.CheckIfActive(false);
         if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
+        JsonResult := SBPDBraiderInputProcessor.ProcessWriteData(Rec.Code, JsonInput);
     end;
 
     local procedure CheckIfGloballyEnbled(): Boolean
@@ -68,9 +55,7 @@ page 71033611 "SPB DBraider Write API"
     end;
 
     var
-        Licensed: Boolean;
         TempRecOnlyErr: Label 'Page must be run with Temporary records only.';
-        UnlicensedErr: Label 'This copy of Data Braider has not been licensed or the license is not activated.';
         JsonInput: Text;
         JsonResult: Text;
 }

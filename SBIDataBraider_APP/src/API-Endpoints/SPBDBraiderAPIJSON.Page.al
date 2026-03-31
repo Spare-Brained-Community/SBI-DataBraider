@@ -64,10 +64,7 @@ page 71033609 "SPB DBraider API JSON"
     }
 
     trigger OnOpenPage()
-    var
-        LicenseConnector: Codeunit "SPB DBraider Licensing";
     begin
-        Licensed := LicenseConnector.CheckIfActive(false);
         CheckIfGloballyEnbled();
         if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
@@ -80,26 +77,21 @@ page 71033609 "SPB DBraider API JSON"
         if not Rec.IsTemporary() and GuiAllowed() then
             Error(TempRecOnlyErr);
 
-        if Licensed then begin
-            if not DataInitialized then begin
-                if Rec.GetFilter(Code) = '' then begin
-                    if Rec.Code = '' then begin
-                        if DBraiderSetup."Disable Auto-List" then
-                            Error(ListingNotEnabledErr)
-                        else
-                            GenerateList()
-                    end
-                    else begin
-                        Rec.SetRecFilter();
-                        GenerateData();
-                    end;
-                end else
+        if not DataInitialized then begin
+            if Rec.GetFilter(Code) = '' then begin
+                if Rec.Code = '' then begin
+                    if DBraiderSetup."Disable Auto-List" then
+                        Error(ListingNotEnabledErr)
+                    else
+                        GenerateList()
+                end
+                else begin
+                    Rec.SetRecFilter();
                     GenerateData();
-                DataInitialized := true;
-            end;
-        end else begin
-            JsonResult := UnlicensedErr;
-            exit(true);
+                end;
+            end else
+                GenerateData();
+            DataInitialized := true;
         end;
 
         exit(Rec.Find(Which));
@@ -205,7 +197,6 @@ page 71033609 "SPB DBraider API JSON"
         DBraiderSetup: Record "SPB DBraider Setup";
         DataInitialized: Boolean;
         InsertMode: Boolean;
-        Licensed: Boolean;
         includedRecordCount: Integer;
         pageSize: Integer;
         pageTostart: Integer;
@@ -214,7 +205,6 @@ page 71033609 "SPB DBraider API JSON"
         TestJsonObject: JsonObject;
         ListingNotEnabledErr: Label 'This Data braider configuration does not provide a listing. Please call a specific endpoint.';
         TempRecOnlyErr: Label 'Page must be run with Temporary records only.';
-        UnlicensedErr: Label 'This copy of Data Braider has not been licensed or the license is not activated.';
         FilterJson: Text;
         JsonResult: Text;
 }

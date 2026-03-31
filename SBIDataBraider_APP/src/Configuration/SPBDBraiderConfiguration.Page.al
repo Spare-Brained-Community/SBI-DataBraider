@@ -14,6 +14,15 @@ page 71033602 "SPB DBraider Configuration"
         area(Content)
         {
 
+            group(DemoWarning)
+            {
+                InstructionalText = 'Demo Install, Limited Results Returned.';
+                ObsoleteReason = 'Data Braider is now a free, unlicensed product. This group is no longer used.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '2.3.0.0';
+                ShowCaption = false;
+                Visible = false;
+            }
             group(General)
             {
                 AboutText = 'This area is where you define the basic settings for the API Endpoint';
@@ -49,12 +58,6 @@ page 71033602 "SPB DBraider Configuration"
                 {
                     Editable = false;
                     ToolTip = 'Every time the API is called for this configuration, this field is updated to help diagnose any performance issues.';
-                }
-                group(DemoWarning)
-                {
-                    InstructionalText = 'Demo Install, Limited Results Returned.';
-                    ShowCaption = false;
-                    Visible = IsDemoInstall;
                 }
             }
             part(Lines; "SPB DBraider Config. Line")
@@ -327,16 +330,7 @@ page 71033602 "SPB DBraider Configuration"
 
     var
         AllowRename: Boolean;
-        IsDemoInstall: Boolean;
         IsReadOnly: Boolean;
-
-    trigger OnOpenPage()
-    var
-        SPBDBLicensing: Codeunit "SPB DBraider Licensing";
-    begin
-        IsDemoInstall := SPBDBLicensing.IsDemoInstall();
-
-    end;
 
     trigger OnAfterGetRecord()
     begin

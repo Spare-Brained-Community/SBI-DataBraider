@@ -45,6 +45,7 @@ permissionset 71033600 "SPB DBraider Manager"
         codeunit "SPB DBraider Events" = X,
         codeunit "SPB DBraider Gen PowerBI" = X,
         codeunit "SPB DBraider Gen. Postman" = X,
+        codeunit "SPB DBraider Gen. Swagger" = X,
         codeunit "SPB DBraider Input Processor" = X,
         codeunit "SPB DBraider Input Validator" = X,
         codeunit "SPB DBraider JSON Templ. Maker" = X,

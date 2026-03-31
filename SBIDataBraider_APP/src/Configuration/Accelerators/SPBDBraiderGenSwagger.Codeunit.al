@@ -277,8 +277,10 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
     local procedure BuildFieldSchema(var SPBDBraiderConfLineFields: Record "SPB DBraider ConfLine Field") Result: JsonObject
     var
         SPBDBraiderJsonUtilities: Codeunit "SPB DBraider JSON Utilities";
-        PropertiesObj: JsonObject;
         FieldSchemaObj: JsonObject;
+        PropertiesObj: JsonObject;
+        RequiredArr: JsonArray;
+        PropertyName: Text;
     begin
         Result.Add('type', 'object');
         if SPBDBraiderConfLineFields.FindSet() then
@@ -292,12 +294,19 @@ codeunit 71033622 "SPB DBraider Gen. Swagger"
                     else
                         FieldSchemaObj.Add('type', 'string');
                 end;
-                PropertiesObj.Add(
-                    SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineFields."Table Name") + '.' +
-                    SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineFields."Field Name"),
-                    FieldSchemaObj);
+                // Use Manual Field Caption when set (it is already JSON-safe), otherwise use the field name
+                PropertyName := SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineFields."Table Name") + '.';
+                if SPBDBraiderConfLineFields."Manual Field Caption" <> '' then
+                    PropertyName += SPBDBraiderConfLineFields."Manual Field Caption"
+                else
+                    PropertyName += SPBDBraiderJsonUtilities.JsonSafeTableFieldName(SPBDBraiderConfLineFields."Field Name");
+                PropertiesObj.Add(PropertyName, FieldSchemaObj);
+                if SPBDBraiderConfLineFields.Mandatory then
+                    RequiredArr.Add(PropertyName);
             until SPBDBraiderConfLineFields.Next() < 1;
         Result.Add('properties', PropertiesObj);
+        if RequiredArr.Count() > 0 then
+            Result.Add('required', RequiredArr);
     end;
     #endregion BraiderParts
 }

@@ -124,6 +124,11 @@ xmlport 71033600 "SPB DBraider Import"
                     begin
                         SPBDBraiderConfLineField.Validate("Field No.");
                     end;
+
+                    trigger OnBeforeModifyRecord()
+                    begin
+                        SPBDBraiderConfLineField.Validate("Field No.");
+                    end;
                 }
 
                 tableelement(SPBDBraiderConfLineFlow; "SPB DBraider ConfLine Flow")

@@ -117,6 +117,7 @@ xmlport 71033601 "SPB DBraider Export"
                 {
                     LinkFields = "Config. Code" = field("Code");
                     LinkTable = SPBDBraiderConfigHeader;
+                    MinOccurs = Zero;
                     SourceTableView = sorting("Config. Code", "Config. Line No.", "FlowField Line No.") order(ascending);
 
                     fieldelement(ConfigCode; SPBDBraiderConfLineFlow."Config. Code")
@@ -146,6 +147,7 @@ xmlport 71033601 "SPB DBraider Export"
                 {
                     LinkFields = "Config. Code" = field("Code");
                     LinkTable = SPBDBraiderConfigHeader;
+                    MinOccurs = Zero;
                     SourceTableView = sorting("Config. Code", "Config. Line No.", "Relation Line No.") order(ascending);
                     fieldelement(ConfigCode; SPBDBraiderConfLineRelation."Config. Code")
                     {

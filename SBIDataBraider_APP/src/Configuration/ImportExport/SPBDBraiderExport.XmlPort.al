@@ -24,6 +24,9 @@ xmlport 71033601 "SPB DBraider Export"
                 fieldelement(EndpointType; SPBDBraiderConfigHeader."Endpoint Type")
                 {
                 }
+                fieldelement(Enabled; SPBDBraiderConfigHeader.Enabled)
+                {
+                }
                 fieldelement(RequirePK; SPBDBraiderConfigHeader."Require PK")
                 {
                 }
@@ -36,7 +39,55 @@ xmlport 71033601 "SPB DBraider Export"
                 fieldelement(DeleteAllowed; SPBDBraiderConfigHeader."Delete Allowed")
                 {
                 }
+                fieldelement(PreventReading; SPBDBraiderConfigHeader."Prevent Reading")
+                {
+                }
+                fieldelement(DisableAutoModifiedAt; SPBDBraiderConfigHeader."Disable Auto ModifiedAt")
+                {
+                }
+                fieldelement(DisableAutoSystemId; SPBDBraiderConfigHeader."Disable Auto SystemId")
+                {
+                }
+                fieldelement(HideFromLists; SPBDBraiderConfigHeader."Hide from Lists")
+                {
+                }
+                fieldelement(DisableRelatedId; SPBDBraiderConfigHeader."Disable Related Id")
+                {
+                }
+                fieldelement(EmitRawDiagnosticData; SPBDBraiderConfigHeader."Emit Raw Diagnostic Data")
+                {
+                }
                 fieldelement(OutputJSONType; SPBDBraiderConfigHeader."Output JSON Type")
+                {
+                }
+                fieldelement(LoggingEnabled; SPBDBraiderConfigHeader."Logging Enabled")
+                {
+                }
+                fieldelement(ClearLogsCount; SPBDBraiderConfigHeader."Clear Logs Count")
+                {
+                }
+                fieldelement(ClearOlderThan; SPBDBraiderConfigHeader."Clear Older Than")
+                {
+                }
+                fieldelement(PageSize; SPBDBraiderConfigHeader."Page Size")
+                {
+                }
+                fieldelement(EmitTelemetryReadBefore; SPBDBraiderConfigHeader."Emit Telemetry Read Before")
+                {
+                }
+                fieldelement(EmitTelemetryReadAfter; SPBDBraiderConfigHeader."Emit Telemetry Read After")
+                {
+                }
+                fieldelement(EmitTelemetryWriteBefore; SPBDBraiderConfigHeader."Emit Telemetry Write Before")
+                {
+                }
+                fieldelement(EmitTelemetryWriteAfter; SPBDBraiderConfigHeader."Emit Telemetry Write After")
+                {
+                }
+                fieldelement(EmitTelemetryIncludeBody; SPBDBraiderConfigHeader."Emit Telemetry Include Body")
+                {
+                }
+                fieldelement(DataArchiveVersions; SPBDBraiderConfigHeader."Data Archive Versions")
                 {
                 }
 
@@ -44,6 +95,7 @@ xmlport 71033601 "SPB DBraider Export"
                 {
                     LinkFields = "Config. Code" = field("Code");
                     LinkTable = SPBDBraiderConfigHeader;
+                    MinOccurs = Zero;
                     SourceTableView = sorting("Config. Code", "Line No.") order(ascending);
                     fieldelement(ConfigCode; SPBDBraiderConfigLine."Config. Code")
                     {
@@ -78,6 +130,7 @@ xmlport 71033601 "SPB DBraider Export"
                 {
                     LinkFields = "Config. Code" = field("Code");
                     LinkTable = SPBDBraiderConfigHeader;
+                    MinOccurs = Zero;
                     SourceTableView = sorting("Config. Code", "Config. Line No.", "Field No.") order(ascending);
                     fieldelement(ConfigCode; SPBDBraiderConfLineField."Config. Code")
                     {
@@ -106,10 +159,31 @@ xmlport 71033601 "SPB DBraider Export"
                     fieldelement(Mandatory; SPBDBraiderConfLineField.Mandatory)
                     {
                     }
+                    fieldelement(UpsertMatch; SPBDBraiderConfLineField."Upsert Match")
+                    {
+                    }
+                    fieldelement(DisableValidation; SPBDBraiderConfLineField."Disable Validation")
+                    {
+                    }
+                    fieldelement(DisableAutoSplitKey; SPBDBraiderConfLineField."Disable Auto-Split Key")
+                    {
+                    }
+                    fieldelement(ModificationReValidate; SPBDBraiderConfLineField."Modification Re-Validate")
+                    {
+                    }
+                    fieldelement(DisableRelatedId; SPBDBraiderConfLineField."Disable Related Id")
+                    {
+                    }
+                    fieldelement(DateTimeTimezone; SPBDBraiderConfLineField."DateTime Timezone")
+                    {
+                    }
                     fieldelement(TableNo; SPBDBraiderConfLineField."Table No.")
                     {
                     }
                     fieldelement(PrimaryKey; SPBDBraiderConfLineField."Primary Key")
+                    {
+                    }
+                    fieldelement(ManualFieldCaption; SPBDBraiderConfLineField."Manual Field Caption")
                     {
                     }
                 }

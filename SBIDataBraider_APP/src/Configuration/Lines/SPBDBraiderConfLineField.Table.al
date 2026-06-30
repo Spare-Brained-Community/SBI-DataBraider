@@ -262,6 +262,8 @@ table 71033603 "SPB DBraider ConfLine Field"
             FieldsRef := RecRef.Field(FieldNo);
             Rec."Field Type" := SPBDBraiderUtilities.MapFieldTypeToSPBFieldDataType(FieldsRef.Type());
             Rec."Field Class" := Format(FieldsRef.Class());
+            Rec."Fixed Field Caption" := FieldsRef.Caption();
+            Rec."Fixed Field Name" := FieldsRef.Name();
         end;
     end;
 

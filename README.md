@@ -38,6 +38,14 @@ Published by **Stefan Maron Consulting**, Data Braider transforms how you share 
 - **Variables Support**: Dynamic configuration with variables
 - **API Accelerators**: Pre-built configurations for common scenarios
 
+### 🛠️ Config & Schema API (v2.4+)
+- **Remote endpoint authoring**: `endpointConfigs`, `endpointLines`, `endpointFields`, and `endpointRelations` API entities let trusted integrations create and modify endpoint configurations over standard BC API auth (field rows auto-populate when a line is created — toggle them via PATCH or the `includeFields`/`excludeFields` bound actions)
+- **Live schema introspection**: `endpointSchemas` returns per-endpoint JSON Schemas (`readSchemaJson`/`writeSchemaJson`, with `x-spb-*` field metadata) built by the same engine as the Swagger accelerator
+- **Authoring lookups**: `availableTables` / `availableFields` expose valid table and field numbers/names so clients never guess IDs
+- **Scoped permissions**: assign the `SPB DBraider ConfAPI` permission set to integration principals — ⚠️ holders can configure endpoints exposing any table their own table permissions reach, so grant it to trusted principals only
+- **Not gated by the global enable switch**: configuration works before Data Braider is enabled globally; the runtime `read`/`write` APIs keep that gate
+- Clients feature-detect by checking `/api/sparebrained/databraider/v2.0/$metadata` for the `endpointConfigs` entity set. First-class client support ships in [navapi](https://github.com/JeremyVyska/navapi) (`navapi braider …`)
+
 ## Installation
 
 ### Prerequisites

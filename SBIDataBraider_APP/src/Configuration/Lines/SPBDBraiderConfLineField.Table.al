@@ -82,9 +82,12 @@ table 71033603 "SPB DBraider ConfLine Field"
                 ConfirmManagement: Codeunit "Confirm Management";
                 DisableAllCautionMsg: Label 'Using the ''Disable All'' option will disable all validation on this field. This can introduce dangerously malformed data and can result in significant expensive problems. Any damages from use of this function are your responsibility.\ \Are you CERTAIN you want to do this?';
             begin
-                if "Disable Validation" = "Disable Validation"::DisableAll then
-                    if not ConfirmManagement.GetResponseOrDefault(DisableAllCautionMsg, false) then
-                        "Disable Validation" := "Disable Validation"::" "
+                // Only prompt in GUI sessions: web-service (API) sessions would get the default 'false'
+                // and silently reset the value, making DisableAll impossible to set remotely.
+                if GuiAllowed() then
+                    if "Disable Validation" = "Disable Validation"::DisableAll then
+                        if not ConfirmManagement.GetResponseOrDefault(DisableAllCautionMsg, false) then
+                            "Disable Validation" := "Disable Validation"::" "
             end;
         }
         field(45; "Disable Auto-Split Key"; Boolean)
